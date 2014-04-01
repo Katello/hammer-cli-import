@@ -1,0 +1,10 @@
+To enable modules make sure that
+
+    # cat ~/.hammer/cli_config.yml
+    :modules:
+      - hammer_cli_import
+
+And running with
+
+    # env GEM_PATH=.:$GEM_PATH hammer zzzexample
+
