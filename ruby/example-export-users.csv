@@ -1,0 +1,8 @@
+organization_id,organization,user_id,username,last_name,first_name,position,email,role,creation_time,last_login_time,active
+1,Red Hat QA Automation,1,admin,Admin,Admin,,root@localhost,Organization Administrator;Satellite Administrator,2014-03-24 16:53:06,2014-03-25 12:23:16,enabled
+1,Red Hat QA Automation,4,mainorg1user,Testerovic,kwak,,root@localhost,,2014-03-25 12:47:49,,enabled
+2,"Test, test, or test",2,tester,Testerovic,Tester,,root@localhost,Organization Administrator,2014-03-25 12:31:05,,enabled
+3,"""Čerešňa"" a 'Třešeň'",3,admin2,Testerovic,Tester,,root@localhost,Organization Administrator,2014-03-25 12:36:05,2014-03-25 12:48:49,enabled
+3,"""Čerešňa"" a 'Třešeň'",5,kralik,pokusny,kralik,,root@localhost,,2014-03-25 12:49:26,,enabled
+3,"""Čerešňa"" a 'Třešeň'",6,adminaa,"Bin
+Superman",Batman,,root@localhost,,2014-03-25 13:09:07,,enabled
