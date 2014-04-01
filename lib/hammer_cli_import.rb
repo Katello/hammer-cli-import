@@ -1,0 +1,11 @@
+require 'hammer_cli'
+require 'hammer_cli/exit_codes'
+
+module HammerCLIImport
+
+  # def self.exception_handler_class
+  #   HammerCLIImport::ExceptionHandler
+  # end
+
+  require 'hammer_cli_import/example'
+end
