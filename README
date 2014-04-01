@@ -6,5 +6,5 @@ To enable modules make sure that
 
 And running with
 
-    # env GEM_PATH=.:$GEM_PATH hammer zzzexample
+    # env RUBYOPT=-Ilib hammer zzzexample
 
