@@ -1,8 +1,10 @@
-To enable modules make sure that
+To enable modules do following:
 
-    # cat ~/.hammer/cli_config.yml
+    mkdir -p ~/.hammer
+    cat > ~/.hammer/cli_config.yml << EOF
     :modules:
       - hammer_cli_import
+EOF
 
 And running with
 
