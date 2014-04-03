@@ -1,5 +1,5 @@
 require 'hammer_cli'
-require 'hammer_cli/exit_codes'
+# require 'hammer_cli/exit_codes'
 
 module HammerCLIImport
 
@@ -7,5 +7,8 @@ module HammerCLIImport
   #   HammerCLIImport::ExceptionHandler
   # end
 
+  require 'hammer_cli_import/base'
   require 'hammer_cli_import/example'
+
+  require 'hammer_cli_import/orgsusers'
 end
