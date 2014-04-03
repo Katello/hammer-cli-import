@@ -17,7 +17,7 @@ class Users
   end
 
   def genpw(username)
-    username + '_' + (0...8).map { ('a'..'z').to_a[rand(26)] }.join 
+    username + '_' + (0...8).map { ('a'..'z').to_a[rand(26)] }.join
   end
 
   def create_user!(user)
@@ -42,7 +42,7 @@ class Users
       :password => genpw(username)
     }
   end
- 
+
   def create_org!(org)
     # print "Creating org ", org_name, "\n"
     # label = org_name.downcase
@@ -51,7 +51,7 @@ class Users
       " --name #{shell_escape_utf8(org[:name])}" \
       "\n"
       # " --label #{Shellwords.escape(org[:label])}" \
-      
+
     @imported_orgs[org[:id]] = org
   end
 
@@ -68,11 +68,11 @@ class Users
       }
     end
   end
-  
+
   def import(filename)
     reader = CSV.open(filename, "r")
     header = reader.shift
-    
+
     reader.each do |row|
       data = Hash[header.zip row]
       org = mk_org_hash data
