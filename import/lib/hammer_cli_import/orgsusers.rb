@@ -5,20 +5,17 @@ require 'csv'
 module HammerCLIImport
   class UsersOrgsCommand < BaseCommand
 
-    option '--file', 'FILE', _("CSV export") do |filename|
-      if @files
-        @files << filename
-      else
-        @files = [filename]
-      end
-    end
+    csv_columns 'organization_id', 'organization', 'user_id', 'username',\
+      'last_name', 'first_name', 'email', 'role', 'active'
+
+    persistent_maps :orgs, :users
 
     def genpw(username)
       username + '_' + (0...8).map { ('a'..'z').to_a[rand(26)] }.join
     end
 
     def create_user!(user)
-      print "Creating user #{user[:login]}\n"
+      puts "Creating user #{user[:login]}"
       new = @api.resource(:users).call(:create, {:user => user})
       # @usersmap[user....] = new["user"]["id"]
     end
@@ -33,17 +30,17 @@ module HammerCLIImport
         :auth_source_id => 1,
         :password => genpw(username),
 
-        :organization_ids => [@orgsmap[data["organization_id"].to_i]],
+        :organization_ids => [@pm_orgs[data["organization_id"].to_i]],
         :location_ids => [],
         :role_ids => [],
       }
     end
 
     def create_org!(org)
-      print "Creating org #{org[:name]}\n"
+      puts "Creating org #{org[:name]}"
       new = @api.resource(:organizations).call(:create, org)
       @imported_orgs[org[:id]] = org
-      @orgsmap[org[:id]] = new["organization"]["id"]
+      @pm_orgs[org[:id]] = new["organization"]["id"]
       nil
     end
 
@@ -60,43 +57,17 @@ module HammerCLIImport
       end
     end
 
-    def import(filename)
-      reader = CSV.open(filename, 'r')
-      header = reader.shift
-
-      reader.each do |row|
-        data = Hash[header.zip row]
-        org = mk_org_hash data
-        create_org! org unless @imported_orgs.include? org[:id]
-        user = mk_user_hash data
-        create_user! user
-      end
-    end
-
-    def load_map(map_sym)
-      {}
-    end
-
-    def save_map(map_sym, map)
-      nil
-    end
-
-    def run_command
+    def import_init()
       @imported_orgs = {}
+    end
 
-      @orgsmap = load_map(:organizations)
-      @usersmap = load_map(:users)
-
-      @files.each do |filename|
-        import(filename)
-      end
-
-      save_map(:users, @usersmap)
-      save_map(:organizations, @orgsmap)
-
-      HammerCLI::EX_OK
+    def import_single_row(data)
+      org = mk_org_hash data
+      create_org! org unless @imported_orgs.include? org[:id]
+      user = mk_user_hash data
+      create_user! user
     end
   end
 end
 
-HammerCLI::MainCommand.subcommand("zzz:orgsusers", "Import orgs and users", HammerCLIImport::UsersOrgsCommand)
+HammerCLI::MainCommand.subcommand("zsg:orgsusers", "Import orgs and users", HammerCLIImport::UsersOrgsCommand)

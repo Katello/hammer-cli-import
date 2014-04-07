@@ -8,7 +8,7 @@ module HammerCLIImport
   # end
 
   require 'hammer_cli_import/base'
-  require 'hammer_cli_import/example'
+  # require 'hammer_cli_import/example'
   require 'hammer_cli_import/orgsusers'
   require 'hammer_cli_import/systemgroup'
 
