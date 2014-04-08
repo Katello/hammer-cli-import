@@ -17,6 +17,6 @@ module HammerCLIImport
       HammerCLI::EX_OK
     end
   end
-  HammerCLI::MainCommand.subcommand("zzzexample", "Example command", HammerCLIImport::ExampleCommand)
+  HammerCLI::MainCommand.subcommand("zzz:example", "Example command", HammerCLIImport::ExampleCommand)
 end
 
