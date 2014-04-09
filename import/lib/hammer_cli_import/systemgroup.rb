@@ -6,6 +6,9 @@ module HammerCLIImport
   class Sat5Command
     class SystemGroupImportCommand < HammerCLI::Apipie::Command
 
+      command_name "sg_import"
+      desc "Import system groups command"
+
       @@translate = {
         "name" => "name",
       }
@@ -69,6 +72,9 @@ module HammerCLIImport
 
     class SystemGroupDeleteCommand < HammerCLI::Apipie::Command
 
+      command_name "sg_remove"
+      desc "Delete system groups command"
+
       option %w(--id), 'ID', 'system group id'
 
       def execute
@@ -83,10 +89,6 @@ module HammerCLIImport
         HammerCLI::EX_OK
       end
     end
+    autoload_subcommands
   end
-
-  HammerCLIImport::Sat5Command.subcommand("sg_import", "Import system groups command",
-                                          HammerCLIImport::Sat5Command::SystemGroupImportCommand)
-  HammerCLIImport::Sat5Command.subcommand("sg_remove", "Delete system groups command",
-                                          HammerCLIImport::Sat5Command::SystemGroupDeleteCommand)
 end
