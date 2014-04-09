@@ -6,6 +6,9 @@ module HammerCLIImport
   class Sat5Command
     class UsersOrgsCommand < BaseCommand
 
+      command_name "orgsusers"
+      desc "Import orgs and users"
+
       csv_columns 'organization_id', 'organization', 'user_id', 'username',\
         'last_name', 'first_name', 'email', 'role', 'active'
 
@@ -69,9 +72,7 @@ module HammerCLIImport
         create_user! user
       end
     end
+
   end
-  HammerCLIImport::Sat5Command.subcommand("orgsusers",
-                                          "Import orgs and users",
-                                          HammerCLIImport::Sat5Command::UsersOrgsCommand)
 end
 
