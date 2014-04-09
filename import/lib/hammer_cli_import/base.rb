@@ -3,6 +3,7 @@ require 'apipie-bindings'
 require 'hammer_cli'
 
 module HammerCLIImport
+
   class PersistentMapError < RuntimeError
   end
 
@@ -16,7 +17,7 @@ module HammerCLIImport
     ############
     ## -> Stuff related to csv columns
     def self.columns
-      @columns
+      @columns = []
     end
 
     def self.csv_columns(*list)
@@ -36,8 +37,11 @@ module HammerCLIImport
     end
 
     def load_maps()
+      @pm = {}
+      @cache = {}
       self.class.maps.each do |map_sym|
         hash = {}
+        @cache[map_sym] = {}
         Dir["data/#{map_sym}-*.csv"].sort.each do |filename|
           reader = CSV.open(filename, 'r')
           header = reader.shift
@@ -46,16 +50,15 @@ module HammerCLIImport
             hash[row[0].to_i] = row[1].to_i
           end
         end
-        instance_variable_set "@pm_#{map_sym}", RememberHash.new(hash)
+        @pm[map_sym] = RememberHash.new(hash)
       end
     end
 
     def save_maps()
       self.class.maps.each do |map_sym|
-        hash = instance_variable_get "@pm_#{map_sym}"
         CSV.open("data/#{map_sym}-#{Time.now.utc.iso8601}.csv", "wb", {:force_quotes => true}) do |csv|
           csv << ['sat5', 'sat6']
-          hash.each do |key,value|
+          @pm[map_sym].each do |key,value|
             csv << [key, value]
           end
         end
@@ -70,11 +73,34 @@ module HammerCLIImport
     def import_single_row(row)
     end
 
+    def lookup_entity(entity_type, entity_id)
+      puts "lookup: #{entity_type}: #{entity_id}"
+      return @api.resource(entity_type).call(:show, {"id" => entity_id})
+    end
+
+    def create_entity(entity_type, entity_hash, original_id)
+      type = entity_type.to_s.sub(/s$/, "")
+      if @pm[entity_type][original_id.to_i]
+        puts type + " " + original_id + " already imported."
+        return @cache[entity_type][@pm[entity_type][original_id.to_i]]
+      else
+        puts "Creating new " + type + ": " + entity_hash.values_at(:name, :label, :login).compact[0]
+        entity_hash = {@wrap_out[entity_type] => entity_hash} if @wrap_out[entity_type]
+        entity = @api.resource(entity_type).call(:create, entity_hash)
+        p "created entity:", entity
+        entity = entity[@wrap_in[entity_type]] if @wrap_in[entity_type]
+        @pm[entity_type][original_id.to_i] = entity["id"]
+        @cache[entity_type][entity["id"]] = entity
+        p "@pm[entity_type]:", @pm[entity_type]
+        return entity
+      end
+    end
+
     def import(filename)
       reader = CSV.open(filename, 'r')
       header = reader.shift
       self.class.columns.each do |col|
-        raise CSVHeaderError, "columnt #{col} expected in #{filename}" unless header.include? col
+        raise CSVHeaderError, "column #{col} expected in #{filename}" unless header.include? col
       end
 
       reader.each do |row|
@@ -83,6 +109,9 @@ module HammerCLIImport
     end
 
     def execute
+      @wrap_out = {:users => :user}
+      @wrap_in = {:organizations => "organization"}
+
       @api = ApipieBindings::API.new({
         :uri => HammerCLI::Settings.get(:foreman, :host),
         :username => HammerCLI::Settings.get(:foreman, :username),
