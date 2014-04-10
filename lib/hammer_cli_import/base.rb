@@ -13,7 +13,6 @@ module HammerCLIImport
 
     option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true
 
-
     ############
     ## -> Stuff related to csv columns
     def self.columns
@@ -47,15 +46,19 @@ module HammerCLIImport
             hash[row[0].to_i] = row[1].to_i
           end
         end
-        instance_variable_set "@pm_#{map_sym}", hash
+        instance_variable_set "@pm_#{map_sym}", RememberHash.new(hash)
       end
     end
 
     def save_maps()
       self.class.maps.each do |map_sym|
         hash = instance_variable_get "@pm_#{map_sym}"
-        puts "In case it was implemented I would be saving #{map_sym}"
-        p hash
+        CSV.open("data/#{map_sym}-#{Time.now.utc.iso8601}.csv", "wb", {:force_quotes => true}) do |csv|
+          csv << ['sat5', 'sat6']
+          hash.each do |key,value|
+            csv << [key, value]
+          end
+        end
       end
     end
     ## <-
