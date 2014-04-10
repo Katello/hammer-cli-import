@@ -7,6 +7,8 @@ module HammerCLIImport
   #   HammerCLIImport::ExceptionHandler
   # end
 
+  require 'hammer_cli_import/fixtime'
+
   require 'hammer_cli_import/sat5'
   require 'hammer_cli_import/base'
   require 'hammer_cli_import/orgsusers'
