@@ -7,6 +7,7 @@ module HammerCLIImport
   #   HammerCLIImport::ExceptionHandler
   # end
 
+  require 'hammer_cli_import/rememberhash'
   require 'hammer_cli_import/fixtime'
 
   require 'hammer_cli_import/sat5'
