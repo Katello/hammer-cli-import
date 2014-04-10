@@ -11,7 +11,8 @@ module HammerCLIImport
 
   class BaseCommand < HammerCLI::Apipie::Command
 
-    option ['--csv-file'], 'FILE_NAME', 'CSV file'
+    option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true
+
 
     ############
     ## -> Stuff related to csv columns
@@ -88,7 +89,7 @@ module HammerCLIImport
 
       load_maps()
       import_init
-      import (option_csv_file || '/dev/stdin')
+      import (option_csv_file)
       save_maps()
       HammerCLI::EX_OK
     end
