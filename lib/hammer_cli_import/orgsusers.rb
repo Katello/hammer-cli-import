@@ -72,7 +72,5 @@ module HammerCLIImport
         create_user! user
       end
     end
-
   end
 end
-
