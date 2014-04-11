@@ -41,7 +41,7 @@ module HammerCLIImport
       @maps = list
     end
 
-    def load_maps()
+    def load_maps
       @pm = {}
       @cache = {}
       self.class.maps.each do |map_sym|
@@ -59,7 +59,7 @@ module HammerCLIImport
       end
     end
 
-    def save_maps()
+    def save_maps
       self.class.maps.each do |map_sym|
         CSV.open((File.join data_dir, "#{map_sym}-#{Time.now.utc.iso8601}.csv"), "wb", {:force_quotes => true}) do |csv|
           csv << ['sat5', 'sat6']
@@ -72,7 +72,7 @@ module HammerCLIImport
     ## <-
     ############
 
-    def import_init()
+    def import_init
     end
 
     def import_single_row(row)
@@ -124,10 +124,10 @@ module HammerCLIImport
         :api_version => 2
       })
 
-      load_maps()
+      load_maps
       import_init
-      import (option_csv_file)
-      save_maps()
+      import option_csv_file
+      save_maps
       HammerCLI::EX_OK
     end
   end
