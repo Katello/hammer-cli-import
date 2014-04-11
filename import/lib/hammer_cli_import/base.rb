@@ -13,6 +13,8 @@ module HammerCLIImport
   class BaseCommand < HammerCLI::Apipie::Command
 
     option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true
+    option ['--delete'], :flag, 'Delete entities from CSV file'
+    option ['--verify'], :flag, 'Verify entities from CSV file'
 
     ############
     ## -> Stuff related to csv columns
