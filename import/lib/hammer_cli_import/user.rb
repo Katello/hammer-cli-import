@@ -27,7 +27,7 @@ module HammerCLIImport
           :mail => data['email'],
           :auth_source_id => 1,
           :password => genpw(username),
-          :organization_ids => [@pm[:organizations][data["organization_id"].to_i]],
+          :organization_ids => [get_translated_id(:organizations, data["organization_id"])],
           :location_ids => [],
           :role_ids => [],
         }
