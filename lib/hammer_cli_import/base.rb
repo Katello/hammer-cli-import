@@ -36,7 +36,7 @@ module HammerCLIImport
     ############
     ## -> Stuff related to csv columns
     def self.columns
-      @columns = []
+      @columns
     end
 
     def self.csv_columns(*list)
