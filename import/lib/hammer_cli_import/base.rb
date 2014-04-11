@@ -82,7 +82,10 @@ module HammerCLIImport
 
     def lookup_entity(entity_type, entity_id)
       puts "lookup: #{entity_type}: #{entity_id}"
-      return @api.resource(entity_type).call(:show, {"id" => entity_id})
+      unless (@cache[entity_type][entity_id])
+        @cache[entity_type][entity_id] = @api.resource(entity_type).call(:show, {"id" => entity_id})
+      end
+      return @cache[entity_type][entity_id]
     end
 
     def create_entity(entity_type, entity_hash, original_id)
