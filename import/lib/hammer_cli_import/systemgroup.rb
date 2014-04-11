@@ -3,7 +3,7 @@ require 'hammer_cli'
 require 'apipie-bindings'
 
 module HammerCLIImport
-  class Sat5Command
+  class ImportCommand
     class SystemGroupImportCommand < BaseCommand
 
       command_name "system-group"

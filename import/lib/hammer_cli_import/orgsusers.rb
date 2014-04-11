@@ -3,7 +3,7 @@ require 'hammer_cli'
 require 'csv'
 
 module HammerCLIImport
-  class Sat5Command
+  class ImportCommand
     class UsersOrgsCommand < BaseCommand
 
       command_name "orgsusers"
