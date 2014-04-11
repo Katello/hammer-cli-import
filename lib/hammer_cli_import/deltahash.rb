@@ -5,7 +5,7 @@ class DeltaHash
   attr_reader :new
 
   def self.[](hash)
-    self.new(hash)
+    new(hash)
   end
 
   def initialize(hash)
