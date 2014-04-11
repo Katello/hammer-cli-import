@@ -18,7 +18,7 @@ class DeltaHash
   end
 
   def []=(key, val)
-    fail DeltaHashError, "Key exists" if self[key]
+    fail DeltaHashError, 'Key exists' if self[key]
     @new[key] = val
   end
 
