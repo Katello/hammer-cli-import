@@ -51,8 +51,8 @@ module HammerCLIImport
       'data'
     end
 
-    def self.maps
-      @maps
+    class << self
+      attr_reader :maps
     end
 
     def self.persistent_maps(*list)
