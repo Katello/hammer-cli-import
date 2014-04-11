@@ -1,0 +1,172 @@
+#!/usr/bin/python
+#
+# Utility for exporting Sat5 entity-data
+#
+# Copyright (c) 2014 Red Hat, Inc.
+#
+#
+# This software is licensed to you under the GNU General Public License,
+# version 2 (GPLv2). There is NO WARRANTY for this software, express or
+# implied, including the implied warranties of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. You should have received a copy of GPLv2
+# along with this software; if not, see
+# http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+#
+# Red Hat trademarks are not licensed under GPLv2. No permission is
+# granted to use or replicate Red Hat trademarks that are incorporated
+# in this software or its documentation.
+#
+
+"""
+stargate-export - a tool for preparing to move data from an existing Satellite-5 instance
+to a Satellite-6 instance
+"""
+
+import logging, os, re, sys, string
+
+from string import lower, split
+from optparse import OptionParser
+from os import path, access, R_OK
+from os.path import expanduser
+from subprocess import Popen, call
+
+home = expanduser("~")
+DEFAULT_EXPORT_DIR = home + '/spacewalk-export-dir'
+DEFAULT_EXPORT_PACKAGE = 'stargate.tar.gz'
+REPORTS_DIR = 'exports'
+# Grossly unsafe - redo this!
+DUMP_CMD_STR = '/usr/bin/sudo spacewalk-report {0} > {1}/' + REPORTS_DIR + '/{0}.csv'
+
+SUPPORTED_ENTITIES = {
+        'users' : 'Users and Organizations',
+        'systemgroups' : 'System-groups for all organizations',
+        'repositories' : 'Defined repositories',
+        'customchannels' : 'Custom channels for all organizations'
+        }
+
+# stargate-export --export-dir <dest> --entities e1[,e1...] --help
+#parser.add_option("-f", "--file", dest="filename",
+#  help="write report to FILE", metavar="FILE")
+#  parser.add_option("-q", "--quiet",
+#  action="store_false", dest="verbose", default=True,
+#  help="don't print status messages to stdout")
+
+def setupOptions():
+    usage = 'usage: %prog [options]'
+    parser = OptionParser(usage=usage)
+    parser.add_option('-x', '--export-dir', action='store', dest='export_dir',
+            metavar='DIR', default=DEFAULT_EXPORT_DIR,
+            help='Specify directory to store exports in (will be created if not found)')
+    parser.add_option('-p', '--export-package', action='store', dest='export_package',
+            metavar='FILE', default=DEFAULT_EXPORT_PACKAGE,
+            help='Specify filename to use for final packaged-exports tarfile')
+    parser.add_option('-e', '--entities', action='store', dest='entities',
+            metavar='entity[,entity...]', default='all',
+            help='Specify comma-separated list of entities to export (default is all)')
+    parser.add_option('-l', '--list-entities', action='store_true', dest='list',
+            default=False, help='List supported entities')
+    parser.add_option('-d', '--debug', action='store_true', default=False, dest='debug',
+            help='Log debugging output')
+    parser.add_option('-q', '--quiet', action='store_true', default=False, dest='quiet',
+            help='Log only errors')
+    return parser
+
+def setupLogging(opt):
+    # determine the logging level
+    if opt.debug:
+        level = logging.DEBUG
+    elif opt.quiet:
+        level = logging.ERROR
+    else:
+        level = logging.INFO
+    # configure logging
+    logging.basicConfig(level=level, format='%(levelname)s: %(message)s')
+    return
+
+def listSupported():
+    logging.info('Currently-supported entities include:')
+    for s in SUPPORTED_ENTITIES.keys():
+        logging.info('{0:20} : {1}'.format(s, SUPPORTED_ENTITIES[s]))
+
+    return
+
+def setupEntities(options):
+    entities = {}
+    doAll = options.entities == 'all'
+
+    for s in SUPPORTED_ENTITIES.keys():
+        entities[s] =  doAll
+
+    if doAll:
+        return entities
+
+    for e in string.split(options.entities,','):
+        if e in entities.keys():
+            entities[e] = True
+        else:
+            logging.error('ERROR: unsupported entity ' + e + ', skipping...')
+
+    return entities;
+
+def setupOutputDir(options):
+    if not os.path.isdir(options.export_dir):
+        os.mkdir(options.export_dir, 0700)
+    if not os.path.isdir(options.export_dir + '/' + REPORTS_DIR):
+        os.mkdir(options.export_dir + '/' + REPORTS_DIR, 0700)
+
+def _issueReport(options, reportname):
+    reps_dir_str = '{1}/' + REPORTS_DIR + '/{0}.csv'
+    call(['/usr/bin/sudo', '/usr/bin/spacewalk-report', reportname] ,
+        stdout = open(reps_dir_str.format(reportname, options.export_dir), 'w'))
+
+def usersDump(options):
+    logging.info('Processing users...')
+    _issueReport(options, 'users')
+    return
+
+def systemgroupsDump(options):
+    logging.info('Processing systemgroups...')
+    _issueReport(options, 'system-groups')
+    return
+
+def repositoriesDump(options):
+    logging.info('Processing repositories...')
+    _issueReport(options, 'repositories')
+    return
+
+def customchannelsDump(options):
+    logging.info('Processing customchannels...')
+    _issueReport(options, 'custom-channels')
+    return
+
+def prepareExport(options):
+    call(['/usr/bin/sudo', '/usr/bin/tar', '-c', '-v', '-z',
+        '-C', options.export_dir,
+        '-f', '{0}/{1}'.format(options.export_dir, options.export_package),
+        REPORTS_DIR])
+    logging.info('Export-file created at {0}/{1}'.format(options.export_dir,
+        options.export_package))
+
+if __name__ == '__main__':
+    parser = setupOptions()
+    (options, args) = parser.parse_args()
+    setupLogging(options)
+    logging.debug('OPTIONS = %s' % options)
+
+    if (options.list):
+        listSupported()
+        sys.exit(0)
+
+    entities = setupEntities(options)
+    setupOutputDir(options)
+
+    for entity in entities.keys():
+        if (entities[entity]):
+            logging.debug('DUMPING ' + entity)
+            globals()[entity.lower() + 'Dump'](options)
+        else:
+            logging.debug('SKIPPING ' + entity)
+
+    prepareExport(options)
+
+# vim:ts=4:expandtab:
