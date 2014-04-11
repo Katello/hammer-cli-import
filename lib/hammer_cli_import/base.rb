@@ -108,8 +108,8 @@ module HammerCLIImport
     end
 
     def get_translated_id(entity_type, entity_id)
-      if @pm[entity_type] and @pm[entity_type][entity_id]
-        return @pm[entity_type][entity_id]
+      if @pm[entity_type] and @pm[entity_type][entity_id.to_i]
+        return @pm[entity_type][entity_id.to_i]
       end
       raise MissingObjectError, "Need to import " + to_singular(entity_type) + " with id " + entity_id
     end
