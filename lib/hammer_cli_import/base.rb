@@ -80,7 +80,7 @@ module HammerCLIImport
         next if @pm[map_sym].new.empty?
         CSV.open((File.join data_dir, "#{map_sym}-#{Time.now.utc.iso8601}.csv"), "wb", {:force_quotes => true}) do |csv|
           csv << ['sat5', 'sat6']
-          @pm[map_sym].new.each do |key,value|
+          @pm[map_sym].new.each do |key, value|
             csv << [key, value]
           end
         end
