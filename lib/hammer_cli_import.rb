@@ -12,7 +12,8 @@ module HammerCLIImport
 
   require 'hammer_cli_import/base'
   require 'hammer_cli_import/import'
-  require 'hammer_cli_import/orgsusers'
+  require 'hammer_cli_import/organization'
   require 'hammer_cli_import/systemgroup'
+  require 'hammer_cli_import/user'
 
 end
