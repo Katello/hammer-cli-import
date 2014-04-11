@@ -41,7 +41,7 @@ module HammerCLIImport
         }
       end
 
-      def import_init()
+      def import_init
         @imported_orgs = {}
       end
 
