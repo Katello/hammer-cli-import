@@ -10,6 +10,9 @@ module HammerCLIImport
   class CSVHeaderError < RuntimeError
   end
 
+  class MissingObjectError < RuntimeError
+  end
+
   class BaseCommand < HammerCLI::Apipie::Command
 
     option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true
@@ -88,8 +91,19 @@ module HammerCLIImport
       return @cache[entity_type][entity_id]
     end
 
+    def to_singular(plural)
+      return plural.to_s.sub(/s$/, "")
+    end
+
+    def get_translated_id(entity_type, entity_id)
+      if @pm[entity_type] and @pm[entity_type][entity_id]
+        return @pm[entity_type][entity_id]
+      end
+      raise MissingObjectError, "Need to import " + to_singular(entity_type) + " with id " + entity_id
+    end
+
     def create_entity(entity_type, entity_hash, original_id)
-      type = entity_type.to_s.sub(/s$/, "")
+      type = to_singular(entity_type)
       if @pm[entity_type][original_id.to_i]
         puts type + " " + original_id + " already imported."
         return @cache[entity_type][@pm[entity_type][original_id.to_i]]
