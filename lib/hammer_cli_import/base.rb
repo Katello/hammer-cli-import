@@ -89,9 +89,6 @@ module HammerCLIImport
     ## <-
     ############
 
-    def import_init
-    end
-
     def import_single_row(row)
     end
 
@@ -153,7 +150,6 @@ module HammerCLIImport
       })
 
       load_maps
-      import_init
       import option_csv_file
       save_maps
       HammerCLI::EX_OK

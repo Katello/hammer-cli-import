@@ -41,10 +41,6 @@ module HammerCLIImport
         }
       end
 
-      def import_init
-        @imported_orgs = {}
-      end
-
       def import_single_row(data)
         org = mk_org_hash data
         create_entity(:organizations, org, data["organization_id"])
