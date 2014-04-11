@@ -30,7 +30,6 @@ module HammerCLIImport
 
     ############
     ## -> Stuff related to persistent maps (of ID-s?)
-    private
     def data_dir
       'data'
     end
