@@ -93,7 +93,6 @@ module HammerCLIImport
     end
 
     def lookup_entity(entity_type, entity_id)
-      puts "lookup: #{entity_type}: #{entity_id}"
       unless (@cache[entity_type][entity_id])
         @cache[entity_type][entity_id] = @api.resource(entity_type).call(:show, {"id" => entity_id})
       end
