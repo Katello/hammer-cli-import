@@ -7,7 +7,7 @@ module HammerCLIImport
     class SystemGroupImportCommand < BaseCommand
 
       command_name "system-group"
-      desc "Import system groups"
+      desc "Import system groups."
 
       csv_columns 'group_id', 'name', 'org_id'
 
@@ -25,6 +25,5 @@ module HammerCLIImport
         create_entity(:system_groups, sg, data["group_id"])
       end
     end
-    autoload_subcommands
   end
 end

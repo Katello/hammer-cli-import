@@ -4,12 +4,12 @@ require 'csv'
 
 module HammerCLIImport
   class ImportCommand
-    class UsersOrgsCommand < BaseCommand
+    class UserImportCommand < BaseCommand
 
-      command_name "orgsusers"
-      desc "Import orgs and users"
+      command_name "user"
+      desc "Import users."
 
-      csv_columns 'organization_id', 'organization', 'user_id', 'username',\
+      csv_columns 'organization_id', 'user_id', 'username',\
         'last_name', 'first_name', 'email', 'role', 'active'
 
       persistent_maps :organizations, :users
@@ -33,20 +33,11 @@ module HammerCLIImport
         }
       end
 
-      def mk_org_hash(data)
-        {
-          :id => data["organization_id"].to_i,
-          :name => data["organization"],
-          :description => "Imported '#{data["organization"]}' organization from Red Hat Satellite 5"
-        }
-      end
-
       def import_single_row(data)
-        org = mk_org_hash data
-        create_entity(:organizations, org, data["organization_id"])
         user = mk_user_hash data
         create_entity(:users, user, data["user_id"])
       end
     end
+    autoload_subcommands
   end
 end
