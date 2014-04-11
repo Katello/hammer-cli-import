@@ -1,3 +1,6 @@
+class DeltaHashError < RuntimeError
+end
+
 class DeltaHash
   def self.[](hash)
     self.new(hash)
@@ -13,9 +16,8 @@ class DeltaHash
   end
 
   def []=(key, val)
-    unless self[key] == val
-      @new[key] = val
-    end
+    fail DeltaHashError, "Key exists" if self[key]
+    @new[key] = val
   end
 
   def to_h
