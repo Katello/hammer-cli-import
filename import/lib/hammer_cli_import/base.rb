@@ -15,6 +15,20 @@ module HammerCLIImport
 
   class BaseCommand < HammerCLI::Apipie::Command
 
+    def initialize(*list)
+      super(*list)
+      # wrap API parameters into extra hash
+      @wrap_out = {:users => :user}
+      # APIs return objects encapsulated in extra hash
+      @wrap_in = {:organizations => "organization"}
+      # persistent maps to store translated object ids
+      @pm = {}
+      # cache imported objects (created/lookuped)
+      @cache = {}
+      # apipie binding
+      @api = nil
+    end
+
     option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true
     option ['--delete'], :flag, 'Delete entities from CSV file'
     option ['--verify'], :flag, 'Verify entities from CSV file'
@@ -45,9 +59,7 @@ module HammerCLIImport
       @maps = list
     end
 
-    def load_maps
-      @pm = {}
-      @cache = {}
+    def load_maps()
       self.class.maps.each do |map_sym|
         hash = {}
         @cache[map_sym] = {}
@@ -133,9 +145,6 @@ module HammerCLIImport
     end
 
     def execute
-      @wrap_out = {:users => :user}
-      @wrap_in = {:organizations => "organization"}
-
       @api = ApipieBindings::API.new({
         :uri => HammerCLI::Settings.get(:foreman, :host),
         :username => HammerCLI::Settings.get(:foreman, :username),
