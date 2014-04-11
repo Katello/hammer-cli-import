@@ -2,6 +2,8 @@ class DeltaHashError < RuntimeError
 end
 
 class DeltaHash
+  attr_reader :new
+
   def self.[](hash)
     self.new(hash)
   end
@@ -22,9 +24,5 @@ class DeltaHash
 
   def to_h
     @old.merge @new
-  end
-
-  def new
-    @new
   end
 end
