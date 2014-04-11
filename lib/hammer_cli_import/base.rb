@@ -35,8 +35,8 @@ module HammerCLIImport
 
     ############
     ## -> Stuff related to csv columns
-    def self.columns
-      @columns
+    class << self
+      attr_reader :columns
     end
 
     def self.csv_columns(*list)
