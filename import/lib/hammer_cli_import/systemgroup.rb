@@ -9,6 +9,8 @@ module HammerCLIImport
       command_name "system-group"
       desc "Import system groups"
 
+      csv_columns 'group_id', 'name', 'org_id'
+
       persistent_maps :system_groups, :organizations
 
       def mk_sg_hash(data)
