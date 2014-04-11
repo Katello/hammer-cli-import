@@ -50,7 +50,7 @@ module HammerCLIImport
             hash[row[0].to_i] = row[1].to_i
           end
         end
-        @pm[map_sym] = RememberHash.new(hash)
+        @pm[map_sym] = DeltaHash[hash]
       end
     end
 
@@ -58,7 +58,7 @@ module HammerCLIImport
       self.class.maps.each do |map_sym|
         CSV.open("data/#{map_sym}-#{Time.now.utc.iso8601}.csv", "wb", {:force_quotes => true}) do |csv|
           csv << ['sat5', 'sat6']
-          @pm[map_sym].each do |key,value|
+          @pm[map_sym].new.each do |key,value|
             csv << [key, value]
           end
         end
