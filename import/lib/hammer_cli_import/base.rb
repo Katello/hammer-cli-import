@@ -28,6 +28,11 @@ module HammerCLIImport
 
     ############
     ## -> Stuff related to persistent maps (of ID-s?)
+    private
+    def data_dir
+      'data'
+    end
+
     def self.maps
       @maps
     end
@@ -42,7 +47,7 @@ module HammerCLIImport
       self.class.maps.each do |map_sym|
         hash = {}
         @cache[map_sym] = {}
-        Dir["data/#{map_sym}-*.csv"].sort.each do |filename|
+        Dir[File.join data_dir, "#{map_sym}-*.csv"].sort.each do |filename|
           reader = CSV.open(filename, 'r')
           header = reader.shift
           raise PersistentMapError, "Importing :#{map_sym} from file #{filename}" unless header == ['sat5', 'sat6']
@@ -56,7 +61,7 @@ module HammerCLIImport
 
     def save_maps()
       self.class.maps.each do |map_sym|
-        CSV.open("data/#{map_sym}-#{Time.now.utc.iso8601}.csv", "wb", {:force_quotes => true}) do |csv|
+        CSV.open((File.join data_dir, "#{map_sym}-#{Time.now.utc.iso8601}.csv"), "wb", {:force_quotes => true}) do |csv|
           csv << ['sat5', 'sat6']
           @pm[map_sym].new.each do |key,value|
             csv << [key, value]
