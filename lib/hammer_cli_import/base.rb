@@ -48,7 +48,7 @@ module HammerCLIImport
     ############
     ## -> Stuff related to persistent maps (of ID-s?)
     def data_dir
-      'data'
+      File.join(File.expand_path("~"), "data")
     end
 
     class << self
@@ -141,6 +141,10 @@ module HammerCLIImport
     end
 
     def execute
+      # create a storage directory if not exists yet
+      Dir.mkdir data_dir unless File.directory? data_dir
+
+      # initialize apipie binding
       @api = ApipieBindings::API.new({
         :uri => HammerCLI::Settings.get(:foreman, :host),
         :username => HammerCLI::Settings.get(:foreman, :username),
