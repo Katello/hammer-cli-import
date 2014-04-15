@@ -134,7 +134,7 @@ module HammerCLIImport
     def create_entity(entity_type, entity_hash, original_id)
       type = to_singular(entity_type)
       if @pm[entity_type][original_id.to_i]
-        puts type + " " + original_id + " already imported."
+        puts type + " [" + original_id + "->" + @pm[entity_type][original_id.to_i].to_s + "] already imported."
         return @cache[entity_type][@pm[entity_type][original_id.to_i]]
       else
         puts "Creating new " + type + ": " + entity_hash.values_at(:name, :label, :login).compact[0]
