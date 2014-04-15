@@ -75,6 +75,18 @@ module HammerCLIImport
       end
     end
 
+    def verify_maps()
+      @pm.keys.each do |map_sym|
+        entities = list_entities map_sym
+        entity_ids = entities.map { |e| e["id"].to_i }
+        extra = @pm[map_sym].to_hash.values - entity_ids
+        unless extra.empty?
+          puts "Removing " + map_sym.to_s + " from persistent map: " + extra.join(" ")
+          @pm[map_sym].delete_if { |key, value| extra.include?(value) }
+        end
+      end
+    end
+
     def save_maps
       self.class.maps.each do |map_sym|
         next if @pm[map_sym].new.empty?
@@ -108,6 +120,15 @@ module HammerCLIImport
         return @pm[entity_type][entity_id.to_i]
       end
       raise MissingObjectError, "Need to import " + to_singular(entity_type) + " with id " + entity_id
+    end
+
+    def list_entities(entity_type)
+      begin
+        entities = @api.resource(entity_type).call(:index, {'per_page' => 999999})
+        return entities["results"]
+      rescue
+        p ":index API not defined for " + entity_type.to_s
+      end
     end
 
     def create_entity(entity_type, entity_hash, original_id)
@@ -153,6 +174,7 @@ module HammerCLIImport
       })
 
       load_maps
+      verify_maps
       import option_csv_file
       save_maps
       HammerCLI::EX_OK
