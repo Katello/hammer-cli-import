@@ -22,7 +22,15 @@ class DeltaHash
     @new[key] = val
   end
 
-  def to_h
+  def to_hash
     @old.merge @new
+  end
+
+  def to_s
+    to_hash.to_s
+  end
+
+  def inspect
+    to_hash.inspect
   end
 end
