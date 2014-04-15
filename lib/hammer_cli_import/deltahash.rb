@@ -26,6 +26,11 @@ class DeltaHash
     @old.merge @new
   end
 
+  def delete_if(&block)
+    @old.delete_if(&block)
+    @new.delete_if(&block)
+  end
+
   def to_s
     to_hash.to_s
   end
