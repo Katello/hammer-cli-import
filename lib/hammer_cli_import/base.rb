@@ -112,7 +112,7 @@ module HammerCLIImport
     end
 
     def to_singular(plural)
-      return plural.to_s.sub(/s$/, "")
+      return plural.to_s.sub(/s$/, "").sub(/ie$/,"y")
     end
 
     def get_translated_id(entity_type, entity_id)
@@ -134,7 +134,7 @@ module HammerCLIImport
     def create_entity(entity_type, entity_hash, original_id)
       type = to_singular(entity_type)
       if @pm[entity_type][original_id.to_i]
-        puts type + " [" + original_id + "->" + @pm[entity_type][original_id.to_i].to_s + "] already imported."
+        puts type + " [" + original_id.to_s + "->" + @pm[entity_type][original_id.to_i].to_s + "] already imported."
         return @cache[entity_type][@pm[entity_type][original_id.to_i]]
       else
         puts "Creating new " + type + ": " + entity_hash.values_at(:name, :label, :login).compact[0]
@@ -155,7 +155,6 @@ module HammerCLIImport
       self.class.csv_columns.each do |col|
         raise CSVHeaderError, "column #{col} expected in #{filename}" unless header.include? col
       end
-
       reader.each do |row|
         import_single_row(Hash[header.zip row])
       end
@@ -172,7 +171,6 @@ module HammerCLIImport
         :password => HammerCLI::Settings.get(:foreman, :password),
         :api_version => 2
       })
-
       load_maps
       verify_maps
       import option_csv_file
