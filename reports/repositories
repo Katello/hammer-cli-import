@@ -9,6 +9,7 @@ description:
 
 columns:
 
+        id                      Repository id
         org_id:i                Organization identifier
         repo_label:i              Repository name
         repo_type               Repository type (e.g., 'yum')
@@ -30,7 +31,7 @@ multival_columns:
 
 sql:
 
-       select cs.org_id, cs.label as repo_label, cst.label as repo_type, cs.source_url, 
+       select cs.id, cs.org_id, cs.label as repo_label, cst.label as repo_type, cs.source_url,
               ck_key.description as client_key_descr, ck_key.crypto_key_type_id as client_key_type, ck_key.key as client_key,
               ck_cert.description as client_cert_descr, ck_cert.crypto_key_type_id as client_cert_type, ck_cert.key as client_cert,
               ck_ca.description as ca_descr, ck_ca.crypto_key_type_id as ca_type, ck_ca.key as ca_key
