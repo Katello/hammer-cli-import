@@ -72,6 +72,8 @@ def setupOptions():
     entGroup.add_option('--entities', action='store', dest='entities',
             metavar='entity[,entity...]', default='all',
             help='Specify comma-separated list of entities to export (default is all)')
+    entGroup.add_option('--dump-channels', action='store_true', dest='dump_channels',
+            default=False, help='Use rhn-satellite-exporter to export custom-channel-contents')
     entGroup.add_option('--dump-repos', action='store_true', dest='dump_repos',
             default=False, help='Dump contents of file: repositories')
     entGroup.add_option('--select-orgs', action='store', dest='org_list',
@@ -80,6 +82,9 @@ def setupOptions():
     parser.add_option_group(entGroup)
 
     utilGroup = OptionGroup(parser, "Utility")
+
+    utilGroup.add_option('--clean', action='store_true', default=False, dest='clean',
+            help='How do I clean up from pervious runs?')
     utilGroup.add_option('--debug', action='store_true', default=False, dest='debug',
             help='Log debugging output')
     utilGroup.add_option('--quiet', action='store_true', default=False, dest='quiet',
@@ -208,7 +213,27 @@ def repositoriesDump(options):
 
 def customchannelsDump(options):
     logging.info('Processing customchannels...')
-    _issueReport(options, 'custom-channels')
+    repo_file = _issueReport(options, 'custom-channels')
+    if options.dump_channels:
+        logging.info('...channel export requested')
+        # Go thru the CSV we just dumped and dig out channel labels
+        handle = open(repo_file, 'r')
+        channels = csv.DictReader(handle)
+        for channel in channels:
+            channel_dumps_dir = options.export_dir + '/' + REPORTS_DIR + '/' + 'channel_dumps/'
+            if not os.path.isdir(channel_dumps_dir):
+                os.mkdir(channel_dumps_dir, 0700)
+
+            channel_dir = channel_dumps_dir + '/' + channel['channel_label']
+            if not os.path.isdir(channel_dir):
+                os.mkdir(channel_dir, 0700)
+
+            logging.info('...about to export ' + channel['channel_label'])
+            logging.debug('/usr/bin/sudo /usr/bin/rhn-satellite-exporter -c {0} -d {1}'.format(channel['channel_label'], channel_dir))
+            call(['/usr/bin/sudo', '/usr/bin/rhn-satellite-exporter',
+                '-c', channel['channel_label'],
+                '-d', channel_dir])
+        handle.close()
     return
 
 def prepareExport(options):
@@ -225,6 +250,12 @@ def prepareExport(options):
     logging.info('Export-file created at {0}/{1}'.format(options.export_dir,
         options.export_package))
 
+def cleanup(options):
+    logging.info('To clean up, issue the following command:')
+    logging.info('sudo rm -rf {0}'.format(options.export_dir))
+    logging.info('NOTE:  No, I will not do it for you!')
+    return
+
 if __name__ == '__main__':
     parser = setupOptions()
     (options, args) = parser.parse_args()
@@ -233,6 +264,10 @@ if __name__ == '__main__':
 
     if (options.list):
         listSupported()
+        sys.exit(0)
+
+    if (options.clean):
+        cleanup(options)
         sys.exit(0)
 
     entities = setupEntities(options)
