@@ -1,17 +1,17 @@
 
 synopsis:
 
-	Repositories defined in system
+    Repositories defined in system
 
 description:
 
-	List of all repositories, their SSL info, and any filters
+    List of all repositories, their SSL info, and any filters
 
 columns:
 
         id                      Repository id
         org_id:i                Organization identifier
-        repo_label:i              Repository name
+        repo_label:i            Repository name
         repo_type               Repository type (e.g., 'yum')
         source_url              Repository URL
         client_key_descr        Client SSL Cert Key Description
@@ -26,7 +26,7 @@ columns:
 
 multival_columns:
 
-	org_id
+    org_id
         repo_label
 
 sql:
