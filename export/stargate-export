@@ -22,7 +22,7 @@ stargate-export - a tool for preparing to move data from an existing Satellite-5
 to a Satellite-6 instance
 """
 
-import logging, os, re, sys, string
+import csv, logging, os, re, sys, string
 
 from string import lower, split
 from optparse import OptionParser
@@ -63,6 +63,8 @@ def setupOptions():
     parser.add_option('-e', '--entities', action='store', dest='entities',
             metavar='entity[,entity...]', default='all',
             help='Specify comma-separated list of entities to export (default is all)')
+    parser.add_option('--dump-repos', action='store_true', dest='dump_repos',
+            default=False, help='Dump contents of file: repositories')
     parser.add_option('-l', '--list-entities', action='store_true', dest='list',
             default=False, help='List supported entities')
     parser.add_option('-d', '--debug', action='store_true', default=False, dest='debug',
@@ -115,9 +117,11 @@ def setupOutputDir(options):
         os.mkdir(options.export_dir + '/' + REPORTS_DIR, 0700)
 
 def _issueReport(options, reportname):
-    reps_dir_str = '{1}/' + REPORTS_DIR + '/{0}.csv'
+    reps_dir_str = '{0}/' + REPORTS_DIR + '/{1}.csv'
+    report_file = reps_dir_str.format(options.export_dir, reportname)
     call(['/usr/bin/sudo', '/usr/bin/spacewalk-report', reportname] ,
-        stdout = open(reps_dir_str.format(reportname, options.export_dir), 'w'))
+        stdout = open(report_file, 'w'))
+    return report_file
 
 def usersDump(options):
     logging.info('Processing users...')
@@ -131,7 +135,31 @@ def systemgroupsDump(options):
 
 def repositoriesDump(options):
     logging.info('Processing repositories...')
-    _issueReport(options, 'repositories')
+    repo_file = _issueReport(options, 'repositories')
+    if (options.dump_repos):
+        logging.info('...repository dump requested')
+        # Go thru the CSV we just dumped and look for file: repos
+        handle = open(repo_file, 'r')
+        repositories = csv.DictReader(handle)
+        for entry in repositories:
+            # Look for file:://<repo-location>
+            if entry['source_url'].lower().startswith('file:/'):
+                logging.debug('Found file-repository : ' + entry['source_url'])
+                # Strip off 'file:/' to get absolute path
+                repo_loc = entry['source_url'][6:]
+                # Get the leading directory
+                repo_dir = repo_loc.rsplit('/', 1)[0]
+                # Get the repository directoryname
+                repo_basename = repo_loc.rsplit('/', 1)[-1]
+                # Tarfile name is 'repository_<repo-label>_contents.tar.gz'
+                repo_tarname = 'repository_' + entry['repo_label'] + '_contents.tar.gz'
+                logging.info('...storing file-repo {0} into {1}'.format(repo_loc, repo_tarname))
+                # Tar it up into the export-dir
+                call(['/usr/bin/sudo', '/usr/bin/tar', '-c', '-v', '-z',
+                    '-C', repo_dir,
+                    '-f', '{0}/{1}/{2}'.format(options.export_dir, REPORTS_DIR, repo_tarname),
+                    repo_basename])
+        handle.close()
     return
 
 def customchannelsDump(options):
