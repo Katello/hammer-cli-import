@@ -6,7 +6,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.0.1
+Version:    0.2.0
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 

@@ -2,7 +2,7 @@ $:.unshift(File.expand_path("../lib", __FILE__))
 
 Gem::Specification.new do |spec|
   spec.name = "hammer_cli_import"
-  spec.version = Gem::Version.new('0.0.1')
+  spec.version = HammerCLIImport.version
   spec.authors = ["@mkollar", "@tlestach"]
   spec.email = ["mkollar@redhat.com", "tlestach@redhat.com"]
 
