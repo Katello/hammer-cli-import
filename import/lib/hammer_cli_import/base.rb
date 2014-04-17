@@ -22,6 +22,7 @@ module HammerCLIImport
       # APIs return objects encapsulated in extra hash
       @wrap_in = {:organizations => "organization"}
       # persistent maps to store translated object ids
+      @per_org = {:system_groups => true, :repositories => true, :products => true}
       @pm = {}
       # cache imported objects (created/lookuped)
       @cache = {}
@@ -109,6 +110,8 @@ module HammerCLIImport
     def lookup_entity(entity_type, entity_id)
       unless (@cache[entity_type][entity_id])
         @cache[entity_type][entity_id] = @api.resource(entity_type).call(:show, {"id" => entity_id})
+      else
+        puts "#{to_singular(entity_type).capitalize} #{entity_id} taken from cache."
       end
       return @cache[entity_type][entity_id]
     end
@@ -125,18 +128,26 @@ module HammerCLIImport
     end
 
     def list_entities(entity_type)
-      begin
+      if @per_org[entity_type]
+        results = []
+        # check only entities in imported orgs (not all of them)
+        @pm[:organizations].to_hash.values.each do |org_id|
+          org_identifier = lookup_entity(:organizations, org_id)["label"]
+          p org_identifier
+          entities = @api.resource(entity_type).call(:index, {'per_page' => 999999, 'organization_id' => org_identifier})
+          results += entities["results"]
+        end
+        return results
+      else
         entities = @api.resource(entity_type).call(:index, {'per_page' => 999999})
         return entities["results"]
-      rescue
-        p ":index API not defined for " + entity_type.to_s
       end
     end
 
     def create_entity(entity_type, entity_hash, original_id)
       type = to_singular(entity_type)
       if @pm[entity_type][original_id.to_i]
-        puts type + " [" + original_id.to_s + "->" + @pm[entity_type][original_id.to_i].to_s + "] already imported."
+        puts type.capitalize + " [" + original_id.to_s + "->" + @pm[entity_type][original_id.to_i].to_s + "] already imported."
         return @cache[entity_type][@pm[entity_type][original_id.to_i]]
       else
         puts "Creating new " + type + ": " + entity_hash.values_at(:name, :label, :login).compact[0]
