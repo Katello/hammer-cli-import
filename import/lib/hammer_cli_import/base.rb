@@ -36,11 +36,11 @@ module HammerCLIImport
     ############
     ## -> Stuff related to csv columns
     class << self
-      attr_reader :columns
-    end
-
-    def self.csv_columns(*list)
-      @columns = list
+      def csv_columns(*list)
+        return @csv_columns if list.empty?
+        raise RuntimeError, 'set more than once' if @csv_columns
+        @csv_columns = list
+      end
     end
     ## <-
     ############
@@ -152,7 +152,7 @@ module HammerCLIImport
     def import(filename)
       reader = CSV.open(filename, 'r')
       header = reader.shift
-      self.class.columns.each do |col|
+      self.class.csv_columns.each do |col|
         raise CSVHeaderError, "column #{col} expected in #{filename}" unless header.include? col
       end
 
