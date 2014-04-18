@@ -124,7 +124,7 @@ module HammerCLIImport
       if @pm[entity_type] and @pm[entity_type][entity_id.to_i]
         return @pm[entity_type][entity_id.to_i]
       end
-      raise MissingObjectError, "Need to import " + to_singular(entity_type) + " with id " + entity_id
+      raise MissingObjectError, "Need to import " + to_singular(entity_type) + " with id " + entity_id.to_s
     end
 
     def list_entities(entity_type)
@@ -152,12 +152,16 @@ module HammerCLIImport
       else
         puts "Creating new " + type + ": " + entity_hash.values_at(:name, :label, :login).compact[0]
         entity_hash = {@wrap_out[entity_type] => entity_hash} if @wrap_out[entity_type]
-        entity = @api.resource(entity_type).call(:create, entity_hash)
-        p "created entity:", entity
-        entity = entity[@wrap_in[entity_type]] if @wrap_in[entity_type]
-        @pm[entity_type][original_id.to_i] = entity["id"]
-        @cache[entity_type][entity["id"]] = entity
-        p "@pm[entity_type]:", @pm[entity_type]
+        begin
+          entity = @api.resource(entity_type).call(:create, entity_hash)
+          p "created entity:", entity
+          entity = entity[@wrap_in[entity_type]] if @wrap_in[entity_type]
+          @pm[entity_type][original_id.to_i] = entity["id"]
+          @cache[entity_type][entity["id"]] = entity
+          p "@pm[entity_type]:", @pm[entity_type]
+        rescue Exception => e
+          puts "Creation of #{type} failed with #{e.inspect}"
+        end
         return entity
       end
     end
