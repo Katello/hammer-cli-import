@@ -22,7 +22,7 @@ module HammerCLIImport
 
       def import_single_row(data)
         sg = mk_sg_hash data
-        create_entity(:system_groups, sg, data["group_id"])
+        create_entity(:system_groups, sg, data["group_id"].to_i)
       end
     end
   end

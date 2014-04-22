@@ -146,9 +146,9 @@ module HammerCLIImport
 
     def create_entity(entity_type, entity_hash, original_id)
       type = to_singular(entity_type)
-      if @pm[entity_type][original_id.to_i]
-        puts type.capitalize + " [" + original_id.to_s + "->" + @pm[entity_type][original_id.to_i].to_s + "] already imported."
-        return @cache[entity_type][@pm[entity_type][original_id.to_i]]
+      if @pm[entity_type][original_id]
+        puts type.capitalize + " [" + original_id.to_s + "->" + @pm[entity_type][original_id].to_s + "] already imported."
+        return @cache[entity_type][@pm[entity_type][original_id]]
       else
         puts "Creating new " + type + ": " + entity_hash.values_at(:name, :label, :login).compact[0]
         entity_hash = {@wrap_out[entity_type] => entity_hash} if @wrap_out[entity_type]
@@ -156,7 +156,7 @@ module HammerCLIImport
           entity = @api.resource(entity_type).call(:create, entity_hash)
           p "created entity:", entity
           entity = entity[@wrap_in[entity_type]] if @wrap_in[entity_type]
-          @pm[entity_type][original_id.to_i] = entity["id"]
+          @pm[entity_type][original_id] = entity["id"]
           @cache[entity_type][entity["id"]] = entity
           p "@pm[entity_type]:", @pm[entity_type]
         rescue Exception => e
