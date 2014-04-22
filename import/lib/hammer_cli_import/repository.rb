@@ -40,11 +40,11 @@ module HammerCLIImport
         p product_name
         product_hash = mk_product_hash(data, product_name)
         p product_hash
-        product_id = create_entity(:products, product_hash)["id"]
-        return
-        repo = mk_repo_hash data product_id
+        composite_id = [data["org_id"].to_i, product_name]
+        product_id = create_entity(:products, product_hash, composite_id)["id"]
+        repo_hash = mk_repo_hash data, product_id
         p data
-        create_entity(:repositories, repo, data["id"].to_i)
+        create_entity(:repositories, repo_hash, data["id"].to_i)
       end
     end
   end
