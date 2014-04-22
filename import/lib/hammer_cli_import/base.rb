@@ -54,10 +54,10 @@ module HammerCLIImport
 
     class << self
       attr_reader :maps
-    end
 
-    def self.persistent_maps(*list)
-      @maps = list
+      def persistent_maps(*list)
+        @maps = list
+      end
     end
 
     def load_maps()
