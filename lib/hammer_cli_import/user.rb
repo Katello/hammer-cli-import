@@ -35,7 +35,7 @@ module HammerCLIImport
 
       def import_single_row(data)
         user = mk_user_hash data
-        create_entity(:users, user, data["user_id"])
+        create_entity(:users, user, data["user_id"].to_i)
       end
     end
     autoload_subcommands
