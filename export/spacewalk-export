@@ -18,7 +18,7 @@
 #
 
 """
-stargate-export - a tool for preparing to move data from an existing Satellite-5 instance
+spacewalk-export - a tool for preparing to move data from an existing Satellite-5 instance
 to a Satellite-6 instance
 """
 
@@ -32,7 +32,7 @@ from subprocess import Popen, call
 
 home = expanduser("~")
 DEFAULT_EXPORT_DIR = home + '/spacewalk-export-dir'
-DEFAULT_EXPORT_PACKAGE = 'stargate.tar.gz'
+DEFAULT_EXPORT_PACKAGE = 'spacewalk_export.tar.gz'
 REPORTS_DIR = 'exports'
 
 SUPPORTED_ENTITIES = {
