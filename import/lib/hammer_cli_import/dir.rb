@@ -12,6 +12,7 @@ module HammerCLIImport
       option ['--list-entities'], :flag, 'List entities we understand', :default => false
       option ['--dry-run'], :flag, 'Show what we would have done, if we\'d been allowed', :default => false
 
+      @@entity_order = ['organizations', 'users', 'system-groups', 'repositories']
       #
       # A list of what we know how to do.
       # The map has entries of
@@ -30,13 +31,12 @@ module HammerCLIImport
                   'users' =>
                     {'export-file' => 'users',
                      'import-class' => 'UserImportCommand',
+                     'import' => false },
+                  'repositories' =>
+                    {'export-file' => 'repositories',
+                     'import-class' => 'RepositoryImportCommand',
                      'import' => false }
-                  # ,
                   #'custom-channels' =>
-                  #  {'export-file' => 'system-groups',
-                  #   'import-class' => 'SystemGroupImportCommand',
-                  #   'import' => false },
-                  #'repositories' =>
                   #  {'export-file' => 'system-groups',
                   #   'import-class' => 'SystemGroupImportCommand',
                   #   'import' => false },
@@ -44,7 +44,7 @@ module HammerCLIImport
 
       def do_list
         puts 'Entities I understand:'
-        @@known.each_key do |key|
+        @@entity_order.each do |key|
           puts "  #{key}"
         end
       end
@@ -60,7 +60,8 @@ module HammerCLIImport
 
       # Do the import(s)
       def import_from
-        @@known.each do |key, a_map|
+        @@entity_order.each do |key|
+          a_map = @@known[key]
           import_file = "#{option_directory}/#{a_map['export-file']}.csv"
           if a_map['import']
             puts "IMPORT #{key} FROM #{import_file}"
