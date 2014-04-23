@@ -24,6 +24,11 @@ module HammerCLIImport
         org = mk_org_hash data
         create_entity(:organizations, org, data["organization_id"].to_i)
       end
+
+      def delete_single_row(data)
+        delete_entity(:organizations, data["organization_id"].to_i)
+      end
+
     end
   end
 end
