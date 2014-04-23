@@ -55,11 +55,57 @@ module HammerCLIImport
     end
 
     class << self
-      attr_reader :maps
+      attr_reader :maps, :map_description
+
+      def persistent_map(symbol, key_spec, val_spec)
+        @maps ||= []
+        @maps.push symbol
+        @map_description ||= {}
+        @map_description[symbol] = [key_spec, val_spec]
+      end
 
       def persistent_maps(*list)
-        @maps = list
+        list.each do |sym|
+          persistent_map sym, [{'sat5' => Fixnum}], [{'sat6' => Fixnum}]
+        end
       end
+    end
+
+    def pm_csv_headers(symbol)
+      key_spec, val_spec = self.class.map_description[symbol]
+      (key_spec + val_spec).map { |x| x.keys[0] }
+    end
+
+    class << Fixnum
+      def from_s(x)
+        x.to_i
+      end
+    end
+
+    class << String
+      def from_s(x)
+        x
+      end
+    end
+
+    def pm_decode_row(symbol, row)
+      key_spec, val_spec = self.class.map_description[symbol]
+      key = []
+      value = []
+
+      key_spec.each do |spec|
+        x = row.shift
+        key.push(spec.values.first.from_s x)
+      end
+
+      val_spec.each do |spec|
+        x = row.shift
+        value.push(spec.values.first.from_s x)
+      end
+
+      key = key[0] if key.size == 1
+      value = value[0] if value.size == 1
+      [key, value]
     end
 
     def load_maps()
@@ -69,9 +115,10 @@ module HammerCLIImport
         Dir[File.join data_dir, "#{map_sym}-*.csv"].sort.each do |filename|
           reader = CSV.open(filename, 'r')
           header = reader.shift
-          raise PersistentMapError, "Importing :#{map_sym} from file #{filename}" unless header == ['sat5', 'sat6']
+          raise PersistentMapError, "Importing :#{map_sym} from file #{filename}" unless header == (pm_csv_headers map_sym)
           reader.each do |row|
-            hash[row[0].to_i] = row[1].to_i
+            key, value = pm_decode_row map_sym, row
+            hash[key] = value
           end
         end
         @pm[map_sym] = DeltaHash[hash]
@@ -95,10 +142,12 @@ module HammerCLIImport
     def save_maps
       self.class.maps.each do |map_sym|
         next if @pm[map_sym].new.empty?
-        CSV.open((File.join data_dir, "#{map_sym}-#{Time.now.utc.iso8601}.csv"), "wb", {:force_quotes => true}) do |csv|
-          csv << ['sat5', 'sat6']
+        CSV.open((File.join data_dir, "#{map_sym}-#{Time.now.utc.iso8601}.csv"), "wb") do |csv|
+          csv << (pm_csv_headers map_sym)
           @pm[map_sym].new.each do |key, value|
-            csv << [key, value]
+            key = [key] unless key.is_a? Array
+            value = [value] unless value.is_a? Array
+            csv << key + value
           end
         end
       end
