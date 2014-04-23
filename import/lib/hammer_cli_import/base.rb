@@ -33,7 +33,7 @@ module HammerCLIImport
     end
 
     option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true
-    option ['--delete'], :flag, 'Delete entities from CSV file'
+    option ['--delete'], :flag, 'Delete entities from CSV file', :default => false
     option ['--verify'], :flag, 'Verify entities from CSV file'
 
     ############
@@ -158,6 +158,9 @@ module HammerCLIImport
     def import_single_row(row)
     end
 
+    def delete_single_row(row)
+    end
+
     def lookup_entity(entity_type, entity_id)
       unless (@cache[entity_type][entity_id])
         @cache[entity_type][entity_id] = @api.resource(entity_type).call(:show, {"id" => entity_id})
@@ -222,15 +225,37 @@ module HammerCLIImport
       end
     end
 
-    def import(filename)
+    def delete_entity(entity_type, original_id)
+      type = to_singular(entity_type)
+      unless @pm[entity_type][original_id]
+        "Unknown " + type + " to delete [" + original_id.to_s + "]."
+        return nil
+      end
+      puts "Deleting imported " + type + " [" + original_id.to_s + "->" + @pm[entity_type][original_id].to_s + "]."
+      ret = @api.resource(entity_type).call(:destroy, {:id => @pm[entity_type][original_id]})
+      # delete from cache
+      @cache[entity_type].delete(@pm[entity_type][original_id])
+      # delete from pm
+      @pm[entity_type].delete original_id
+    end
+
+    def cvs_iterate(filename, action)
       reader = CSV.open(filename, 'r')
       header = reader.shift
       self.class.csv_columns.each do |col|
         raise CSVHeaderError, "column #{col} expected in #{filename}" unless header.include? col
       end
       reader.each do |row|
-        import_single_row(Hash[header.zip row])
+        action.call(Hash[header.zip row])
       end
+    end
+
+    def import(filename)
+      cvs_iterate(filename, (method :import_single_row))
+    end
+
+    def delete(filename)
+      cvs_iterate(filename, (method :delete_single_row))
     end
 
     def execute
@@ -246,7 +271,11 @@ module HammerCLIImport
       })
       load_maps
       verify_maps
-      import option_csv_file
+      if option_delete?
+        delete option_csv_file
+      else
+        import option_csv_file
+      end
       save_maps
       HammerCLI::EX_OK
     end
