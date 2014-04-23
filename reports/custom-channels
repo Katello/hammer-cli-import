@@ -10,6 +10,7 @@ description:
 columns:
 
     org_id:i                Organization id of owning organization
+    id:i                    Channel id
     channel_label:i         Channel label
     name                    Channel name
     summary                 Channel summary
@@ -22,13 +23,14 @@ columns:
 multival_columns:
 
     org_id
+    id
     channel_label
     associated_repo_label : associated_repo_label
 
 sql:
 
     select * from (
-        select c.org_id, c.label as channel_label, c.name, c.summary, c.description,
+        select c.org_id, c.id, c.label as channel_label, c.name, c.summary, c.description,
                pc.label as parent_channel_label, ca.label as channel_arch, cst.label as checksum_type,
                cs.label as associated_repo_label
           from rhnchannel c
