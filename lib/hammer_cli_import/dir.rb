@@ -12,29 +12,42 @@ module HammerCLIImport
       option ['--list-entities'], :flag, 'List entities we understand', :default => false
       option ['--dry-run'], :flag, 'Show what we would have done, if we\'d been allowed', :default => false
 
-      @@entity_order = ['organizations', 'users', 'system-groups', 'repositories']
+      # An ordered-list of the entities we know how to import
+      class << self; attr_accessor :entity_order end
+      @entity_order = [
+        'organizations',
+        'users',
+        'system-groups',
+        'repositories'
+      ]
+
       #
       # A list of what we know how to do.
       # The map has entries of
-      #   import-entity => {sat5-export-name, import-classname, should-import}
+      #   import-entity => {sat5-export-name, import-classname, entities-we-are-dependent-on, should-import}
       # The code will look for classes HammerCLIImport::ImportCommand::<import-classname>
       # It will look in ~/exports/<Sat5-export-name>.csv for data
       #
-      @@known = { 'system-groups' =>
+      class << self; attr_accessor :known end
+      @known = { 'system-groups' =>
                     {'export-file' => 'system-groups',
                      'import-class' => 'SystemGroupImportCommand',
+                     'depends-on' => 'organizations',
                      'import' => false },
                   'organizations' =>
                     {'export-file' => 'users',
                      'import-class' => 'OrganizationImportCommand',
+                     'depends-on' => '',
                      'import' => false },
                   'users' =>
                     {'export-file' => 'users',
                      'import-class' => 'UserImportCommand',
+                     'depends-on' => 'organizations',
                      'import' => false },
                   'repositories' =>
                     {'export-file' => 'repositories',
                      'import-class' => 'RepositoryImportCommand',
+                     'depends-on' => 'organizations',
                      'import' => false }
                   #'custom-channels' =>
                   #  {'export-file' => 'system-groups',
@@ -44,24 +57,28 @@ module HammerCLIImport
 
       def do_list
         puts 'Entities I understand:'
-        @@entity_order.each do |key|
-          puts "  #{key}"
+        DirCommand.entity_order.each do |a_map|
+          puts "  #{a_map['name']}"
         end
       end
 
       # What are we being asked to import?
+      # Marks what we asked for, and whatever those things are dependent on, to import
       def set_import_targets
         to_import = option_entities.split(',')
-
-        @@known.each_key do |key|
-          @@known[key]['import'] = (to_import.include?(key) or to_import.include?('all'))
+        DirCommand.known.each_key do |key|
+          DirCommand.known[key]['import'] = (to_import.include?(key) or to_import.include?('all'))
+          depends_on = DirCommand.known[key]['depends-on'].split(',')
+          depends_on.each do |entity_name|
+            DirCommand.known[entity_name]['import'] = true
+          end
         end
       end
 
       # Do the import(s)
       def import_from
-        @@entity_order.each do |key|
-          a_map = @@known[key]
+        DirCommand.entity_order.each do |key|
+          a_map = DirCommand.known[key]
           import_file = "#{option_directory}/#{a_map['export-file']}.csv"
           if a_map['import']
             puts "IMPORT #{key} FROM #{import_file}"
