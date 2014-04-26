@@ -36,10 +36,6 @@ class DeltaHash
     ret
   end
 
-  def delete_if(&block)
-    @old.delete_if(&block)
-    @new.delete_if(&block)
-
   def delete(key)
     fail DeltaHashError, 'Key does not exist' unless self[key]
     @del << key if @old[key]
