@@ -1,8 +1,11 @@
+require 'set'
+
 class DeltaHashError < RuntimeError
 end
 
 class DeltaHash
   attr_reader :new
+  attr_reader :del
 
   def self.[](hash)
     new(hash)
@@ -11,24 +14,36 @@ class DeltaHash
   def initialize(hash)
     @old = hash
     @new = {}
+    @del = Set.new
   end
 
   def [](key)
+    return nil if @del.include? key
     @new[key] || @old[key]
   end
 
   def []=(key, val)
     fail DeltaHashError, 'Key exists' if self[key]
-    @new[key] = val
+    @del.delete key
+    @new[key] = val unless @old[key] == val
   end
 
   def to_hash
-    @old.merge @new
+    ret = (@old.merge @new)
+    @del.each do |key|
+      ret.delete key
+    end
+    ret
   end
 
   def delete_if(&block)
     @old.delete_if(&block)
     @new.delete_if(&block)
+
+  def delete(key)
+    fail DeltaHashError, 'Key does not exist' unless self[key]
+    @del << key if @old[key]
+    @new.delete(key)
   end
 
   def to_s
