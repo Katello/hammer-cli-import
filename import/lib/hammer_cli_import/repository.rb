@@ -14,6 +14,8 @@ module HammerCLIImport
       persistent_maps :organizations, :repositories
       persistent_map  :products, [{"org_id" => Fixnum}, {"label" => String}], ["sat6" => Fixnum]
 
+      option ['--sync'], :flag, 'Synchronize imported repositories', :default => false
+
       def mk_product_hash(data, product_name)
         {
           :name => product_name,
@@ -30,6 +32,10 @@ module HammerCLIImport
         }
       end
 
+      def sync_repo(repo)
+        @api.resource(:repositories).call(:sync, {:id => repo["id"]})
+      end
+
       def import_single_row(data)
         begin
           product_name = URI.parse(data["source_url"]).host.split(".")[-2,2].join(".").upcase
@@ -44,7 +50,10 @@ module HammerCLIImport
         product_id = create_entity(:products, product_hash, composite_id)["id"]
         repo_hash = mk_repo_hash data, product_id
         p data
-        create_entity(:repositories, repo_hash, data["id"].to_i)
+        repo = create_entity(:repositories, repo_hash, data["id"].to_i)
+        if option_sync?
+          sync_repo repo
+        end
       end
     end
   end
