@@ -8,11 +8,11 @@ EOF
 
 And running with
 
-    # env RUBYOPT=-Ilib hammer zzzexample
+    # env RUBYOPT=-Ilib hammer import
 
 To build/install as a gem:
 
     # gem build hammer_cli_import.gemspec
     # gem install hammer_cli_import-0.0.1.gem
-    # hammer zzz:example
+    # hammer import
 
