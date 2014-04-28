@@ -13,7 +13,7 @@ module HammerCLIImport
   require 'hammer_cli_import/base'
   require 'hammer_cli_import/import'
 
-  require 'hammer_cli_import/cusomchannel'
+  require 'hammer_cli_import/customchannel'
   require 'hammer_cli_import/dir'
   require 'hammer_cli_import/organization'
   require 'hammer_cli_import/repository'
