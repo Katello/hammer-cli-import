@@ -133,7 +133,9 @@ module HammerCLIImport
           extra = @pm[map_sym].to_hash.values - entity_ids
           unless extra.empty?
             puts "Removing " + map_sym.to_s + " from persistent map: " + extra.join(" ")
-            extra.each { |key| @pm[map_sym].delete key }
+            @pm[map_sym].to_hash.each do |key, value|
+              @pm[map_sym].delete key if extra.include? value
+            end
           end
         end
       end
