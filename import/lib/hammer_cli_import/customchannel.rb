@@ -3,7 +3,7 @@ module HammerCLIImport
     class CustomChannelImportCommand < BaseCommand
 
       command_name "custom-channel"
-      desc "Import custom channes."
+      desc "Import custom channels."
 
       csv_columns 'org_id', 'id', 'channel_label', 'name', 'summary', \
                   'description', 'parent_channel_label', 'channel_arch', \
