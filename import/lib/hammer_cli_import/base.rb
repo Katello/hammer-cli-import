@@ -163,8 +163,8 @@ module HammerCLIImport
       puts "Delete not implemented."
     end
 
-    def lookup_entity(entity_type, entity_id)
-      unless (@cache[entity_type][entity_id])
+    def lookup_entity(entity_type, entity_id, online_lookup = false)
+      if (not @cache[entity_type][entity_id] or online_lookup)
         @cache[entity_type][entity_id] = @api.resource(entity_type).call(:show, {"id" => entity_id})
       else
         puts "#{to_singular(entity_type).capitalize} #{entity_id} taken from cache."
@@ -235,13 +235,34 @@ module HammerCLIImport
     def delete_entity(entity_type, original_id)
       type = to_singular(entity_type)
       unless @pm[entity_type][original_id]
-        "Unknown " + type + " to delete [" + original_id.to_s + "]."
+        puts "Unknown " + type + " to delete [" + original_id.to_s + "]."
         return nil
       end
       puts "Deleting imported " + type + " [" + original_id.to_s + "->" + @pm[entity_type][original_id].to_s + "]."
-      ret = @api.resource(entity_type).call(:destroy, {:id => @pm[entity_type][original_id]})
+      @api.resource(entity_type).call(:destroy, {:id => @pm[entity_type][original_id]})
       # delete from cache
       @cache[entity_type].delete(@pm[entity_type][original_id])
+      # delete from pm
+      @pm[entity_type].delete original_id
+    end
+
+    def delete_entity_by_import_id(entity_type, import_id)
+      original_id = nil
+      type = to_singular(entity_type)
+      unless @pm[entity_type].to_hash.values.include?(import_id)
+        puts "Unknown imported " + type + " to delete [" + import_id.to_s + "]."
+        return nil
+      else
+        # find original_id
+        @pm[entity_type].to_hash.each do |key, value|
+          original_id = key if value == import_id
+        end
+        original_id = "?" unless original_id
+      end
+      puts "Deleting imported " + type + " [" + original_id.to_s + "->" + @pm[entity_type][original_id].to_s + "]."
+      @api.resource(entity_type).call(:destroy, {:id => import_id})
+      # delete from cache
+      @cache[entity_type].delete(import_id)
       # delete from pm
       @pm[entity_type].delete original_id
     end
