@@ -227,6 +227,11 @@ module HammerCLIImport
       end
     end
 
+    def update_entity(entity_type, id, entity_hash)
+      puts "Updating " + to_singular(entity_type) + " with id: " + id.to_s
+      @api.resource(entity_type).call(:update, {:id => id}.merge!(entity_hash))
+    end
+
     def delete_entity(entity_type, original_id)
       type = to_singular(entity_type)
       unless @pm[entity_type][original_id]
