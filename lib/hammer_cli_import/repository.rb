@@ -55,6 +55,25 @@ module HammerCLIImport
           sync_repo repo
         end
       end
+
+      def delete_single_row(data)
+        # check just becasue we're calling get_translated_id
+        if not @pm[:repositories][data["id"].to_i]
+          puts to_singular(:repositories).capitalize + " with id " + data["id"] + " wasn't imported. Skipping."
+          return
+        end
+        # find out product id
+        repo_id = get_translated_id(:repositories, data["id"].to_i)
+        product_id = @cache[:repositories][repo_id]["product"]["id"]
+        # delete repo
+        delete_entity(:repositories, data["id"].to_i)
+        # delete its product, if it's not associated with any other repositories
+        product = lookup_entity(:products, product_id, true)
+        if product["repository_count"] == 0
+          delete_entity_by_import_id(:products, product_id)
+        end
+      end
+
     end
   end
 end
