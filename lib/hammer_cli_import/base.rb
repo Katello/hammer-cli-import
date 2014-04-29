@@ -156,9 +156,11 @@ module HammerCLIImport
     ############
 
     def import_single_row(row)
+      puts "Import not implemented."
     end
 
     def delete_single_row(row)
+      puts "Delete not implemented."
     end
 
     def lookup_entity(entity_type, entity_id)
