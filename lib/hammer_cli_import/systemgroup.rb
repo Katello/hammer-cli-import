@@ -24,6 +24,11 @@ module HammerCLIImport
         sg = mk_sg_hash data
         create_entity(:system_groups, sg, data["group_id"].to_i)
       end
+
+      def delete_single_row(data)
+        delete_entity(:system_groups, data["group_id"].to_i)
+      end
+
     end
   end
 end
