@@ -36,6 +36,11 @@ module HammerCLIImport
         user = mk_user_hash data
         create_entity(:users, user, data["user_id"].to_i)
       end
+
+      def delete_single_row(data)
+        delete_entity(:users, data["user_id"].to_i)
+      end
+
     end
     autoload_subcommands
   end
