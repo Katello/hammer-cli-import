@@ -127,15 +127,13 @@ module HammerCLIImport
 
     def verify_maps()
       @pm.keys.each do |map_sym|
-        unless @pm[map_sym].to_hash.empty?
-          entities = list_entities map_sym
-          entity_ids = entities.map { |e| e["id"].to_i }
-          extra = @pm[map_sym].to_hash.values - entity_ids
-          unless extra.empty?
-            puts "Removing " + map_sym.to_s + " from persistent map: " + extra.join(" ")
-            @pm[map_sym].to_hash.each do |key, value|
-              @pm[map_sym].delete key if extra.include? value
-            end
+        entities = list_entities map_sym
+        entity_ids = entities.map { |e| e["id"].to_i }
+        extra = @pm[map_sym].to_hash.values - entity_ids
+        unless extra.empty?
+          puts "Removing " + map_sym.to_s + " from persistent map: " + extra.join(" ")
+          @pm[map_sym].to_hash.each do |key, value|
+            @pm[map_sym].delete key if extra.include? value
           end
         end
       end
