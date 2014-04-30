@@ -43,13 +43,10 @@ module HammerCLIImport
           puts "Skipping " + data["repo_label"] + " " + to_singular(:repositories) + " import, invalid source_url."
           return
         end
-        p product_name
         product_hash = mk_product_hash(data, product_name)
-        p product_hash
         composite_id = [data["org_id"].to_i, product_name]
         product_id = create_entity(:products, product_hash, composite_id)["id"]
         repo_hash = mk_repo_hash data, product_id
-        p data
         repo = create_entity(:repositories, repo_hash, data["id"].to_i)
         if option_sync?
           sync_repo repo

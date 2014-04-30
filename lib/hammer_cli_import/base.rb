@@ -167,7 +167,7 @@ module HammerCLIImport
       if (not @cache[entity_type][entity_id] or online_lookup)
         @cache[entity_type][entity_id] = @api.resource(entity_type).call(:show, {"id" => entity_id})
       else
-        puts "#{to_singular(entity_type).capitalize} #{entity_id} taken from cache."
+        # puts "#{to_singular(entity_type).capitalize} #{entity_id} taken from cache."
       end
       return @cache[entity_type][entity_id]
     end
@@ -215,11 +215,11 @@ module HammerCLIImport
         entity_hash = {@wrap_out[entity_type] => entity_hash} if @wrap_out[entity_type]
         begin
           entity = @api.resource(entity_type).call(:create, entity_hash)
-          p "created entity:", entity
+          # p "created entity:", entity
           entity = entity[@wrap_in[entity_type]] if @wrap_in[entity_type]
           @pm[entity_type][original_id] = entity["id"]
           @cache[entity_type][entity["id"]] = entity
-          p "@pm[entity_type]:", @pm[entity_type]
+          # p "@pm[entity_type]:", @pm[entity_type]
         rescue Exception => e
           puts "Creation of #{type} failed with #{e.inspect}"
         end
