@@ -218,7 +218,7 @@ module HammerCLIImport
           @pm[entity_type][original_id] = entity['id']
           @cache[entity_type][entity['id']] = entity
           # p "@pm[entity_type]:", @pm[entity_type]
-        rescue Exception => e
+        rescue StandardError => e
           puts "Creation of #{type} failed with #{e.inspect}"
         end
         return entity
