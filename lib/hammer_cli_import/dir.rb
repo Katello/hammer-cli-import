@@ -14,12 +14,7 @@ module HammerCLIImport
 
       # An ordered-list of the entities we know how to import
       class << self; attr_accessor :entity_order end
-      @entity_order = [
-        'organizations',
-        'users',
-        'system-groups',
-        'repositories'
-      ]
+      @entity_order = %w(organizations users system-groups repositories)
 
       #
       # A list of what we know how to do.
