@@ -5,8 +5,8 @@ module HammerCLIImport
   class ImportCommand
     class UserImportCommand < BaseCommand
 
-      command_name "user"
-      desc "Import users."
+      command_name 'user'
+      desc 'Import users.'
 
       csv_columns 'organization_id', 'user_id', 'username',\
         'last_name', 'first_name', 'email', 'role', 'active'
@@ -26,7 +26,7 @@ module HammerCLIImport
           :mail => data['email'],
           :auth_source_id => 1,
           :password => genpw(username),
-          :organization_ids => [get_translated_id(:organizations, data["organization_id"])],
+          :organization_ids => [get_translated_id(:organizations, data['organization_id'])],
           :location_ids => [],
           :role_ids => [],
         }
@@ -34,11 +34,11 @@ module HammerCLIImport
 
       def import_single_row(data)
         user = mk_user_hash data
-        create_entity(:users, user, data["user_id"].to_i)
+        create_entity(:users, user, data['user_id'].to_i)
       end
 
       def delete_single_row(data)
-        delete_entity(:users, data["user_id"].to_i)
+        delete_entity(:users, data['user_id'].to_i)
       end
 
     end
