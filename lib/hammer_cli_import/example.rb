@@ -7,7 +7,7 @@ module HammerCLIImport
     def execute
       puts 'Hello Hammer'
       @api = ApipieBindings::API.new({
-        :uri => HammerCLI::Settings.get(:foreman, :host),
+                                       :uri => HammerCLI::Settings.get(:foreman, :host),
         :username => HammerCLI::Settings.get(:foreman, :username),
         :password => HammerCLI::Settings.get(:foreman, :password),
         :api_version => 2
