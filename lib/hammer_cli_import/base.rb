@@ -155,16 +155,16 @@ module HammerCLIImport
     ## <-
     ############
 
-    def import_single_row(row)
+    def import_single_row(_row)
       puts "Import not implemented."
     end
 
-    def delete_single_row(row)
+    def delete_single_row(_row)
       puts "Delete not implemented."
     end
 
     def lookup_entity(entity_type, entity_id, online_lookup = false)
-      if (not @cache[entity_type][entity_id] or online_lookup)
+      if (! @cache[entity_type][entity_id] or online_lookup)
         @cache[entity_type][entity_id] = @api.resource(entity_type).call(:show, {"id" => entity_id})
       else
         # puts "#{to_singular(entity_type).capitalize} #{entity_id} taken from cache."
