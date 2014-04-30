@@ -62,7 +62,7 @@ module HammerCLIImport
       def set_import_targets
         to_import = option_entities.split(',')
         DirCommand.known.each_key do |key|
-          DirCommand.known[key]['import'] = (to_import.include?(key) or to_import.include?('all'))
+          DirCommand.known[key]['import'] = (to_import.include?(key) || to_import.include?('all'))
           depends_on = DirCommand.known[key]['depends-on'].split(',')
           depends_on.each do |entity_name|
             DirCommand.known[entity_name]['import'] = true
