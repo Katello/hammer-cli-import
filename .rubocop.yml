@@ -1,9 +1,5 @@
-
 LineLength:
-  Max: 200
-
-ParameterLists:
-  Max: 10
+  Max: 125
 
 CollectionMethods:
   PreferredMethods:
@@ -12,59 +8,18 @@ CollectionMethods:
 SignalException:
   Enabled: false
 
-StringLiterals:
-  Enabled: true
-
-SpaceAroundBlockBraces:
-  Enabled: true
-
-BlockNesting:
-  Enabled: 4
-
 ClassLength:
-  Enabled: false
-
-IndentationWidth:
-  Enabled: 2
-
-EmptyLinesAroundBody:
-  Enabled: true
-
-Output:
-  Enabled: false
-
-CyclomaticComplexity:
   Enabled: false
 
 BracesAroundHashParameters:
   Enabled: false
 
-AlignHash:
-  Enabled: true
-
-IndentationConsistency:
-  Enabled: true
-
-TrailingComma:
-  Enabled: true
-
-ConditionPosition:
-  Enabled: true
-
-AccessorMethodName:
-  Enabled: true
-
 MethodLength:
-  Max: 250
+  Max: 18
 
-SpaceInsideHashLiteralBraces:
-  EnforcedStyleIsWithSpaces: false
 
 HashSyntax:
-  Enabled: false # don't force 1.9 hash syntax
-
-SpaceInsideHashLiteralBraces:
-  Enabled: false # allow spaces (eg { :a => 1 })
+  EnforcedStyle: hash_rockets
 
 LeadingCommentSpace:
   Enabled: false
@@ -72,34 +27,7 @@ LeadingCommentSpace:
 IfUnlessModifier:
   Enabled: false
 
-RescueModifier:
-  Enabled: false
-
-AssignmentInCondition:
-  Enabled: false
-
-FavorUnlessOverNegatedIf:
-  Enabled: false
-
-WhileUntilModifier:
-  Enabled: false
-
-AlignParameters:
-  Enabled: false # don't care if parameters are not aligned
-
 ParenthesesAroundCondition:
-  Enabled: false
-
-DotPosition:
-  Enabled: false
-
-Lambda:
-  Enabled: false # don't require -> for single line lambdas
-
-FavorSprintf:
-  Enabled: false # we use % for i18n
-
-RedundantSelf:
   Enabled: false
 
 RedundantReturn:
@@ -110,15 +38,6 @@ SpaceInsideHashLiteralBraces:
 
 Documentation:
   Enabled: false # don't require documentation
-
-Encoding:
-  Enabled: false # don't require utf-8 encoding on every file
-
-MethodCalledOnDoEndBlock:
-  Enabled: true
-
-SingleLineBlockParams:
-  Enabled: false
 
 NumericLiterals:
   Enabled: false
