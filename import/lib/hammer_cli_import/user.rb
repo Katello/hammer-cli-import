@@ -8,7 +8,7 @@ module HammerCLIImport
       desc 'Import users.'
 
       csv_columns 'organization_id', 'user_id', 'username',\
-        'last_name', 'first_name', 'email', 'role', 'active'
+                  'last_name', 'first_name', 'email', 'role', 'active'
 
       persistent_maps :organizations, :users
 
