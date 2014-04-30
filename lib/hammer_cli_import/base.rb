@@ -22,7 +22,7 @@ module HammerCLIImport
       # wrap API parameters into extra hash
       @wrap_out = {:users => :user}
       # APIs return objects encapsulated in extra hash
-      @wrap_in = {:organizations => "organization"}
+      @wrap_in = {:organizations => 'organization'}
       # persistent maps to store translated object ids
       @per_org = {:system_groups => true, :repositories => true, :products => true}
       @pm = {}
@@ -51,7 +51,7 @@ module HammerCLIImport
     ############
     ## -> Stuff related to persistent maps (of ID-s?)
     def data_dir
-      File.join(File.expand_path("~"), "data")
+      File.join(File.expand_path('~'), 'data')
     end
 
     class << self
@@ -128,10 +128,10 @@ module HammerCLIImport
     def verify_maps()
       @pm.keys.each do |map_sym|
         entities = list_entities map_sym
-        entity_ids = entities.map { |e| e["id"].to_i }
+        entity_ids = entities.map { |e| e['id'].to_i }
         extra = @pm[map_sym].to_hash.values - entity_ids
         unless extra.empty?
-          puts "Removing " + map_sym.to_s + " from persistent map: " + extra.join(" ")
+          puts 'Removing ' + map_sym.to_s + ' from persistent map: ' + extra.join(' ')
           @pm[map_sym].to_hash.each do |key, value|
             @pm[map_sym].delete key if extra.include? value
           end
@@ -142,7 +142,7 @@ module HammerCLIImport
     def save_maps
       self.class.maps.each do |map_sym|
         next if @pm[map_sym].new.empty?
-        CSV.open((File.join data_dir, "#{map_sym}-#{Time.now.utc.iso8601}.csv"), "wb") do |csv|
+        CSV.open((File.join data_dir, "#{map_sym}-#{Time.now.utc.iso8601}.csv"), 'wb') do |csv|
           csv << (pm_csv_headers map_sym)
           @pm[map_sym].new.each do |key, value|
             key = [key] unless key.is_a? Array
@@ -156,16 +156,16 @@ module HammerCLIImport
     ############
 
     def import_single_row(_row)
-      puts "Import not implemented."
+      puts 'Import not implemented.'
     end
 
     def delete_single_row(_row)
-      puts "Delete not implemented."
+      puts 'Delete not implemented.'
     end
 
     def lookup_entity(entity_type, entity_id, online_lookup = false)
       if (! @cache[entity_type][entity_id] or online_lookup)
-        @cache[entity_type][entity_id] = @api.resource(entity_type).call(:show, {"id" => entity_id})
+        @cache[entity_type][entity_id] = @api.resource(entity_type).call(:show, {'id' => entity_id})
       else
         # puts "#{to_singular(entity_type).capitalize} #{entity_id} taken from cache."
       end
@@ -173,14 +173,14 @@ module HammerCLIImport
     end
 
     def to_singular(plural)
-      return plural.to_s.sub(/s$/, "").sub(/ie$/,"y")
+      return plural.to_s.sub(/s$/, '').sub(/ie$/,'y')
     end
 
     def get_translated_id(entity_type, entity_id)
       if @pm[entity_type] and @pm[entity_type][entity_id.to_i]
         return @pm[entity_type][entity_id.to_i]
       end
-      raise MissingObjectError, "Need to import " + to_singular(entity_type) + " with id " + entity_id.to_s
+      raise MissingObjectError, 'Need to import ' + to_singular(entity_type) + ' with id ' + entity_id.to_s
     end
 
     def list_entities(entity_type)
@@ -188,37 +188,37 @@ module HammerCLIImport
         results = []
         # check only entities in imported orgs (not all of them)
         @pm[:organizations].to_hash.values.each do |org_id|
-          org_identifier = lookup_entity(:organizations, org_id)["label"]
+          org_identifier = lookup_entity(:organizations, org_id)['label']
           entities = @api.resource(entity_type).call(:index, {'per_page' => 999999, 'organization_id' => org_identifier})
-          entities["results"].each do |entity|
-            @cache[entity_type][entity["id"]] = entity
+          entities['results'].each do |entity|
+            @cache[entity_type][entity['id']] = entity
           end
-          results += entities["results"]
+          results += entities['results']
         end
         return results
       else
         entities = @api.resource(entity_type).call(:index, {'per_page' => 999999})
-        entities["results"].each do |entity|
-          @cache[entity_type][entity["id"]] = entity
+        entities['results'].each do |entity|
+          @cache[entity_type][entity['id']] = entity
         end
-        return entities["results"]
+        return entities['results']
       end
     end
 
     def create_entity(entity_type, entity_hash, original_id)
       type = to_singular(entity_type)
       if @pm[entity_type][original_id]
-        puts type.capitalize + " [" + original_id.to_s + "->" + @pm[entity_type][original_id].to_s + "] already imported."
+        puts type.capitalize + ' [' + original_id.to_s + '->' + @pm[entity_type][original_id].to_s + '] already imported.'
         return @cache[entity_type][@pm[entity_type][original_id]]
       else
-        puts "Creating new " + type + ": " + entity_hash.values_at(:name, :label, :login).compact[0]
+        puts 'Creating new ' + type + ': ' + entity_hash.values_at(:name, :label, :login).compact[0]
         entity_hash = {@wrap_out[entity_type] => entity_hash} if @wrap_out[entity_type]
         begin
           entity = @api.resource(entity_type).call(:create, entity_hash)
           # p "created entity:", entity
           entity = entity[@wrap_in[entity_type]] if @wrap_in[entity_type]
-          @pm[entity_type][original_id] = entity["id"]
-          @cache[entity_type][entity["id"]] = entity
+          @pm[entity_type][original_id] = entity['id']
+          @cache[entity_type][entity['id']] = entity
           # p "@pm[entity_type]:", @pm[entity_type]
         rescue Exception => e
           puts "Creation of #{type} failed with #{e.inspect}"
@@ -228,17 +228,17 @@ module HammerCLIImport
     end
 
     def update_entity(entity_type, id, entity_hash)
-      puts "Updating " + to_singular(entity_type) + " with id: " + id.to_s
+      puts 'Updating ' + to_singular(entity_type) + ' with id: ' + id.to_s
       @api.resource(entity_type).call(:update, {:id => id}.merge!(entity_hash))
     end
 
     def delete_entity(entity_type, original_id)
       type = to_singular(entity_type)
       unless @pm[entity_type][original_id]
-        puts "Unknown " + type + " to delete [" + original_id.to_s + "]."
+        puts 'Unknown ' + type + ' to delete [' + original_id.to_s + '].'
         return nil
       end
-      puts "Deleting imported " + type + " [" + original_id.to_s + "->" + @pm[entity_type][original_id].to_s + "]."
+      puts 'Deleting imported ' + type + ' [' + original_id.to_s + '->' + @pm[entity_type][original_id].to_s + '].'
       @api.resource(entity_type).call(:destroy, {:id => @pm[entity_type][original_id]})
       # delete from cache
       @cache[entity_type].delete(@pm[entity_type][original_id])
@@ -250,16 +250,16 @@ module HammerCLIImport
       original_id = nil
       type = to_singular(entity_type)
       unless @pm[entity_type].to_hash.values.include?(import_id)
-        puts "Unknown imported " + type + " to delete [" + import_id.to_s + "]."
+        puts 'Unknown imported ' + type + ' to delete [' + import_id.to_s + '].'
         return nil
       else
         # find original_id
         @pm[entity_type].to_hash.each do |key, value|
           original_id = key if value == import_id
         end
-        original_id = "?" unless original_id
+        original_id = '?' unless original_id
       end
-      puts "Deleting imported " + type + " [" + original_id.to_s + "->" + @pm[entity_type][original_id].to_s + "]."
+      puts 'Deleting imported ' + type + ' [' + original_id.to_s + '->' + @pm[entity_type][original_id].to_s + '].'
       @api.resource(entity_type).call(:destroy, {:id => import_id})
       # delete from cache
       @cache[entity_type].delete(import_id)

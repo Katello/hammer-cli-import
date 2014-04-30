@@ -6,7 +6,7 @@ module HammerCLIImport
   class ExampleCommand < HammerCLI::Apipie::Command
 
     def execute
-      puts "Hello Hammer"
+      puts 'Hello Hammer'
       @api = ApipieBindings::API.new({
         :uri => HammerCLI::Settings.get(:foreman, :host),
         :username => HammerCLI::Settings.get(:foreman, :username),
@@ -17,6 +17,6 @@ module HammerCLIImport
       HammerCLI::EX_OK
     end
   end
-  HammerCLI::MainCommand.subcommand("zzz:example", "Example command", HammerCLIImport::ExampleCommand)
+  HammerCLI::MainCommand.subcommand('zzz:example', 'Example command', HammerCLIImport::ExampleCommand)
 end
 
