@@ -88,7 +88,7 @@ module HammerCLIImport
             # MAGIC! We create a class from the class-name-string here! #
             #############################################################
             import_class = HammerCLIImport::ImportCommand.const_get(a_map['import-class'])
-            if ! option_dry_run?
+            unless option_dry_run?
               import_class.new(args).run(args)
             end
           end
