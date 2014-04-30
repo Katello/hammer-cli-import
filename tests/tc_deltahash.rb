@@ -44,4 +44,3 @@ class TestDeltaHash < Test::Unit::TestCase
     assert_equal({:a => 2}, dh.new)
   end
 end
-
