@@ -71,7 +71,7 @@ module HammerCLIImport
 
     def pm_csv_headers(symbol)
       key_spec, val_spec = self.class.map_description[symbol]
-      (key_spec + val_spec).map { |x| x.keys[0] }
+      (key_spec + val_spec).collect { |x| x.keys[0] }
     end
 
     class << Fixnum
@@ -126,7 +126,7 @@ module HammerCLIImport
     def verify_maps()
       @pm.keys.each do |map_sym|
         entities = list_entities map_sym
-        entity_ids = entities.map { |e| e['id'].to_i }
+        entity_ids = entities.collect { |e| e['id'].to_i }
         extra = @pm[map_sym].to_hash.values - entity_ids
         unless extra.empty?
           puts 'Removing ' + map_sym.to_s + ' from persistent map: ' + extra.join(' ')
