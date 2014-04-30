@@ -18,4 +18,3 @@ module HammerCLIImport
   end
   HammerCLI::MainCommand.subcommand('zzz:example', 'Example command', HammerCLIImport::ExampleCommand)
 end
-

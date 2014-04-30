@@ -307,4 +307,3 @@ module HammerCLIImport
     end
   end
 end
-
