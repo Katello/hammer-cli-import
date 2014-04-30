@@ -20,18 +20,18 @@ class TestDeltaHash < Test::Unit::TestCase
 
   def test_existing
     dh = DeltaHash[{:a => 1, :b => 2}]
-    assert_raise( DeltaHashError ) { dh[:b] = 2 }
+    assert_raise(DeltaHashError) { dh[:b] = 2 }
   end
 
   def test_delete
     dh = DeltaHash[{:a => 1, :b => 2}]
-    assert_raise( DeltaHashError ) { dh.delete :c }
+    assert_raise(DeltaHashError) { dh.delete :c }
 
     dh.delete :a
     assert_equal({:b => 2}, dh.to_h)
     assert_equal([:a], dh.del.to_a)
     assert_equal({}, dh.new)
-    assert_raise( DeltaHashError ) { dh.delete :a }
+    assert_raise(DeltaHashError) { dh.delete :a }
 
     dh[:a] = 1
     assert_equal({:a => 1, :b => 2}, dh.to_h)

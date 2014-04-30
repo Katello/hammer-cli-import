@@ -12,7 +12,7 @@ module HammerCLIImport
       csv_columns 'id', 'org_id', 'repo_label', 'source_url', 'repo_type'
 
       persistent_maps :organizations, :repositories
-      persistent_map  :products, [{"org_id" => Fixnum}, {"label" => String}], ["sat6" => Fixnum]
+      persistent_map :products, [{"org_id" => Fixnum}, {"label" => String}], ["sat6" => Fixnum]
 
       option ['--sync'], :flag, 'Synchronize imported repositories', :default => false
 
@@ -55,7 +55,7 @@ module HammerCLIImport
 
       def delete_single_row(data)
         # check just becasue we're calling get_translated_id
-        if not @pm[:repositories][data["id"].to_i]
+        if ! @pm[:repositories][data["id"].to_i]
           puts to_singular(:repositories).capitalize + " with id " + data["id"] + " wasn't imported. Skipping."
           return
         end
