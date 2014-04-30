@@ -106,7 +106,7 @@ module HammerCLIImport
       [key, value]
     end
 
-    def load_maps()
+    def load_maps
       self.class.maps.each do |map_sym|
         hash = {}
         @cache[map_sym] = {}
@@ -123,7 +123,7 @@ module HammerCLIImport
       end
     end
 
-    def verify_maps()
+    def verify_maps
       @pm.keys.each do |map_sym|
         entities = list_entities map_sym
         entity_ids = entities.collect { |e| e['id'].to_i }
