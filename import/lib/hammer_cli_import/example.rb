@@ -8,9 +8,9 @@ module HammerCLIImport
       puts 'Hello Hammer'
       @api = ApipieBindings::API.new({
                                        :uri => HammerCLI::Settings.get(:foreman, :host),
-        :username => HammerCLI::Settings.get(:foreman, :username),
-        :password => HammerCLI::Settings.get(:foreman, :password),
-        :api_version => 2
+                                       :username => HammerCLI::Settings.get(:foreman, :username),
+                                       :password => HammerCLI::Settings.get(:foreman, :password),
+                                       :api_version => 2
       })
       puts @api.resource(:organizations).call(:index)['results'].length
       HammerCLI::EX_OK
