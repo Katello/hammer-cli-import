@@ -2,7 +2,6 @@ require 'hammer_cli'
 # require 'hammer_cli/exit_codes'
 
 module HammerCLIImport
-
   # def self.exception_handler_class
   #   HammerCLIImport::ExceptionHandler
   # end
@@ -20,5 +19,4 @@ module HammerCLIImport
   require 'hammer_cli_import/systemgroup'
   require 'hammer_cli_import/user'
   require 'hammer_cli_import/version'
-
 end

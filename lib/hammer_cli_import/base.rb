@@ -5,7 +5,6 @@ require 'apipie-bindings'
 require 'hammer_cli'
 
 module HammerCLIImport
-
   class PersistentMapError < RuntimeError
   end
 
@@ -16,7 +15,6 @@ module HammerCLIImport
   end
 
   class BaseCommand < HammerCLI::Apipie::Command
-
     def initialize(*list)
       super(*list)
       # wrap API parameters into extra hash

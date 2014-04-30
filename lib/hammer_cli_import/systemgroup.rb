@@ -5,7 +5,6 @@ require 'apipie-bindings'
 module HammerCLIImport
   class ImportCommand
     class SystemGroupImportCommand < BaseCommand
-
       command_name 'system-group'
       desc 'Import system groups.'
 
@@ -28,7 +27,6 @@ module HammerCLIImport
       def delete_single_row(data)
         delete_entity(:system_groups, data['group_id'].to_i)
       end
-
     end
   end
 end
