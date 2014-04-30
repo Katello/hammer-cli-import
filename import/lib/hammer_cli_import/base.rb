@@ -171,7 +171,7 @@ module HammerCLIImport
     end
 
     def to_singular(plural)
-      return plural.to_s.sub(/s$/, '').sub(/ie$/,'y')
+      return plural.to_s.sub(/s$/, '').sub(/ie$/, 'y')
     end
 
     def get_translated_id(entity_type, entity_id)
