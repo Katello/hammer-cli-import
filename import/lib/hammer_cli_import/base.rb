@@ -39,7 +39,7 @@ module HammerCLIImport
     class << self
       def csv_columns(*list)
         return @csv_columns if list.empty?
-        raise RuntimeError, 'set more than once' if @csv_columns
+        raise 'set more than once' if @csv_columns
         @csv_columns = list
       end
     end
