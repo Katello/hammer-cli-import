@@ -54,19 +54,6 @@ ConditionPosition:
 AccessorMethodName:
   Enabled: true
 
-AllCops:
-  RunRailsCops: true # automatically run rails cops
-  Excludes:
-    - script/rails
-    - script/thin
-    - db/migrate/20131014135042_katello_tables.rb
-    - engines/bastion/node_modules/**
-    - engines/bastion/vendor/assets/dev-components/**
-    # TODO: remove these other paths as we fix them
-    - spec/**
-    - test/**
-    - config/navigation.rb
-
 MethodLength:
   Max: 250
 
