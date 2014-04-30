@@ -27,7 +27,7 @@ module HammerCLIImport
           :password => genpw(username),
           :organization_ids => [get_translated_id(:organizations, data['organization_id'])],
           :location_ids => [],
-          :role_ids => [],
+          :role_ids => []
         }
       end
 
