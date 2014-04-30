@@ -247,7 +247,7 @@ module HammerCLIImport
     def delete_entity_by_import_id(entity_type, import_id)
       original_id = nil
       type = to_singular(entity_type)
-      unless @pm[entity_type].to_hash.values.include?(import_id)
+      if ! @pm[entity_type].to_hash.values.include?(import_id)
         puts 'Unknown imported ' + type + ' to delete [' + import_id.to_s + '].'
         return nil
       else
