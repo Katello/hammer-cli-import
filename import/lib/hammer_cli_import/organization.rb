@@ -4,7 +4,6 @@ require 'hammer_cli'
 module HammerCLIImport
   class ImportCommand
     class OrganizationImportCommand < BaseCommand
-
       command_name 'organization'
       desc 'Import organizations.'
 
@@ -28,7 +27,6 @@ module HammerCLIImport
       def delete_single_row(data)
         delete_entity(:organizations, data['organization_id'].to_i)
       end
-
     end
   end
 end

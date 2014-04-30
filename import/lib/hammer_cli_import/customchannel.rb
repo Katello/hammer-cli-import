@@ -1,7 +1,6 @@
 module HammerCLIImport
   class ImportCommand
     class CustomChannelImportCommand < BaseCommand
-
       command_name 'custom-channel'
       desc 'Import custom channels.'
 

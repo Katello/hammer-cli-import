@@ -5,7 +5,6 @@ require 'uri'
 module HammerCLIImport
   class ImportCommand
     class RepositoryImportCommand < BaseCommand
-
       command_name 'repository'
       desc 'Import repositories.'
 
@@ -70,7 +69,6 @@ module HammerCLIImport
           delete_entity_by_import_id(:products, product_id)
         end
       end
-
     end
   end
 end

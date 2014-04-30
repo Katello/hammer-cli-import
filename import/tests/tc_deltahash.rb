@@ -3,7 +3,6 @@ require 'test/unit'
 require './deltahash'
 
 class TestDeltaHash < Test::Unit::TestCase
-
   def test_simple
     dh = DeltaHash.new({})
     assert_equal({}, dh.to_h)
@@ -44,6 +43,5 @@ class TestDeltaHash < Test::Unit::TestCase
     assert_equal([], dh.del.to_a)
     assert_equal({:a => 2}, dh.new)
   end
-
 end
 

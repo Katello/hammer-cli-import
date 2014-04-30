@@ -4,7 +4,6 @@ require 'hammer_cli'
 module HammerCLIImport
   class ImportCommand
     class UserImportCommand < BaseCommand
-
       command_name 'user'
       desc 'Import users.'
 
@@ -40,7 +39,6 @@ module HammerCLIImport
       def delete_single_row(data)
         delete_entity(:users, data['user_id'].to_i)
       end
-
     end
     autoload_subcommands
   end

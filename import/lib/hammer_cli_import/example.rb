@@ -4,7 +4,6 @@ require 'apipie-bindings'
 
 module HammerCLIImport
   class ExampleCommand < HammerCLI::Apipie::Command
-
     def execute
       puts 'Hello Hammer'
       @api = ApipieBindings::API.new({
