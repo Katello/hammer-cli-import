@@ -162,7 +162,7 @@ module HammerCLIImport
     end
 
     def lookup_entity(entity_type, entity_id, online_lookup = false)
-      if (! @cache[entity_type][entity_id] or online_lookup)
+      if (! @cache[entity_type][entity_id] || online_lookup)
         @cache[entity_type][entity_id] = @api.resource(entity_type).call(:show, {'id' => entity_id})
       else
         # puts "#{to_singular(entity_type).capitalize} #{entity_id} taken from cache."
@@ -175,7 +175,7 @@ module HammerCLIImport
     end
 
     def get_translated_id(entity_type, entity_id)
-      if @pm[entity_type] and @pm[entity_type][entity_id.to_i]
+      if @pm[entity_type] && @pm[entity_type][entity_id.to_i]
         return @pm[entity_type][entity_id.to_i]
       end
       raise MissingObjectError, 'Need to import ' + to_singular(entity_type) + ' with id ' + entity_id.to_s
