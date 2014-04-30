@@ -15,7 +15,7 @@ module HammerCLIImport
           :name => data['name'],
           :description => data['description'],
           :organization_id => lookup_entity(:organizations, get_translated_id(:organizations, data['org_id'].to_i))['label'],
-          :repository_ids  => data['associated_repo_label'].split(';').map do |repo_label|
+          :repository_ids  => data['associated_repo_label'].split(';').collect do |repo_label|
             magic(repo_label)
           end
         }

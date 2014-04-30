@@ -13,7 +13,7 @@ module HammerCLIImport
       persistent_maps :organizations, :users
 
       def genpw(username)
-        username + '_' + (0...8).map { ('a'..'z').to_a[rand(26)] }.join
+        username + '_' + (0...8).collect { ('a'..'z').to_a[rand(26)] }.join
       end
 
       def mk_user_hash(data)
