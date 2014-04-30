@@ -13,10 +13,10 @@ module HammerCLIImport
       persistent_maps :system_groups, :organizations
 
       def mk_sg_hash(data)
-          {
-            :name => data['name'],
-            :organization_id => lookup_entity(:organizations, get_translated_id(:organizations, data['org_id']))['label'],
-          }
+        {
+          :name => data['name'],
+          :organization_id => lookup_entity(:organizations, get_translated_id(:organizations, data['org_id']))['label'],
+        }
       end
 
       def import_single_row(data)
