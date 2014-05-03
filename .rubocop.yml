@@ -15,8 +15,10 @@ BracesAroundHashParameters:
   Enabled: false
 
 MethodLength:
-  Max: 18
+  Max: 25
 
+Encoding:
+  Enabled: false
 
 HashSyntax:
   EnforcedStyle: hash_rockets
