@@ -8,6 +8,7 @@ module HammerCLIImport
 
   require 'hammer_cli_import/deltahash'
   require 'hammer_cli_import/fixtime'
+  require 'hammer_cli_import/persistentmap'
 
   require 'hammer_cli_import/base'
   require 'hammer_cli_import/import'
