@@ -49,4 +49,8 @@ class DeltaHash
   def inspect
     to_hash.inspect
   end
+
+  def changed?
+    @new.empty? || del.empty?
+  end
 end
