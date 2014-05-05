@@ -21,9 +21,7 @@ module HammerCLIImport
       @wrap_out = {:users => :user}
       # APIs return objects encapsulated in extra hash
       @wrap_in = {:organizations => 'organization'}
-      # persistent maps to store translated object ids
       @per_org = {:system_groups => true, :repositories => true, :products => true}
-      @pm = {}
       # cache imported objects (created/lookuped)
       @cache = {}
       # apipie binding
