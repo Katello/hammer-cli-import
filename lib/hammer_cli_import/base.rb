@@ -21,7 +21,8 @@ module HammerCLIImport
       @wrap_out = {:users => :user}
       # APIs return objects encapsulated in extra hash
       @wrap_in = {:organizations => 'organization'}
-      @per_org = {:system_groups => true, :repositories => true, :products => true}
+      # entities that needs organization to be listed
+      @per_org = {:system_groups => true, :repositories => true, :products => true, :content_views => true}
       # cache imported objects (created/lookuped)
       @cache = {}
       # apipie binding
