@@ -22,9 +22,20 @@ module HammerCLIImport
         }
       end
 
+      def publish_content_view(id)
+        @api.resource(:content_views).call(:publish, {:id => id})
+      end
+
       def import_single_row(data)
         content_view = mk_content_view_hash data
-        create_entity(:content_views, content_view, data['id'].to_i)
+        content_view[:repository_ids].collect { |id| lookup_entity :repositories, id } .each do |repo|
+          unless repo['sync_state'] == 'finished'
+            puts "Repository #{repo['label']} is currently synchronizing. Retry once it has completed."
+            return
+          end
+        end
+        cw = create_entity(:content_views, content_view, data['id'].to_i)
+        publish_content_view(cw['id'])
       end
     end
   end
