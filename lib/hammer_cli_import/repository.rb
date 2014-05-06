@@ -55,7 +55,7 @@ module HammerCLIImport
       def delete_single_row(data)
         # check just becasue we're calling get_translated_id
         unless @pm[:repositories][data['id'].to_i]
-          puts to_singular(:repositories).capitalize + ' with id ' + data['id'] + " wasn't imported. Skipping."
+          puts to_singular(:repositories).capitalize + ' with id ' + data['id'] + " wasn't imported. Skipping deletion."
           return
         end
         # find out product id
