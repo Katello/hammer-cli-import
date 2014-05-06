@@ -1,0 +1,2 @@
+organization_id,organization,user_id,username,last_name,first_name,position,email,role,creation_time,last_login_time,active
+1,Galactic Empire,177,obi,Kenobi,Obi-Wan,,obiwan@tatooine,Monitoring Administrator;System Group Administrator,2014-04-02 13:44:27,2014-04-02 13:44:28,enabled
