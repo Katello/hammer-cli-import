@@ -182,7 +182,13 @@ module HammerCLIImport
         raise CSVHeaderError, "column #{col} expected in #{filename}" unless header.include? col
       end
       reader.each do |row|
-        action.call(Hash[header.zip row])
+        begin
+          action.call(Hash[header.zip row])
+        rescue => e
+          puts "Caught #{e.class}:#{e.message} while processing following line:"
+          p row
+          puts e.backtrace.join "\n"
+        end
       end
     end
 
