@@ -1,0 +1,18 @@
+# additional patch needed:
+
+
+$ diff -u /usr/lib/python2.6/site-packages/spacewalk/satellite_tools/reposync.py{.org,}
+--- /usr/lib/python2.6/site-packages/spacewalk/satellite_tools/reposync.py.org  2014-05-07 09:53:13.267397207 -0400
++++ /usr/lib/python2.6/site-packages/spacewalk/satellite_tools/reposync.py  2014-05-07 11:11:25.885113049 -0400
+@@ -684,6 +684,11 @@
+         else:
+             return self.name + '-' + self.version + '-' + self.release + '.' + self.arch
+
++    def getNEVRA(self):
++        if self.epoch is None:
++            self.epoch = '0'
++        return self.name + '-' + self.epoch + ':' + self.version + '-' + self.release + '.' + self.arch
++
+     def load_checksum_from_header(self):
+         if self.path is None:
+             raise rhnFault(50, "Unable to load package", explain=0)
