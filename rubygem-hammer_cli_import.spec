@@ -1,4 +1,5 @@
 %global gemname hammer_cli_import
+%global confdir hammer
 %if 0%{?rhel}
 %global gem_dir /usr/lib/ruby/gems/1.8
 %endif
@@ -14,6 +15,7 @@ Group:      Development/Languages
 License:    GPLv3
 URL:        http://code.engineering.redhat.com/stargate.git
 Source0:    %{gemname}-%{version}.gem
+Source1:    import.yml
 
 %if 0%{?rhel} == 6 || 0%{?fedora} < 19
 Requires: ruby(abi)
@@ -47,6 +49,8 @@ gem install --local --install-dir .%{gem_dir} \
             --force %{SOURCE0}
 
 %install
+mkdir -p %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d
+install -m 755 %{SOURCE1} %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import.yml
 mkdir -p %{buildroot}%{gem_dir}
 cp -pa .%{gem_dir}/* \
         %{buildroot}%{gem_dir}/
@@ -54,6 +58,7 @@ cp -pa .%{gem_dir}/* \
 %files
 %dir %{geminstdir}
 %{geminstdir}/lib
+%config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/import.yml
 %exclude %{gem_dir}/cache/%{gemname}-%{version}.gem
 %{gem_dir}/specifications/%{gemname}-%{version}.gemspec
 
