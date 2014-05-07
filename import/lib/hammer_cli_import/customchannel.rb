@@ -23,7 +23,17 @@ module HammerCLIImport
       end
 
       def publish_content_view(id)
+        puts "Publishing content view with id=#{id}"
         @api.resource(:content_views).call(:publish, {:id => id})
+      end
+
+      def newer_repositories(cw)
+        last = cw['last_published']
+        return true unless last
+        last = Time.parse(last)
+        cw['repositories'].any? do |repo|
+          last < Time.parse(repo['last_sync'])
+        end
       end
 
       def import_single_row(data)
@@ -35,7 +45,7 @@ module HammerCLIImport
           end
         end
         cw = create_entity(:content_views, content_view, data['id'].to_i)
-        publish_content_view(cw['id'])
+        publish_content_view cw['id'] if newer_repositories cw
       end
     end
   end
