@@ -30,3 +30,15 @@ and running with
     # /opt/rh/ruby193/root/usr/local/share/gems/gems/*/bin/rubocop
 
 it should pick up config automatically
+
+Devel
+-----
+
+You can add to your `~/.irbrc`:
+
+    class Object
+      def imethods
+        methods - Object.methods
+      end
+    end
+
