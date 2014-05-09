@@ -28,12 +28,15 @@ def db_init():
     rhnSQL.initDB()
 
 _query_packages = rhnSQL.Statement("""
-select p.id, p.org_id, p.package_size, p.path, c.checksum, c.checksum_type, n.name, evr.epoch, evr.version, evr.release, a.label as arch
+select p.id, p.org_id, p.package_size, p.path, c.checksum, c.checksum_type, n.name, evr.epoch, evr.version, evr.release, a.label as arch, ocp.package_id, cc.original_id
 from rhnPackage p join rhnChecksumView c on p.checksum_id = c.id
 join rhnPackageName n on p.name_id = n.id
 join rhnPackageEVR evr on p.evr_id = evr.id
 join rhnPackageArch a on p.package_arch_id = a.id
 join rhnChannelPackage cp on cp.package_id = p.id
+left join rhnChannelCloned cc on cc.id = cp.channel_id
+left join rhnChannelPackage ocp on ocp.channel_id = cc.original_id
+     and ocp.package_id = cp.package_id
 where cp.channel_id = :channel_id
 order by n.name
 """)
@@ -57,8 +60,8 @@ def export_packages(options):
     log(1, "Output directory: %s" % options.directory)
     if not os.path.exists(options.directory):
         os.makedirs(options.directory)
-    csv = open(os.path.join(options.directory, 'packages.csv'), 'w')
-    csv.write("org_id,channel_id,channel_label,package_nevra,package_rpm_name,available_in_repo\n")
+    top_level_csv = open(os.path.join(options.directory, 'export.csv'), 'w')
+    top_level_csv.write("org_id,channel_id,channel_label\n")
 
     h = rhnSQL.prepare(_query_organizations)
     h.execute()
@@ -71,7 +74,7 @@ def export_packages(options):
         channels = h.fetchall_dict() or []
 
         for channel in channels:
-            log(1, " * channel: %s with %d packages" % (channel["label"], channel["package_count"]))
+            log(1, " * channel: %s with: %d packages" % (channel["label"], channel["package_count"]))
             h = rhnSQL.prepare(_query_repos)
             h.execute(channel_id=channel["id"])
             repos = h.fetchall_dict() or []
@@ -80,6 +83,7 @@ def export_packages(options):
             repo_packages = {}
             in_repo = 0
             missing = 0
+            in_parent = 0
             for repo in repos:
                 if repo['source_url'].startswith('file://'):
                     log(2, "  - local repo: %s. Skipping." % repo['label'])
@@ -90,6 +94,9 @@ def export_packages(options):
             channel_dir = os.path.join(options.directory, str(org["id"]), str(channel["id"]))
             if not os.path.exists(channel_dir):
                 os.makedirs(channel_dir)
+            top_level_csv.write("%d,%d,%s\n" % (org['id'], channel['id'], channel['label']))
+            channel_csv = open(channel_dir + ".csv", 'w')
+            channel_csv.write("org_id,channel_id,channel_label,package_nevra,package_rpm_name,in_repo,in_parent_channel\n")
 
             h = rhnSQL.prepare(_query_packages)
             h.execute(channel_id=channel["id"])
@@ -102,25 +109,33 @@ def export_packages(options):
                     abs_path = os.path.join(CFG.MOUNT_POINT, pkg['path'])
                     log(3, abs_path)
                     pkg['nevra'] = pkg_nevra(pkg)
-                    repo_id = pkgs_available_in_repos(pkg, repo_packages)
-                    if repo_id != None:
-                        in_repo += 1
+                    if pkg['package_id']:
+                        in_parent += 1
                         if not options.exportedonly:
-                            csv.write("%d,%d,%s,%s,%s,%s\n" % (org['id'], channel['id'], channel['label'], pkg['nevra'], os.path.basename(pkg['path']),repo_id))
+                            channel_csv.write("%d,%d,%s,%s,%s,%s,%s\n" % (org['id'], channel['id'], channel['label'], pkg['nevra'], os.path.basename(pkg['path']), '', pkg['original_id']))
 
                     else:
-                        missing += 1
-                        cp_to_export_dir(abs_path, channel_dir, options)
-                        csv.write("%d,%d,%s,%s,%s,\n" % (org['id'], channel['id'], channel['label'], pkg['nevra'], os.path.basename(pkg['path'])))
-                        check_disk_size(abs_path, pkg['package_size'])
-                        check_disk_nevrao(abs_path, pkg.copy())
-            log(2, "  - exporting: %d" % missing)
-            log(2, "  - available: %d" % in_repo)
+                        repo_id = pkgs_available_in_repos(pkg, repo_packages)
+                        if repo_id != None:
+                            in_repo += 1
+                            if not options.exportedonly:
+                                channel_csv.write("%d,%d,%s,%s,%s,%s,%s\n" % (org['id'], channel['id'], channel['label'], pkg['nevra'], os.path.basename(pkg['path']), repo_id, ''))
+
+                        else:
+                            missing += 1
+                            if options.size:
+                                check_disk_size(abs_path, pkg['package_size'])
+                            cp_to_export_dir(abs_path, channel_dir, options)
+                            channel_csv.write("%d,%d,%s,%s,%s,%s,%s\n" % (org['id'], channel['id'], channel['label'], pkg['nevra'], os.path.basename(pkg['path']), '', ''))
+            channel_csv.close()
+            log(2, "  - exported: %d" % missing)
+            log(2, "  - in repos: %d" % in_repo)
+            log(2, "  - in original: %d" % in_parent)
             if options.skiprepogeneration:
-                log(2, "  - skipping repo generation for channel export %s" % channel['label'])
+                log(2, "  - skipping repo generation for channel export %s." % channel['label'])
             else:
                 create_repository(channel_dir, options)
-    csv.close()
+    top_level_csv.close()
 
 
 def exists_on_fs(abs_path):
@@ -173,38 +188,6 @@ def check_disk_size(abs_path, size):
     if file_size != size:
         log(0, "File size mismatch: %s (%s vs. %s)" % (abs_path, size, file_size))
         ret = 1
-    return ret
-
-def check_disk_nevrao(abs_path, row, restore=None):
-    file = {};
-    (_redhat_,
-      file['org_id'],
-      file['checksum_prefix'],
-      file['name'],
-      file['evr'],
-      file['arch'],
-      file['checksum'],
-      file['basename']) = row['path'].split('/')
-    if not row['org_id']:
-        row['org_id'] = 'NULL'
-    else:
-        row['org_id'] = str(row['org_id'])
-    row['checksum_prefix'] = row['checksum'][:3]
-    if row['epoch']:
-        row['evr'] = row['epoch'] + ':'
-    else:
-        row['evr'] = ''
-    row['evr'] += row['version'] + '-' + row['release']
-    row['basename'] = "%s-%s-%s.%s.%s" % (
-                row['name'], row['version'], row['release'],
-                row['arch'], row['path'][-3:])
-    ret = 0
-    for key in ('org_id', 'checksum_prefix', 'name', 'evr', 'arch', 'checksum',
-            'basename'):
-        if file[key] != row[key]:
-            log(0, "File path mismatch: %s (%s: %s vs. %s)" % (abs_path, key, row[key],
-                                                               file[key]))
-            ret = 1
     return ret
 
 def log(level, *args):
