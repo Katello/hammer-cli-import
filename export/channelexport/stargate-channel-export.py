@@ -43,7 +43,7 @@ select id, name from web_customer
 """)
 
 _query_channels = rhnSQL.Statement("""
-select id, label from rhnChannel where org_id = :org_id order by label
+select c.id, c.label, count(cp.package_id) package_count from rhnChannel c join rhnChannelPackage cp on cp.channel_id = c.id where org_id = :org_id group by c.id, c.label order by label
 """)
 
 _query_repos = rhnSQL.Statement("""
@@ -55,6 +55,10 @@ order by cs.label
 def export_packages(options):
 
     log(1, "Output directory: %s" % options.directory)
+    if not os.path.exists(options.directory):
+        os.makedirs(options.directory)
+    csv = open(os.path.join(options.directory, 'packages.csv'), 'w')
+    csv.write("org_id,channel_id,channel_label,package_nevra,package_rpm_name,available_in_repo\n")
 
     h = rhnSQL.prepare(_query_organizations)
     h.execute()
@@ -67,13 +71,12 @@ def export_packages(options):
         channels = h.fetchall_dict() or []
 
         for channel in channels:
-            log(1, " * channel: %s" % channel["label"])
+            log(1, " * channel: %s with %d packages" % (channel["label"], channel["package_count"]))
             h = rhnSQL.prepare(_query_repos)
             h.execute(channel_id=channel["id"])
             repos = h.fetchall_dict() or []
             if not repos:
                 log(2, "  - no repos associated")
-                continue
             repo_packages = {}
             in_repo = 0
             missing = 0
@@ -81,8 +84,8 @@ def export_packages(options):
                 if repo['source_url'].startswith('file://'):
                     log(2, "  - local repo: %s. Skipping." % repo['label'])
                     continue
-                repo_packages[repo['label']] = list_repo_packages(repo['label'], repo['source_url'])
-                log(2, "  - repo %s with: %s packages." % (repo['label'], str(len(repo_packages[repo['label']]))))
+                repo_packages[repo['id']] = list_repo_packages(repo['label'], repo['source_url'])
+                log(2, "  - repo %s with: %s packages." % (repo['label'], str(len(repo_packages[repo['id']]))))
 
             channel_dir = os.path.join(options.directory, str(org["id"]), str(channel["id"]))
             if not os.path.exists(channel_dir):
@@ -99,16 +102,25 @@ def export_packages(options):
                     abs_path = os.path.join(CFG.MOUNT_POINT, pkg['path'])
                     log(3, abs_path)
                     pkg['nevra'] = pkg_nevra(pkg)
-                    if pkgs_available_in_repos(pkg, repo_packages) != None:
+                    repo_id = pkgs_available_in_repos(pkg, repo_packages)
+                    if repo_id != None:
                         in_repo += 1
+                        if not options.exportedonly:
+                            csv.write("%d,%d,%s,%s,%s,%s\n" % (org['id'], channel['id'], channel['label'], pkg['nevra'], os.path.basename(pkg['path']),repo_id))
+
                     else:
                         missing += 1
                         cp_to_export_dir(abs_path, channel_dir, options)
+                        csv.write("%d,%d,%s,%s,%s,\n" % (org['id'], channel['id'], channel['label'], pkg['nevra'], os.path.basename(pkg['path'])))
                         check_disk_size(abs_path, pkg['package_size'])
                         check_disk_nevrao(abs_path, pkg.copy())
             log(2, "  - exporting: %d" % missing)
             log(2, "  - available: %d" % in_repo)
-            create_repository(channel_dir, options)
+            if options.skiprepogeneration:
+                log(2, "  - skipping repo generation for channel export %s" % channel['label'])
+            else:
+                create_repository(channel_dir, options)
+    csv.close()
 
 
 def exists_on_fs(abs_path):
@@ -137,9 +149,9 @@ def create_repository(repo_dir, options):
     subprocess.call(["createrepo", "--no-database", repo_dir])
 
 def pkgs_available_in_repos(pkg, repo_packages):
-    for label, packages in repo_packages.iteritems():
+    for id, packages in repo_packages.iteritems():
         if pkg['nevra'] in packages:
-            return label
+            return id
     return None
 
 def list_repo_packages(label, source_url):
@@ -206,13 +218,17 @@ def log(level, *args):
 if __name__ == '__main__':
 
     options_table = [
-        Option("-v", "--verbose",       action="count",
+        Option("-v", "--verbose", action="count",
             help="Increase verbosity"),
-        Option("-d", "--dir",       action="store", dest="directory",
+        Option("-d", "--dir", action="store", dest="directory",
             help="Export directory"),
-        Option("-f", "--force",       action="store", dest="force",
+        Option("-f", "--force", action="store", dest="force",
             help="Overwrite export, if already present"),
-        Option("-S", "--no-size",       action="store_false", dest="size", default=True,
+        Option("-e", "--exported-only", action="store_true", dest="exportedonly",
+            help="CSV output will contain only packages not available in repos"),
+        Option("-s", "--skip-repogeneration", action="store_true", dest="skiprepogeneration",
+            help="CSV output will contain only packages not available in repos"),
+        Option("-S", "--no-size", action="store_false", dest="size", default=True,
             help="Don't check package size")]
     parser = OptionParser(option_list=options_table)
     (options, args) = parser.parse_args()
