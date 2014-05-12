@@ -43,17 +43,18 @@ module HammerCLIImport
                     {'export-file' => 'repositories',
                      'import-class' => 'RepositoryImportCommand',
                      'depends-on' => 'organizations',
-                     'import' => false }
-                  #'custom-channels' =>
-                  #  {'export-file' => 'system-groups',
-                  #   'import-class' => 'SystemGroupImportCommand',
-                  #   'import' => false },
+                     'import' => false },
+                  'custom-channels' =>
+                    {'export-file' => 'custom-channels',
+                     'import-class' => 'CustomChannelImportCommand',
+                     'depends-on' => 'organizations',
+                     'import' => false },
                 }
 
       def do_list
         puts 'Entities I understand:'
-        DirCommand.entity_order.each do |a_map|
-          puts "  #{a_map['name']}"
+        DirCommand.entity_order.each do |an_entity|
+          puts "  #{an_entity}"
         end
       end
 
