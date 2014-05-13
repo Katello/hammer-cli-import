@@ -1,5 +1,5 @@
 # additional patch needed:
-
+(already available in spacewalk.git: c0e18e51ab3047a75472aa366311ec803b212dfd)
 
 $ diff -u /usr/lib/python2.6/site-packages/spacewalk/satellite_tools/reposync.py{.org,}
 --- /usr/lib/python2.6/site-packages/spacewalk/satellite_tools/reposync.py.org  2014-05-07 09:53:13.267397207 -0400
