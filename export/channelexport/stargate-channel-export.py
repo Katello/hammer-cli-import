@@ -1,12 +1,13 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
+from optparse import Option, OptionParser
 import os
 import re
+import shutil
 import stat
 import subprocess
 import sys
-from optparse import Option, OptionParser
 
 try:
     from spacewalk.common.rhnLog import initLOG, log_debug
@@ -21,6 +22,8 @@ except:
     from server import rhnSQL
 
 LOG_FILE='/var/log/rhn/stargate-channel-export.log'
+# try to do hard links
+real_copy = False
 
 
 def db_init():
@@ -41,10 +44,15 @@ where cp.channel_id = :channel_id
 order by n.name
 """)
 
-_query_organizations = rhnSQL.Statement("""
+_query_organizations = """
+select id, name from web_customer where id in (%s)
+"""
+
+_query_all_organizations = rhnSQL.Statement("""
 select id, name from web_customer
 """)
 
+# change to left join in case we're interested into empty custom channels
 _query_channels = rhnSQL.Statement("""
 select c.id, c.label, count(cp.package_id) package_count from rhnChannel c join rhnChannelPackage cp on cp.channel_id = c.id where org_id = :org_id group by c.id, c.label order by label
 """)
@@ -57,15 +65,19 @@ order by cs.label
 
 def export_packages(options):
 
-    log(1, "Output directory: %s" % options.directory)
     if not os.path.exists(options.directory):
         os.makedirs(options.directory)
     top_level_csv = open(os.path.join(options.directory, 'export.csv'), 'w')
     top_level_csv.write("org_id,channel_id,channel_label\n")
 
-    h = rhnSQL.prepare(_query_organizations)
-    h.execute()
-    orgs = h.fetchall_dict()
+    if options.org_ids:
+        h = rhnSQL.prepare(_query_organizations % ','.join(map(str,options.org_ids)))
+        h.execute()
+        orgs = h.fetchall_dict()
+    else:
+        h = rhnSQL.prepare(_query_all_organizations)
+        h.execute()
+        orgs = h.fetchall_dict() or []
 
     for org in orgs:
         log(1, "Processing organization: %s" % org["name"])
@@ -81,9 +93,10 @@ def export_packages(options):
             if not repos:
                 log(2, "  - no repos associated")
             repo_packages = {}
-            in_repo = 0
-            missing = 0
-            in_parent = 0
+            package_count = {}
+            package_count["repo"] = 0
+            package_count["export"] = 0
+            package_count["parent"] = 0
             for repo in repos:
                 if repo['source_url'].startswith('file://'):
                     log(2, "  - local repo: %s. Skipping." % repo['label'])
@@ -107,39 +120,53 @@ def export_packages(options):
                     break
                 if pkg['path']:
                     abs_path = os.path.join(CFG.MOUNT_POINT, pkg['path'])
-                    log(3, abs_path)
+                    log(4, abs_path)
                     pkg['nevra'] = pkg_nevra(pkg)
                     if pkg['package_id']:
-                        in_parent += 1
+                        package_count["parent"] += 1
                         if not options.exportedonly:
                             channel_csv.write("%d,%d,%s,%s,%s,%s,%s\n" % (org['id'], channel['id'], channel['label'], pkg['nevra'], os.path.basename(pkg['path']), '', pkg['original_id']))
 
                     else:
                         repo_id = pkgs_available_in_repos(pkg, repo_packages)
                         if repo_id != None:
-                            in_repo += 1
+                            package_count["repo"] += 1
                             if not options.exportedonly:
                                 channel_csv.write("%d,%d,%s,%s,%s,%s,%s\n" % (org['id'], channel['id'], channel['label'], pkg['nevra'], os.path.basename(pkg['path']), repo_id, ''))
 
                         else:
-                            missing += 1
+                            package_count["export"] += 1
                             if options.size:
                                 check_disk_size(abs_path, pkg['package_size'])
                             cp_to_export_dir(abs_path, channel_dir, options)
                             channel_csv.write("%d,%d,%s,%s,%s,%s,%s\n" % (org['id'], channel['id'], channel['label'], pkg['nevra'], os.path.basename(pkg['path']), '', ''))
             channel_csv.close()
-            log(2, "  - exported: %d" % missing)
-            log(2, "  - in repos: %d" % in_repo)
-            log(2, "  - in original: %d" % in_parent)
+            log(2, "  - pkgs available in external repos: %d" % package_count["repo"])
+            log(2, "  - pkgs available in clone originals: %d" % package_count["parent"])
+            log(2, "  - pkgs exported: %d" % package_count["export"])
             if options.skiprepogeneration:
-                log(2, "  - skipping repo generation for channel export %s." % channel['label'])
+                log(2, "  - skipping repo generation")
             else:
+                log(2, "  - generating repository metadata")
                 create_repository(channel_dir, options)
     top_level_csv.close()
 
 
-def exists_on_fs(abs_path):
-    return os.path.isfile(abs_path)
+def cp_file(source, target):
+    global real_copy
+    if real_copy:
+        shutil.copy(source, target)
+    else:
+        try:
+            # create hard link
+            os.link(source, target)
+            return
+        except OSError:
+            # if hard link creation fails,
+            # start copying files
+            real_copy = True
+            shutil.copy(source, target)
+
 
 def pkg_nevra(pkg):
     # this NEVRA has to match
@@ -149,25 +176,31 @@ def pkg_nevra(pkg):
 
 
 def cp_to_export_dir(pkg_path, dir, options):
-    if not exists_on_fs(pkg_path):
+    if not os.path.isfile(pkg_path):
         log(0, "File missing: %s" % abs_path)
         return
     target = os.path.join(dir, os.path.basename(pkg_path))
-    if exists_on_fs(target):
+    if os.path.isfile(target):
         if options.force:
             os.remove(target)
-            os.link(pkg_path, target)
+            cp_file(pkg_path, target)
     else:
-        os.link(pkg_path, target)
+        cp_file(pkg_path, target)
+
 
 def create_repository(repo_dir, options):
-    subprocess.call(["createrepo", "--no-database", repo_dir])
+    p = subprocess.Popen(["createrepo", "--no-database", repo_dir], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err =  p.communicate()
+    split_and_log_to_level(3, 4, out)
+    split_and_log_to_level(2, 4, err)
+
 
 def pkgs_available_in_repos(pkg, repo_packages):
     for id, packages in repo_packages.iteritems():
         if pkg['nevra'] in packages:
             return id
     return None
+
 
 def list_repo_packages(label, source_url):
     name = "yum_src"
@@ -182,6 +215,7 @@ def list_repo_packages(label, source_url):
     packages = map(lambda p:p.getNEVRA(), plugin.list_packages(repo_plugin, []))
     return set(packages)
 
+
 def check_disk_size(abs_path, size):
     file_size = os.stat(abs_path)[stat.ST_SIZE]
     ret = 0
@@ -189,6 +223,7 @@ def check_disk_size(abs_path, size):
         log(0, "File size mismatch: %s (%s vs. %s)" % (abs_path, size, file_size))
         ret = 1
     return ret
+
 
 def log(level, *args):
     log_debug(level, *args)
@@ -198,23 +233,39 @@ def log(level, *args):
     if verbose >= level:
         print (', '.join(map(lambda i: str(i), args)))
 
+
+def split_and_log_to_level(level, spaces, string):
+    for line in string.split('\n'):
+        if line != '':
+            log(level, " " * spaces + line)
+
+
+
 if __name__ == '__main__':
 
     options_table = [
-        Option("-v", "--verbose", action="count",
-            help="Increase verbosity"),
         Option("-d", "--dir", action="store", dest="directory",
-            help="Export directory"),
-        Option("-f", "--force", action="store", dest="force",
-            help="Overwrite export, if already present"),
+            help="Export directory, required"),
         Option("-e", "--exported-only", action="store_true", dest="exportedonly",
-            help="CSV output will contain only packages not available in repos"),
+            help="CSV output will contain only exported packages (by default, CVS output contains all packages, even those available in external repositories and in clone original channels)"),
+        Option("-f", "--force", action="store", dest="force",
+            help="Overwrite exported package rpms, even if already present in the dump"),
+        Option("-o", "--org_id", action="append", type="int", dest="org_ids",
+            help="Export only organization related channels specified by its id"),
+        Option("-q", "--quiet", action="store_const", const=0, dest="verbose",
+            help="Run quietly"),
         Option("-s", "--skip-repogeneration", action="store_true", dest="skiprepogeneration",
-            help="CSV output will contain only packages not available in repos"),
+            help="Repodata generation will be omitted for exported channels"),
         Option("-S", "--no-size", action="store_false", dest="size", default=True,
-            help="Don't check package size")]
+            help="Don't check package size"),
+        Option("-v", "--verbose", action="count", default=1,
+            help="Increase verbosity")]
     parser = OptionParser(option_list=options_table)
     (options, args) = parser.parse_args()
+    if not options.directory:
+        print "Export directory has to be specified. Try --help:\n"
+        parser.print_help()
+        exit(1)
 
     initLOG(LOG_FILE, options.verbose or 0)
 
