@@ -51,6 +51,6 @@ class DeltaHash
   end
 
   def changed?
-    not (@new.empty? && del.empty?)
+    ! (@new.empty? && del.empty?)
   end
 end
