@@ -5,12 +5,12 @@ require 'apipie-bindings'
 module HammerCLIImport
   class ImportCommand
     class SystemGroupImportCommand < BaseCommand
-      command_name 'system-group'
+      command_name 'host-collection'
       desc 'Import system groups.'
 
       csv_columns 'group_id', 'name', 'org_id'
 
-      persistent_maps :system_groups, :organizations
+      persistent_maps :host_collections, :organizations
 
       def mk_sg_hash(data)
         {
@@ -21,11 +21,11 @@ module HammerCLIImport
 
       def import_single_row(data)
         sg = mk_sg_hash data
-        create_entity(:system_groups, sg, data['group_id'].to_i)
+        create_entity(:host_collections, sg, data['group_id'].to_i)
       end
 
       def delete_single_row(data)
-        delete_entity(:system_groups, data['group_id'].to_i)
+        delete_entity(:host_collections, data['group_id'].to_i)
       end
     end
   end
