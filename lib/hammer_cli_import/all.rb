@@ -3,9 +3,9 @@ require 'hammer_cli_import'
 
 module HammerCLIImport
   class ImportCommand
-    class DirCommand < HammerCLI::AbstractCommand
-      command_name 'dir'
-      desc 'Load data from a specified DIRectory that is in stargate-export format'
+    class AllCommand < HammerCLI::AbstractCommand
+      command_name 'all'
+      desc 'Load ALL data from a specified directory that is in spacewalk-export format'
 
       option ['--directory'], 'DIR_PATH', 'stargate-export directory', :default => '/tmp/exports'
       option ['--entities'], 'entity[,entity...]', 'Import specific entities', :default => 'all'
@@ -53,7 +53,7 @@ module HammerCLIImport
 
       def do_list
         puts 'Entities I understand:'
-        DirCommand.entity_order.each do |an_entity|
+        AllCommand.entity_order.each do |an_entity|
           puts "  #{an_entity}"
         end
       end
@@ -62,19 +62,19 @@ module HammerCLIImport
       # Marks what we asked for, and whatever those things are dependent on, to import
       def set_import_targets
         to_import = option_entities.split(',')
-        DirCommand.known.each_key do |key|
-          DirCommand.known[key]['import'] = (to_import.include?(key) || to_import.include?('all'))
-          depends_on = DirCommand.known[key]['depends-on'].split(',')
+        AllCommand.known.each_key do |key|
+          AllCommand.known[key]['import'] = (to_import.include?(key) || to_import.include?('all'))
+          depends_on = AllCommand.known[key]['depends-on'].split(',')
           depends_on.each do |entity_name|
-            DirCommand.known[entity_name]['import'] = true
+            AllCommand.known[entity_name]['import'] = true
           end
         end
       end
 
       # Do the import(s)
       def import_from
-        DirCommand.entity_order.each do |key|
-          a_map = DirCommand.known[key]
+        AllCommand.entity_order.each do |key|
+          a_map = AllCommand.known[key]
           import_file = "#{option_directory}/#{a_map['export-file']}.csv"
           if a_map['import']
             puts "IMPORT #{key} FROM #{import_file}"
