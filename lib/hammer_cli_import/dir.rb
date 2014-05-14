@@ -14,7 +14,7 @@ module HammerCLIImport
 
       # An ordered-list of the entities we know how to import
       class << self; attr_accessor :entity_order end
-      @entity_order = %w(organizations users system-groups repositories)
+      @entity_order = %w(organizations users host-collections repositories)
 
       #
       # A list of what we know how to do.
@@ -24,7 +24,7 @@ module HammerCLIImport
       # It will look in ~/exports/<Sat5-export-name>.csv for data
       #
       class << self; attr_accessor :known end
-      @known = { 'system-groups' =>
+      @known = { 'host-collections' =>
                     {'export-file' => 'system-groups',
                      'import-class' => 'SystemGroupImportCommand',
                      'depends-on' => 'organizations',
