@@ -44,11 +44,11 @@ module HammerCLIImport
                      'import-class' => 'RepositoryImportCommand',
                      'depends-on' => 'organizations',
                      'import' => false },
-                  'custom-channels' =>
+                 'custom-channels' =>
                     {'export-file' => 'custom-channels',
                      'import-class' => 'CustomChannelImportCommand',
                      'depends-on' => 'organizations',
-                     'import' => false },
+                     'import' => false }
                 }
 
       def do_list

@@ -13,7 +13,6 @@ module HammerCLIImport
       persistent_maps :organizations, :repositories
       persistent_map :products, [{'org_id' => Fixnum}, {'label' => String}], ['sat6' => Fixnum]
 
-
       option ['--sync'], :flag, 'Synchronize local repositories', :default => false
       option ['--dir'], 'DIR', 'Export directory'
 
@@ -45,18 +44,17 @@ module HammerCLIImport
       # <-
       #######
 
-
       # Couple of possible encodings.... (+ matching decodings) (Haskell-ish syntax)
       #
       # > sqrtBig n = head . dropWhile ((n<).(^2)) $ iterate f n where
       # >     f x = (x + n `div` x) `div` 2
       #
-      # > enc1 x y = (x + y)*(x + y + 1) `div` 2 + x 
+      # > enc1 x y = (x + y)*(x + y + 1) `div` 2 + x
       #
       # > dec1 0 = (0,0)
       # > dec1 n = (c, a+d-c) where
       # >     a = sqrtBig (n*2)
-      # >     b = n - enc1 0 (a) 
+      # >     b = n - enc1 0 (a)
       # >     c = (a + b) `mod` a
       # >     d = b `div` a
       #
@@ -69,7 +67,7 @@ module HammerCLIImport
       #
       # Choose wisely ;-)
       def encode(a, b)
-        - (2 ** a) * (2*b + 1)
+        - (2**a) * (2 * b + 1)
       end
 
       def import_single_row(data)
