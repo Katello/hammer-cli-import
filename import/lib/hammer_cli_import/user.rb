@@ -40,6 +40,5 @@ module HammerCLIImport
         delete_entity(:users, data['user_id'].to_i)
       end
     end
-    autoload_subcommands
   end
 end
