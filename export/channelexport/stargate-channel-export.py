@@ -54,7 +54,7 @@ select id, name from web_customer
 
 # change to left join in case we're interested into empty custom channels
 _query_channels = rhnSQL.Statement("""
-select c.id, c.label, count(cp.package_id) package_count from rhnChannel c join rhnChannelPackage cp on cp.channel_id = c.id where org_id = :org_id group by c.id, c.label order by label
+select c.id, c.label, c.name, count(cp.package_id) package_count from rhnChannel c join rhnChannelPackage cp on cp.channel_id = c.id where org_id = :org_id group by c.id, c.label, c.name order by label
 """)
 
 _query_repos = rhnSQL.Statement("""
@@ -68,7 +68,7 @@ def export_packages(options):
     if not os.path.exists(options.directory):
         os.makedirs(options.directory)
     top_level_csv = open(os.path.join(options.directory, 'export.csv'), 'w')
-    top_level_csv.write("org_id,channel_id,channel_label\n")
+    top_level_csv.write("org_id,channel_id,channel_label,channel_name\n")
 
     if options.org_ids:
         h = rhnSQL.prepare(_query_organizations % ','.join(map(str,options.org_ids)))
@@ -107,7 +107,7 @@ def export_packages(options):
             channel_dir = os.path.join(options.directory, str(org["id"]), str(channel["id"]))
             if not os.path.exists(channel_dir):
                 os.makedirs(channel_dir)
-            top_level_csv.write("%d,%d,%s\n" % (org['id'], channel['id'], channel['label']))
+            top_level_csv.write("%d,%d,%s,%s\n" % (org['id'], channel['id'], channel['label'], channel['name']))
             channel_csv = open(channel_dir + ".csv", 'w')
             channel_csv.write("org_id,channel_id,channel_label,package_nevra,package_rpm_name,in_repo,in_parent_channel\n")
 
