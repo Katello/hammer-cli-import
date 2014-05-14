@@ -21,4 +21,7 @@ module HammerCLIImport
   require 'hammer_cli_import/repository'
   require 'hammer_cli_import/user'
   require 'hammer_cli_import/version'
+
+  # This has to be after all subcommands
+  require 'hammer_cli_import/autoload'
 end
