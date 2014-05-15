@@ -6,7 +6,7 @@ module HammerCLIImport
   class ImportCommand
     class SystemGroupImportCommand < BaseCommand
       command_name 'host-collection'
-      desc 'Import system groups.'
+      desc 'Import host collections.'
 
       csv_columns 'group_id', 'name', 'org_id'
 
