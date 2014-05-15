@@ -27,9 +27,11 @@ module HammerCLIImport
       end
 
       def associate_with_host_collection(ak_id, data)
-        @api.resource(:host_collections).call(:add_activation_keys,
+        @api.resource(:host_collections).call(
+          :add_activation_keys,
           {:id => get_translated_id(:host_collections, data['server_group_id']),
-           :activation_key_ids => [ak_id]})
+           :activation_key_ids => [ak_id]
+          })
       end
 
       def import_single_row(data)
