@@ -181,14 +181,9 @@ module HammerCLIImport
     end
 
     def cvs_iterate(filename, action)
-      reader = CSV.open(filename, 'r')
-      header = reader.shift
-      self.class.csv_columns.each do |col|
-        raise CSVHeaderError, "column #{col} expected in #{filename}" unless header.include? col
-      end
-      reader.each do |row|
+      CSVHelper::csv_each filename, self.class.csv_columns do |data|
         begin
-          action.call(Hash[header.zip row])
+          action.call(data)
         rescue => e
           puts "Caught #{e.class}:#{e.message} while processing following line:"
           p row
