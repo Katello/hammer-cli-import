@@ -17,13 +17,25 @@ module PersistentMap
   end
 
   module Extend
-    attr_reader :maps, :map_description
+    attr_reader :maps, :map_description, :map_target_entity
 
-    def persistent_map(symbol, key_spec, val_spec)
+    def persistent_map(symbol, key_spec, val_spec, options={})
+      # Names of persistent maps
       @maps ||= []
       @maps.push symbol
+
+      # Which entities they are mapped to?
+      # Usually they are mapped to the same entities on Sat6 (speaking of api)
+      # But sometimes you need to create same type of Sat6 entities based on
+      # different Sat5 entities, and then it is time for this extra option.
+      @map_target_entity ||= {}
+      @map_target_entity[symbol] = options.delete :sat6entity || symbol
+
+      # How keys and values looks like (so they can be nicely stored)
       @map_description ||= {}
       @map_description[symbol] = [key_spec, val_spec]
+
+      raise PersistentMapError "Unknown options #{options.keys}" unless options.empty?
     end
 
     def persistent_maps(*list)
