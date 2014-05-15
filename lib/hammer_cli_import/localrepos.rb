@@ -1,16 +1,16 @@
 # vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby
 require 'hammer_cli'
-require 'uri'
+require 'set'
 
 module HammerCLIImport
   class ImportCommand
     class LocalRepositoryImportCommand < BaseCommand
       command_name 'local-repo'
-      desc 'Import local repositories.'
+      desc 'Import local/cloned channels.'
 
-      csv_columns 'org_id', 'channel_id', 'channel_label'
+      csv_columns 'org_id', 'channel_id', 'channel_label', 'channel_name'
 
-      persistent_maps :organizations, :repositories
+      persistent_maps :organizations, :repositories, :content_views
       persistent_map :products, [{'org_id' => Fixnum}, {'label' => String}], ['sat6' => Fixnum]
 
       option ['--sync'], :flag, 'Synchronize local repositories', :default => false
@@ -19,30 +19,6 @@ module HammerCLIImport
       def directory
         option_dir || File.dirname(option_csv_file)
       end
-
-      #######
-      # -> DUPE
-      def mk_product_hash(data, product_name)
-        {
-          :name => product_name,
-          :organization_id => lookup_entity(:organizations, get_translated_id(:organizations, data['org_id'].to_i))['label']
-        }
-      end
-
-      def mk_repo_hash(data, product_id)
-        {
-          :name => "Local-repository-for-#{data['channel_label']}",
-          :product_id => product_id,
-          :url => 'file://' + File.join(directory, data['org_id'], data['channel_id']),
-          :content_type => 'yum'
-        }
-      end
-
-      def sync_repo(repo)
-        @api.resource(:repositories).call(:sync, {:id => repo['id']})
-      end
-      # <-
-      #######
 
       # Couple of possible encodings.... (+ matching decodings) (Haskell-ish syntax)
       #
@@ -70,6 +46,68 @@ module HammerCLIImport
         - (2**a) * (2 * b + 1)
       end
 
+      #######
+      # -> DUPE
+      def mk_product_hash(data, product_name)
+        {
+          :name => product_name,
+          :organization_id => lookup_entity(:organizations, get_translated_id(:organizations, data['org_id'].to_i))['label']
+        }
+      end
+
+      def mk_repo_hash(data, product_id)
+        {
+          :name => "Local-repository-for-#{data['channel_label']}",
+          :product_id => product_id,
+          :url => 'file://' + File.join(directory, data['org_id'], data['channel_id']),
+          :content_type => 'yum'
+        }
+      end
+
+      def sync_repo(repo)
+        @api.resource(:repositories).call(:sync, {:id => repo['id']})
+      end
+      # <-
+      #######
+
+      def publish_content_view(id)
+        puts "Publishing content view with id=#{id}"
+        @api.resource(:content_views).call(:publish, {:id => id})
+      end
+
+      def mk_content_view_hash(data, repo_ids)
+        {
+          :name => data['channel_name'],
+
+          # :description => data['description'],
+          :description => 'Channel migrated from Satellite 5',
+
+          :organization_id => lookup_entity(:organizations, get_translated_id(:organizations, data['org_id'].to_i))['label'],
+          :repository_ids  => repo_ids
+        }
+      end
+
+      def newer_repositories(cw)
+        last = cw['last_published']
+        return true unless last
+        last = Time.parse(last)
+        cw['repositories'].any? do |repo|
+          last < Time.parse(repo['last_sync'])
+        end
+      end
+
+      def load_custom_channel_info(org_id, channel_id)
+        headers = ['org_id', 'channel_id', 'package_nevra', 'package_rpm_name', 'in_repo', 'in_parent_channel']
+        file = File.join directory, org_id.to_s, channel_id.to_s + '.csv'
+        repo_ids = Set[]
+        parent_channel_ids = Set[]
+        CSVHelper::csv_each file, headers do |data|
+          parent_channel_ids << data['in_parent_channel']
+          repo_ids << data['in_repo']
+        end
+        [repo_ids.to_a, parent_channel_ids.to_a]
+      end
+
       def import_single_row(data)
         product_name = 'Local-repositories'
         composite_id = [data['org_id'].to_i, product_name]
@@ -80,6 +118,20 @@ module HammerCLIImport
         repo = create_entity(:repositories, repo_hash, encode(data['org_id'].to_i, data['channel_id'].to_i))
 
         sync_repo repo if option_sync?
+
+        repo_ids, b = load_custom_channel_info data['org_id'].to_i, data['channel_id'].to_i
+
+        repo_ids.collect! { |id| get_translated_id :repositories, id.to_i }
+        repo_ids.collect { |id| lookup_entity :repositories, id } .each do |repo|
+          unless repo['sync_state'] == 'finished'
+            puts "Repository #{repo['label']} is currently synchronizing. Retry once it has completed."
+            return
+          end
+        end
+        content_view = mk_content_view_hash data, repo_ids
+
+        cw = create_entity(:content_views, content_view, data['id'].to_i)
+        publish_content_view cw['id'] if newer_repositories cw
       end
     end
   end
