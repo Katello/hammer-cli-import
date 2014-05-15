@@ -210,11 +210,12 @@ module HammerCLIImport
       Dir.mkdir data_dir unless File.directory? data_dir
 
       # initialize apipie binding
-      @api = ApipieBindings::API.new({
-                                       :uri => HammerCLI::Settings.get(:foreman, :host),
-                                       :username => HammerCLI::Settings.get(:foreman, :username),
-                                       :password => HammerCLI::Settings.get(:foreman, :password),
-                                       :api_version => 2
+      @api = ApipieBindings::API.new(
+      {
+        :uri => HammerCLI::Settings.get(:foreman, :host),
+        :username => HammerCLI::Settings.get(:foreman, :username),
+        :password => HammerCLI::Settings.get(:foreman, :password),
+        :api_version => 2
       })
       load_persistent_maps do |map_sym|
         @cache[map_sym] = {}
