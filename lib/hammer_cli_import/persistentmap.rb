@@ -19,7 +19,7 @@ module PersistentMap
   module Extend
     attr_reader :maps, :map_description, :map_target_entity
 
-    def persistent_map(symbol, key_spec, val_spec, options={})
+    def persistent_map(symbol, key_spec, val_spec, options = {})
       # Names of persistent maps
       @maps ||= []
       @maps.push symbol
