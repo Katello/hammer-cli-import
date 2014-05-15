@@ -5,7 +5,7 @@ module HammerCLIImport
   class ImportCommand
     class AllCommand < HammerCLI::AbstractCommand
       command_name 'all'
-      desc 'Load ALL data from a specified directory that is in spacewalk-export format'
+      desc 'Load ALL data from a specified directory that is in spacewalk-export format.'
 
       option ['--directory'], 'DIR_PATH', 'stargate-export directory', :default => '/tmp/exports'
       option ['--entities'], 'entity[,entity...]', 'Import specific entities', :default => 'all'
