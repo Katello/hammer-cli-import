@@ -6,7 +6,7 @@ module CSVHelper
   end
 
   def self.csv_each(filename, headers)
-    fail CSVHelperError, "Expecting block" unless block_given?
+    fail CSVHelperError, 'Expecting block' unless block_given?
     reader = CSV.open(filename, 'r')
     real_header = reader.shift
     to_discard = real_header - headers

@@ -97,11 +97,11 @@ module HammerCLIImport
       end
 
       def load_custom_channel_info(org_id, channel_id)
-        headers = ['org_id', 'channel_id', 'package_nevra', 'package_rpm_name', 'in_repo', 'in_parent_channel']
+        headers = %w(org_id channel_id package_nevra package_rpm_name in_repo in_parent_channel)
         file = File.join directory, org_id.to_s, channel_id.to_s + '.csv'
         repo_ids = Set[]
         parent_channel_ids = Set[]
-        CSVHelper::csv_each file, headers do |data|
+        CSVHelper.csv_each file, headers do |data|
           parent_channel_ids << data['in_parent_channel']
           repo_ids << data['in_repo']
         end
@@ -115,13 +115,14 @@ module HammerCLIImport
         product_id = create_entity(:products, product_hash, composite_id)['id'].to_i
 
         repo_hash = mk_repo_hash(data, product_id)
-        repo = create_entity(:repositories, repo_hash, encode(data['org_id'].to_i, data['channel_id'].to_i))
+        local_repo = create_entity(:repositories, repo_hash, encode(data['org_id'].to_i, data['channel_id'].to_i))
 
         sync_repo repo if option_sync?
 
-        repo_ids, b = load_custom_channel_info data['org_id'].to_i, data['channel_id'].to_i
+        repo_ids, _ =  load_custom_channel_info data['org_id'].to_i, data['channel_id'].to_i
+        repo_ids.push local_repo['id'].to_i
 
-        repo_ids.collect! { |id| get_translated_id :repositories, id.to_i }
+        repo_ids.map! { |id| get_translated_id :repositories, id.to_i }
         repo_ids.collect { |id| lookup_entity :repositories, id } .each do |repo|
           unless repo['sync_state'] == 'finished'
             puts "Repository #{repo['label']} is currently synchronizing. Retry once it has completed."
