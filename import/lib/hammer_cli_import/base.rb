@@ -181,7 +181,7 @@ module HammerCLIImport
     end
 
     def cvs_iterate(filename, action)
-      CSVHelper::csv_each filename, self.class.csv_columns do |data|
+      CSVHelper.csv_each filename, self.class.csv_columns do |data|
         begin
           action.call(data)
         rescue => e
