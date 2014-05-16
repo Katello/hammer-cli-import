@@ -18,7 +18,7 @@ module CSVHelper
       to_discard.each { |key| data.delete key }
       class << data
         def[](key)
-          raise CSVHelperError, "Referencing undeclared key: #{key}" unless has_key? key
+          raise CSVHelperError, "Referencing undeclared key: #{key}" unless key? key
           super
         end
       end
