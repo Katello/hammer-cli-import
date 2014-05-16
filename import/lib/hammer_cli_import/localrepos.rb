@@ -65,7 +65,7 @@ module HammerCLIImport
 
       def sync_repo(repo)
         action = @api.resource(:repositories).call(:sync, {:id => repo['id']})
-        puts "Sync started!"
+        puts 'Sync started!'
         p action
       end
       # <-
