@@ -98,7 +98,7 @@ module HammerCLIImport
         results = []
         # check only entities in imported orgs (not all of them)
         @pm[:organizations].to_hash.values.each do |org_id|
-          org_identifier = lookup_entity(:organizations, org_id)['label']
+          org_identifier = lookup_entity(:organizations, org_id)['id']
           entities = @api.resource(entity_type).call(:index, {'per_page' => 999999, 'organization_id' => org_identifier})
           entities['results'].each do |entity|
             @cache[entity_type][entity['id']] = entity

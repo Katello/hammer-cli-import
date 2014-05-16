@@ -15,7 +15,7 @@ module HammerCLIImport
       def mk_sg_hash(data)
         {
           :name => data['name'],
-          :organization_id => lookup_entity(:organizations, get_translated_id(:organizations, data['org_id']))['label']
+          :organization_id => get_translated_id(:organizations, data['org_id'])
         }
       end
 
