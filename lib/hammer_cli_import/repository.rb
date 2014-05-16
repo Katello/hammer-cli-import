@@ -18,7 +18,7 @@ module HammerCLIImport
       def mk_product_hash(data, product_name)
         {
           :name => product_name,
-          :organization_id => lookup_entity(:organizations, get_translated_id(:organizations, data['org_id'].to_i))['label']
+          :organization_id => lookup_entity(:organizations, get_translated_id(:organizations, data['org_id'].to_i))['id']
         }
       end
 

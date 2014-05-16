@@ -51,7 +51,7 @@ module HammerCLIImport
       def mk_product_hash(data, product_name)
         {
           :name => product_name,
-          :organization_id => lookup_entity(:organizations, get_translated_id(:organizations, data['org_id'].to_i))['label']
+          :organization_id => get_translated_id(:organizations, data['org_id'])
         }
       end
 
@@ -82,7 +82,7 @@ module HammerCLIImport
           # :description => data['description'],
           :description => 'Channel migrated from Satellite 5',
 
-          :organization_id => lookup_entity(:organizations, get_translated_id(:organizations, data['org_id'].to_i))['label'],
+          :organization_id => get_translated_id(:organizations, data['org_id']),
           :repository_ids  => repo_ids
         }
       end

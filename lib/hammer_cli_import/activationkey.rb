@@ -18,7 +18,7 @@ module HammerCLIImport
         usage_limit = data['usage_limit'] if data['usage_limit']
         {
           :name => data['key_token'],
-          :organization_id => lookup_entity(:organizations, get_translated_id(:organizations, data['org_id']))['label'],
+          :organization_id => get_translated_id(:organizations, data['org_id']),
           :label => data['key_token'],
           :description => data['key_note'],
           :usage_limit => usage_limit,
