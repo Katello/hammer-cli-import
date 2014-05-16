@@ -13,7 +13,6 @@ module HammerCLIImport
       persistent_maps :organizations, :repositories, :content_views
       persistent_map :products, [{'org_id' => Fixnum}, {'label' => String}], ['sat6' => Fixnum]
 
-      option ['--sync'], :flag, 'Synchronize local repositories', :default => false
       option ['--dir'], 'DIR', 'Export directory'
 
       def directory
@@ -65,10 +64,18 @@ module HammerCLIImport
       end
 
       def sync_repo(repo)
-        @api.resource(:repositories).call(:sync, {:id => repo['id']})
+        action = @api.resource(:repositories).call(:sync, {:id => repo['id']})
+        puts "Sync started!"
+        p action
       end
       # <-
       #######
+
+      def repo_synced?(repo)
+        info = @api.resource(:repositories).call(:show, {:id => repo['id']})
+        return false unless info['sync_state'] == 'finished'
+        Time.parse(info['last_sync']) > Time.parse(info['updated_at'])
+      end
 
       def publish_content_view(id)
         puts "Publishing content view with id=#{id}"
@@ -99,33 +106,41 @@ module HammerCLIImport
       def load_custom_channel_info(org_id, channel_id)
         headers = %w(org_id channel_id package_nevra package_rpm_name in_repo in_parent_channel)
         file = File.join directory, org_id.to_s, channel_id.to_s + '.csv'
+
         repo_ids = Set[]
         parent_channel_ids = Set[]
+
         CSVHelper.csv_each file, headers do |data|
           parent_channel_ids << data['in_parent_channel']
           repo_ids << data['in_repo']
         end
+
         [repo_ids.to_a, parent_channel_ids.to_a]
       end
 
-      def import_single_row(data)
+      def add_local_repo(data)
         product_name = 'Local-repositories'
         composite_id = [data['org_id'].to_i, product_name]
         product_hash = mk_product_hash data, product_name
         product_id = create_entity(:products, product_hash, composite_id)['id'].to_i
 
-        repo_hash = mk_repo_hash(data, product_id)
-        local_repo = create_entity(:repositories, repo_hash, encode(data['org_id'].to_i, data['channel_id'].to_i))
+        repo_hash = mk_repo_hash data, product_id
+        local_repo = create_entity :repositories, repo_hash, encode(data['org_id'].to_i, data['channel_id'].to_i)
+        local_repo
+      end
 
-        sync_repo repo if option_sync?
+      def import_single_row(data)
+        local_repo = add_local_repo data
+        sync_repo local_repo unless repo_synced? local_repo
 
-        repo_ids, _ =  load_custom_channel_info data['org_id'].to_i, data['channel_id'].to_i
+        repo_ids, _ = load_custom_channel_info data['org_id'].to_i, data['channel_id'].to_i
+        repo_ids.delete nil
+        repo_ids.map! { |id| get_translated_id :repositories, id.to_i }
         repo_ids.push local_repo['id'].to_i
 
-        repo_ids.map! { |id| get_translated_id :repositories, id.to_i }
         repo_ids.collect { |id| lookup_entity :repositories, id } .each do |repo|
-          unless repo['sync_state'] == 'finished'
-            puts "Repository #{repo['label']} is currently synchronizing. Retry once it has completed."
+          unless repo_synced? repo
+            puts "Repository #{repo['label']} is not (fully) synchronized. Retry once synchronization has completed."
             return
           end
         end
