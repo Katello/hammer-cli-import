@@ -16,6 +16,12 @@ module CSVHelper
     reader.each do |row|
       data = Hash[real_header.zip row]
       to_discard.each { |key| data.delete key }
+      class << data
+        def[](key)
+          raise CSVHelperError, "Referencing undeclared key: #{key}" unless has_key? key
+          super
+        end
+      end
       yield data
     end
   end
