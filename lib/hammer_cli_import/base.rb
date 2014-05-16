@@ -183,7 +183,7 @@ module HammerCLIImport
           action.call(data)
         rescue => e
           puts "Caught #{e.class}:#{e.message} while processing following line:"
-          p row
+          p data
           puts e.backtrace.join "\n"
         end
       end
