@@ -5,9 +5,6 @@ require 'apipie-bindings'
 require 'hammer_cli'
 
 module HammerCLIImport
-  class CSVHeaderError < RuntimeError
-  end
-
   class MissingObjectError < RuntimeError
   end
 
