@@ -146,7 +146,7 @@ module HammerCLIImport
         end
         content_view = mk_content_view_hash data, repo_ids
 
-        cw = create_entity(:content_views, content_view, data['id'].to_i)
+        cw = create_entity(:content_views, content_view, data['channel_id'].to_i)
         publish_content_view cw['id'] if newer_repositories cw
       end
     end
