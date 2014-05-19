@@ -192,6 +192,10 @@ module HammerCLIImport
       cvs_iterate(filename, (method :import_single_row))
     end
 
+    def post_import(_csv_file)
+      # empty by default
+    end
+
     def delete(filename)
       cvs_iterate(filename, (method :delete_single_row))
     end
@@ -216,6 +220,7 @@ module HammerCLIImport
         delete option_csv_file
       else
         import option_csv_file
+        post_import option_csv_file
       end
       save_persistent_maps
       HammerCLI::EX_OK
