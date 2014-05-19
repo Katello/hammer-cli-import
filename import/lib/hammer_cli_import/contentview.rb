@@ -5,8 +5,8 @@ require 'set'
 module HammerCLIImport
   class ImportCommand
     class LocalRepositoryImportCommand < BaseCommand
-      command_name 'local-repo'
-      desc 'Import local/cloned channels.'
+      command_name 'content-view'
+      desc 'Create content-views based on local/cloned channels.'
 
       csv_columns 'org_id', 'channel_id', 'channel_label', 'channel_name'
 

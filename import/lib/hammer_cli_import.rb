@@ -16,9 +16,9 @@ module HammerCLIImport
 
   require 'hammer_cli_import/all'
   require 'hammer_cli_import/activationkey'
+  require 'hammer_cli_import/contentview'
   require 'hammer_cli_import/customchannel'
   require 'hammer_cli_import/hostcollection'
-  require 'hammer_cli_import/localrepos'
   require 'hammer_cli_import/organization'
   require 'hammer_cli_import/repository'
   require 'hammer_cli_import/user'
