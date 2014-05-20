@@ -7,6 +7,8 @@ module HammerCLIImport
       command_name 'user'
       desc 'Import users.'
 
+      option ['--new-passwords'], 'FILE_NAME', 'Output for new passwords', :required => true
+
       csv_columns 'organization_id', 'user_id', 'username',\
                   'last_name', 'first_name', 'email', 'role', 'active'
 
@@ -31,9 +33,16 @@ module HammerCLIImport
         }
       end
 
+      def post_import(_)
+        CSVHelper.csv_write_hashes(option_new_passwords, [:mail, :login, :password], @new_passwords)
+      end
+
       def import_single_row(data)
         user = mk_user_hash data
         create_entity(:users, user, data['user_id'].to_i)
+
+        @new_passwords ||= []
+        @new_passwords << {:login => user[:login], :password => user[:password], :mail => user[:mail]}
       end
 
       def delete_single_row(data)
