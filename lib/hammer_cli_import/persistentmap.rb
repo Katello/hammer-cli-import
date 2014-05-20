@@ -29,7 +29,7 @@ module PersistentMap
       # But sometimes you need to create same type of Sat6 entities based on
       # different Sat5 entities, and then it is time for this extra option.
       @map_target_entity ||= {}
-      @map_target_entity[symbol] = options.delete :sat6entity || symbol
+      @map_target_entity[symbol] = (options.delete :sat6entity) || symbol
 
       # How keys and values looks like (so they can be nicely stored)
       @map_description ||= {}
