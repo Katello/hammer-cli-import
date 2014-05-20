@@ -25,4 +25,13 @@ module CSVHelper
       yield data
     end
   end
+
+  def self.csv_write_hashes(filename, headers, hashes)
+    CSV.open(filename, 'wb') do |csv|
+      csv << headers
+      hashes.each do |hash|
+        csv << headers.collect { |key| hash[key] }
+      end
+    end
+  end
 end
