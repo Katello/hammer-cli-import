@@ -50,6 +50,10 @@ module PersistentMap
       self.class.maps
     end
 
+    def map_target_entity
+      self.class.map_target_entity
+    end
+
     def load_persistent_maps
       @pm = {}
       maps.each do |map_sym|
