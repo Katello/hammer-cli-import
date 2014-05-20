@@ -60,7 +60,7 @@ module HammerCLIImport
         end
         # find out product id
         repo_id = get_translated_id(:repositories, data['id'].to_i)
-        product_id = @cache[:repositories][repo_id]['product']['id']
+        product_id = lookup_entity(:repositories, repo_id)['product']['id']
         # delete repo
         delete_entity(:repositories, data['id'].to_i)
         # delete its product, if it's not associated with any other repositories
