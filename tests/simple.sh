@@ -59,7 +59,7 @@ import_cmd() {
 
 # create entities
 import_cmd organization ${CSV_DIR}/users.csv
-import_cmd user ${CSV_DIR}/users.csv ----new-passwords=new-passwords.csv
+import_cmd user ${CSV_DIR}/users.csv --new-passwords=new-passwords.csv
 import_cmd host-collection ${CSV_DIR}/system-groups.csv
 import_cmd repository ${CSV_DIR}/repositories.csv
 
