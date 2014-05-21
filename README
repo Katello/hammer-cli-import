@@ -38,7 +38,7 @@ You can add to your `~/.irbrc`:
 
     class Object
       def imethods
-        methods - Object.methods
+        methods - Object.instance_methods
       end
     end
 
