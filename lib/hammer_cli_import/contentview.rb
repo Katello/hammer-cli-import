@@ -10,8 +10,7 @@ module HammerCLIImport
 
       csv_columns 'org_id', 'channel_id', 'channel_label', 'channel_name'
 
-      persistent_maps :organizations, :repositories, :content_views
-      persistent_map :products, [{'org_id' => Fixnum}, {'label' => String}], ['sat6' => Fixnum]
+      persistent_maps :organizations, :repositories, :content_views, :products
 
       option ['--dir'], 'DIR', 'Export directory'
 
