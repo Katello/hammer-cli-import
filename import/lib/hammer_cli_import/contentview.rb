@@ -10,7 +10,7 @@ module HammerCLIImport
 
       csv_columns 'org_id', 'channel_id', 'channel_label', 'channel_name'
 
-      persistent_maps :organizations, :repositories, :content_views, :products
+      persistent_maps :organizations, :repositories, :local_repositories, :custom_channels, :products
 
       option ['--dir'], 'DIR', 'Export directory'
 
@@ -124,7 +124,7 @@ module HammerCLIImport
         product_id = create_entity(:products, product_hash, composite_id)['id'].to_i
 
         repo_hash = mk_repo_hash data, product_id
-        local_repo = create_entity :repositories, repo_hash, encode(data['org_id'].to_i, data['channel_id'].to_i)
+        local_repo = create_entity :local_repositories, repo_hash, [data['org_id'].to_i, data['channel_id'].to_i]
         local_repo
       end
 
@@ -145,7 +145,7 @@ module HammerCLIImport
         end
         content_view = mk_content_view_hash data, repo_ids
 
-        cw = create_entity(:content_views, content_view, data['channel_id'].to_i)
+        cw = create_entity :custom_channels, content_view, data['channel_id'].to_i
         publish_content_view cw['id'] if newer_repositories cw
       end
     end

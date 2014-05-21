@@ -22,12 +22,17 @@ module PersistentMap
       return @definitions if @definitions
       @definitions = {}
 
-      [:content_views, :host_collections, :organizations, :repositories, :users].each do |symbol|
+      [:host_collections, :organizations, :repositories, :users].each do |symbol|
         @definitions[symbol] = ['sat5' => Fixnum], ['sat6' => Fixnum], symbol
       end
 
       @definitions[:products] = [{'org_id' => Fixnum}, {'label' => String}], ['sat6' => Fixnum], :products
       @definitions[:activation_keys] = ['org_id' => String], ['sat6' => Fixnum], :activation_keys
+      @definitions[:custom_channels] = ['sat5' => Fixnum], ['sat6' => Fixnum], :content_views
+      @definitions[:local_repositories] = [{'org_id' => Fixnum}, {'channel_id' => Fixnum}], ['sat6' => Fixnum], :repositories
+
+      # Just for now, until content-views gets finalized
+      @definitions[:content_views] = ['sat5' => Fixnum], ['sat6' => Fixnum], :content_views
 
       @definitions.freeze
     end
