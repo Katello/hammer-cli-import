@@ -1,3 +1,4 @@
+# vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby
 require 'csv'
 
 module PersistentMap
@@ -16,31 +17,52 @@ module PersistentMap
     end
   end
 
+  class << self
+    def definitions
+      return @definitions if @definitions
+      @definitions = {}
+
+      [:content_views, :host_collections, :organizations, :repositories, :users].each do |symbol|
+        @definitions[symbol] = ['sat5' => Fixnum], ['sat6' => Fixnum], symbol
+      end
+
+      @definitions[:products] = [{'org_id' => Fixnum}, {'label' => String}], ['sat6' => Fixnum], :products
+      @definitions[:activation_keys] = ['org_id' => String], ['sat6' => Fixnum], :activation_keys
+
+      @definitions.freeze
+    end
+  end
+
   module Extend
     attr_reader :maps, :map_description, :map_target_entity
 
-    def persistent_map(symbol, key_spec, val_spec, options = {})
+    def persistent_map(symbol)
+      defs = PersistentMap.definitions
+
+      raise PersistentMapError, "Unknown persistent map: #{symbol}" unless defs.key? symbol
+
       # Names of persistent maps
       @maps ||= []
       @maps.push symbol
+
+      key_spec, val_spec, target_entity = defs[symbol]
 
       # Which entities they are mapped to?
       # Usually they are mapped to the same entities on Sat6 (speaking of api)
       # But sometimes you need to create same type of Sat6 entities based on
       # different Sat5 entities, and then it is time for this extra option.
       @map_target_entity ||= {}
-      @map_target_entity[symbol] = (options.delete :sat6entity) || symbol
+      @map_target_entity[symbol] = target_entity
 
       # How keys and values looks like (so they can be nicely stored)
       @map_description ||= {}
       @map_description[symbol] = [key_spec, val_spec]
-
-      raise PersistentMapError "Unknown options #{options.keys}" unless options.empty?
     end
 
     def persistent_maps(*list)
+      raise PersistentMapError, 'Persistent maps should be declared only once' if @maps
       list.each do |sym|
-        persistent_map sym, [{'sat5' => Fixnum}], [{'sat6' => Fixnum}]
+        persistent_map sym
       end
     end
   end

@@ -10,8 +10,7 @@ module HammerCLIImport
 
       csv_columns 'key_token', 'org_id', 'key_note', 'server_group_id'
 
-      persistent_maps :organizations, :host_collections, :content_views
-      persistent_map :activation_keys, ['sat5' => String], ['sat6' => Fixnum]
+      persistent_maps :organizations, :host_collections, :content_views, :activation_keys
 
       def mk_ak_hash(data)
         usage_limit = 'unlimited'

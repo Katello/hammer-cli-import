@@ -10,8 +10,7 @@ module HammerCLIImport
 
       csv_columns 'id', 'org_id', 'repo_label', 'source_url', 'repo_type'
 
-      persistent_maps :organizations, :repositories
-      persistent_map :products, [{'org_id' => Fixnum}, {'label' => String}], ['sat6' => Fixnum]
+      persistent_maps :organizations, :repositories, :products
 
       option ['--sync'], :flag, 'Synchronize imported repositories', :default => false
 
