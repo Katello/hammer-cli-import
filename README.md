@@ -1,3 +1,11 @@
+# hammer-cli-import
+
+Tool for importing data from an existing Spacewalk/Satellite system
+
+WORK IN PROGRESS
+
+# Setup info
+
 To enable modules do following:
 
     mkdir -p ~/.hammer
@@ -16,8 +24,7 @@ To build/install as a gem:
     # gem install hammer_cli_import-0.0.1.gem
     # hammer import
 
-Rubocop
--------
+# Rubocop
 
 Rubocop requires at Ruby 1.9.3. That is in scl.
 
@@ -31,8 +38,7 @@ and running with
 
 it should pick up config automatically
 
-Devel
------
+# Devel
 
 You can add to your `~/.irbrc`:
 
