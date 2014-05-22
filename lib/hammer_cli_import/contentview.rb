@@ -10,7 +10,7 @@ module HammerCLIImport
 
       csv_columns 'org_id', 'channel_id', 'channel_label', 'channel_name'
 
-      persistent_maps :organizations, :repositories, :local_repositories, :custom_channels, :products
+      persistent_maps :organizations, :repositories, :local_repositories, :content_views, :products
 
       option ['--dir'], 'DIR', 'Export directory'
 
@@ -145,7 +145,7 @@ module HammerCLIImport
         end
         content_view = mk_content_view_hash data, repo_ids
 
-        cw = create_entity :custom_channels, content_view, data['channel_id'].to_i
+        cw = create_entity :content_views, content_view, data['channel_id'].to_i
         publish_content_view cw['id'] if newer_repositories cw
       end
     end
