@@ -36,9 +36,8 @@ module HammerCLIImport
       def import_single_row(data)
         sg = mk_ak_hash data
         ak = create_entity(:activation_keys, sg, data['key_token'])
-        if (data['server_group_id'])
-          associate_with_host_collection(ak['id'], data)
-        end
+
+        associate_with_host_collection(ak['id'], data) if (data['server_group_id'])
       end
 
       def delete_single_row(data)

@@ -46,9 +46,8 @@ module HammerCLIImport
         product_id = create_entity(:products, product_hash, composite_id)['id']
         repo_hash = mk_repo_hash data, product_id
         repo = create_entity(:repositories, repo_hash, data['id'].to_i)
-        if option_sync?
-          sync_repo repo
-        end
+
+        sync_repo repo if option_sync?
       end
 
       def delete_single_row(data)
@@ -64,9 +63,8 @@ module HammerCLIImport
         delete_entity(:repositories, data['id'].to_i)
         # delete its product, if it's not associated with any other repositories
         product = lookup_entity(:products, product_id, true)
-        if product['repository_count'] == 0
-          delete_entity_by_import_id(:products, product_id)
-        end
+
+        delete_entity_by_import_id(:products, product_id) if product['repository_count'] == 0
       end
     end
   end
