@@ -53,7 +53,7 @@ module HammerCLIImport
 
     def verify_maps
       @pm.keys.each do |map_sym|
-        entities = list_entities map_sym
+        entities = list_entities map_target_entity[map_sym]
         entity_ids = entities.collect { |e| e['id'].to_i }
         extra = @pm[map_sym].to_hash.values - entity_ids
         unless extra.empty?
