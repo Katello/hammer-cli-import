@@ -24,7 +24,8 @@ module HammerCLIImport
         :repositories => true,
         :products => true,
         :content_views => true,
-        :activation_keys => true}
+        :activation_keys => true,
+        :content_view_versions => true}
       # cache imported objects (created/lookuped)
       @cache = {}
       # apipie binding
@@ -53,7 +54,7 @@ module HammerCLIImport
 
     def verify_maps
       @pm.keys.each do |map_sym|
-        entities = list_entities map_target_entity[map_sym]
+        entities = list_server_entities map_target_entity[map_sym]
         entity_ids = entities.collect { |e| e['id'].to_i }
         extra = @pm[map_sym].to_hash.values - entity_ids
         unless extra.empty?
@@ -90,33 +91,51 @@ module HammerCLIImport
       return get_cache(entity_type)[entity_id]
     end
 
+    def was_translated(entity_type, import_id)
+      return @pm[entity_type].to_hash.has_value?(import_id)
+    end
+
+    def lookup_entity_in_cache(entity_type, search_hash)
+      get_cache(entity_type).each do |entity_id, entity|
+        return entity if entity.merge(search_hash) == entity
+      end
+      return []
+    end
+
     def to_singular(plural)
       return plural.to_s.sub(/s$/, '').sub(/ie$/, 'y')
     end
 
+    def split_multival(multival, convert_to_int = true, separator = ';')
+      arr = (multival || '').split(separator).delete_if { |v| v == "None" }
+      arr.map! {|x| x.to_i} if convert_to_int
+      return arr
+    end
+
     def get_translated_id(entity_type, entity_id)
-      if @pm[entity_type] && @pm[entity_type][entity_id.to_i]
-        return @pm[entity_type][entity_id.to_i]
+      if @pm[entity_type] && @pm[entity_type][entity_id]
+        return @pm[entity_type][entity_id]
       end
       raise MissingObjectError, 'Need to import ' + to_singular(entity_type) + ' with id ' + entity_id.to_s
     end
 
-    def list_entities(entity_type)
-      if @per_org[entity_type]
+    def list_server_entities(entity_type, extra_hash = {})
+      if extra_hash.empty? and @per_org[entity_type]
         results = []
         # check only entities in imported orgs (not all of them)
         @pm[:organizations].to_hash.values.each do |org_id|
-          entities = api_mapped_resource(entity_type).call(:index, {'per_page' => 999999, 'organization_id' => org_id})
+          entities = @api.resource(entity_type).call(:index, {'per_page' => 999999, 'organization_id' => org_id})
           entities['results'].each do |entity|
-            get_cache(entity_type)[entity['id']] = entity
+            @cache[entity_type][entity['id']] = entity
           end
           results += entities['results']
         end
         return results
       else
-        entities = api_mapped_resource(entity_type).call(:index, {'per_page' => 999999})
+        entities = @api.resource(entity_type).call(:index, {'per_page' => 999999}.merge(extra_hash))
+        @cache[entity_type] ||= {}
         entities['results'].each do |entity|
-          get_cache(entity_type)[entity['id']] = entity
+          @cache[entity_type][entity['id']] = entity
         end
         return entities['results']
       end
@@ -147,7 +166,7 @@ module HammerCLIImport
     end
 
     def update_entity(entity_type, id, entity_hash)
-      puts 'Updating ' + to_singular(entity_type) + ' with id: ' + id.to_s
+      puts "Updating #{to_singular(entity_type)} with id: #{id}"
       api_mapped_resource(entity_type).call(:update, {:id => id}.merge!(entity_hash))
     end
 
@@ -230,7 +249,12 @@ module HammerCLIImport
         delete option_csv_file
       else
         import option_csv_file
-        post_import option_csv_file
+        begin
+          post_import option_csv_file
+        rescue => e
+          puts "Caught #{e.class}:#{e.message} while post_import"
+          puts e.backtrace.join "\n"
+        end
       end
       save_persistent_maps
       HammerCLI::EX_OK
