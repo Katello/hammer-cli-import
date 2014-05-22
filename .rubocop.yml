@@ -1,21 +1,15 @@
-LineLength:
-  Max: 125
-
-CollectionMethods:
-  PreferredMethods:
-    map: collect
-
-SignalException:
+BracesAroundHashParameters:
   Enabled: false
 
 ClassLength:
   Enabled: false
 
-BracesAroundHashParameters:
-  Enabled: false
+CollectionMethods:
+  PreferredMethods:
+    map: collect
 
-MethodLength:
-  Max: 25
+Documentation:
+  Enabled: false # don't require documentation
 
 Encoding:
   Enabled: false
@@ -23,10 +17,19 @@ Encoding:
 HashSyntax:
   EnforcedStyle: hash_rockets
 
+IfUnlessModifier:
+  Enabled: false
+
 LeadingCommentSpace:
   Enabled: false
 
-IfUnlessModifier:
+LineLength:
+  Max: 125
+
+MethodLength:
+  Max: 25
+
+NumericLiterals:
   Enabled: false
 
 ParenthesesAroundCondition:
@@ -35,11 +38,8 @@ ParenthesesAroundCondition:
 RedundantReturn:
   Enabled: false
 
+SignalException:
+  Enabled: false
+
 SpaceInsideHashLiteralBraces:
   Enabled: false # we allow spaces inside hash brackets
-
-Documentation:
-  Enabled: false # don't require documentation
-
-NumericLiterals:
-  Enabled: false
