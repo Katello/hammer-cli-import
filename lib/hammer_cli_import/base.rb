@@ -139,6 +139,8 @@ module HammerCLIImport
           # p "@pm[entity_type]:", @pm[entity_type]
         rescue StandardError => e
           puts "Creation of #{type} failed with #{e.inspect}"
+          print 'Entity_hash: '
+          p entity_hash
         end
         return entity
       end
