@@ -29,6 +29,9 @@ LineLength:
 MethodLength:
   Max: 25
 
+Next:
+  Enabled: false
+
 NumericLiterals:
   Enabled: false
 
