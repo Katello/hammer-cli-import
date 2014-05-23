@@ -31,7 +31,6 @@ module PersistentMap
       @definitions[:local_repositories] = [{'org_id' => Fixnum}, {'channel_id' => Fixnum}], ['sat6' => Fixnum], :repositories
       @definitions[:products] = [{'org_id' => Fixnum}, {'label' => String}], ['sat6' => Fixnum], :products
 
-
       @definitions.freeze
     end
   end
