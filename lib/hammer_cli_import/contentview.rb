@@ -18,32 +18,6 @@ module HammerCLIImport
         option_dir || File.dirname(option_csv_file)
       end
 
-      # Couple of possible encodings.... (+ matching decodings) (Haskell-ish syntax)
-      #
-      # > sqrtBig n = head . dropWhile ((n<).(^2)) $ iterate f n where
-      # >     f x = (x + n `div` x) `div` 2
-      #
-      # > enc1 x y = (x + y)*(x + y + 1) `div` 2 + x
-      #
-      # > dec1 0 = (0,0)
-      # > dec1 n = (c, a+d-c) where
-      # >     a = sqrtBig (n*2)
-      # >     b = n - enc1 0 (a)
-      # >     c = (a + b) `mod` a
-      # >     d = b `div` a
-      #
-      # > enc2 x y = 2^x * (y*2+1)
-      #
-      # > dec2 n = (x,y) where
-      # >     (x, y') = f 0 n where
-      # >         f a b = if m == 0 then f (a+1) d else (a,b) where (d, m) = b `divMod` 2
-      # >     y = (y' - 1) `div` 2
-      #
-      # Choose wisely ;-)
-      def encode(a, b)
-        - (2**a) * (2 * b + 1)
-      end
-
       #######
       # -> DUPE
       def mk_product_hash(data, product_name)
