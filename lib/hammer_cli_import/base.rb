@@ -99,7 +99,7 @@ module HammerCLIImport
       get_cache(entity_type).each do |entity_id, entity|
         return entity if entity.merge(search_hash) == entity
       end
-      return []
+      return nil
     end
 
     def to_singular(plural)

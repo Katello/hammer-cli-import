@@ -98,7 +98,7 @@ module HammerCLIImport
 
       def delete_single_row(data)
         ak = @cache[:activation_keys][get_translated_id(:activation_keys, data['token'])]
-        delete_ak_content_view(ak['content_view']) if was_translated(:ak_content_views, ak['content_view']['id'])
+        delete_ak_content_view(ak['content_view']) if ak['content_view'] and was_translated(:ak_content_views, ak['content_view']['id'])
         delete_entity(:activation_keys, data['token'])
       end
 
