@@ -1,18 +1,18 @@
 # hammer-cli-import
 
-Tool for importing data from an existing Spacewalk/Satellite system
+Tool for importing data from an existing Spacewalk/Satellite system.
 
-WORK IN PROGRESS
+THIS TOOL IS WORK IN PROGRESS.
 
-# Setup info
+## Setup info
 
-To enable modules do following:
+To enable modules do the following:
 
     mkdir -p ~/.hammer
-    cat > ~/.hammer/cli_config.yml << EOF
+    cat >> ~/.hammer/cli_config.yml << EOF
     :modules:
       - hammer_cli_import
-EOF
+    EOF
 
 And running with
 
@@ -24,21 +24,19 @@ To build/install as a gem:
     # gem install hammer_cli_import-0.0.1.gem
     # hammer import
 
-# Rubocop
+## RuboCop
 
-Rubocop requires at Ruby 1.9.3. That is in scl.
+[RuboCop][rubocop] requires at least Ruby 1.9.2. That is available in SCL.
 
     # yum install ruby193-ruby-devel
-    # scl enable ruby193 bash
-    # gem install rubocop
+    # scl enable ruby193 "gem install rubocop"
 
-and running with
+It needs to be run with newer Ruby too (it will pick up its configuration
+automatically when run from the root of repository).
 
-    # /opt/rh/ruby193/root/usr/local/share/gems/gems/*/bin/rubocop
+    # scl enable ruby193 "/opt/rh/ruby193/root/usr/local/share/gems/gems/*/bin/rubocop"
 
-it should pick up config automatically
-
-# Devel
+## Development
 
 You can add to your `~/.irbrc`:
 
@@ -48,3 +46,4 @@ You can add to your `~/.irbrc`:
       end
     end
 
+[rubocop]: http://batsov.com/rubocop/ "Ruby code analyzer"
