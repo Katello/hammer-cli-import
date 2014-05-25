@@ -1,5 +1,6 @@
 # vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby
 require 'csv'
+require 'set'
 
 module PersistentMap
   class PersistentMapError < RuntimeError
@@ -63,8 +64,8 @@ module PersistentMap
 
     def persistent_maps(*list)
       raise PersistentMapError, 'Persistent maps should be declared only once' if @maps
-      list.each do |sym|
-        persistent_map sym
+      list.each do |map_sym|
+        persistent_map map_sym
       end
     end
   end
@@ -97,7 +98,6 @@ module PersistentMap
           end
         end
         @pm[map_sym] = DeltaHash[hash]
-        yield map_sym if block_given?
       end
     end
 
@@ -116,6 +116,22 @@ module PersistentMap
             key = [key] unless key.is_a? Array
             csv << key + delval + ['-']
           end
+        end
+      end
+    end
+
+    # Consider entities deleted if they are not present in cache
+    def prune_persistent_maps(cache)
+      maps.each do |map_sym|
+        entity_ids = cache[map_target_entity[map_sym]].keys
+        pm_hash = @pm[map_sym].to_hash
+        extra = pm_hash.values.to_set - entity_ids.to_set
+
+        next if extra.empty?
+
+        puts "Removing #{map_sym} from persistent map: #{extra.to_a.join(' ')}"
+        pm_hash.each do |key, value|
+          @pm[map_sym].delete key if extra.include? value
         end
       end
     end

@@ -52,20 +52,6 @@ module HammerCLIImport
       File.join(File.expand_path('~'), 'data')
     end
 
-    def verify_maps
-      @pm.keys.each do |map_sym|
-        entities = list_server_entities map_target_entity[map_sym]
-        entity_ids = entities.collect { |e| e['id'].to_i }
-        extra = @pm[map_sym].to_hash.values - entity_ids
-        unless extra.empty?
-          puts 'Removing ' + map_sym.to_s + ' from persistent map: ' + extra.join(' ')
-          @pm[map_sym].to_hash.each do |key, value|
-            @pm[map_sym].delete key if extra.include? value
-          end
-        end
-      end
-    end
-
     def import_single_row(_row)
       puts 'Import not implemented.'
     end
@@ -76,6 +62,12 @@ module HammerCLIImport
 
     def get_cache(entity_type)
       @cache[map_target_entity[entity_type]]
+    end
+
+    def load_cache
+      maps.each do |map_sym|
+        list_server_entities map_target_entity[map_sym]
+      end
     end
 
     def api_mapped_resource(entity_type)
@@ -120,24 +112,20 @@ module HammerCLIImport
     end
 
     def list_server_entities(entity_type, extra_hash = {})
+      @cache[entity_type] ||= {}
       if extra_hash.empty? and @per_org[entity_type]
         results = []
         # check only entities in imported orgs (not all of them)
         @pm[:organizations].to_hash.values.each do |org_id|
           entities = @api.resource(entity_type).call(:index, {'per_page' => 999999, 'organization_id' => org_id})
-          entities['results'].each do |entity|
-            @cache[entity_type][entity['id']] = entity
-          end
           results += entities['results']
         end
-        return results
       else
         entities = @api.resource(entity_type).call(:index, {'per_page' => 999999}.merge(extra_hash))
-        @cache[entity_type] ||= {}
-        entities['results'].each do |entity|
-          @cache[entity_type][entity['id']] = entity
-        end
-        return entities['results']
+        results =  entities['results']
+      end
+      results.each do |entity|
+        @cache[entity_type][entity['id']] = entity
       end
     end
 
@@ -241,10 +229,9 @@ module HammerCLIImport
         :password => HammerCLI::Settings.get(:foreman, :password),
         :api_version => 2
       })
-      load_persistent_maps do |map_sym|
-        @cache[map_sym] = {}
-      end
-      verify_maps
+      load_persistent_maps
+      load_cache
+      prune_persistent_maps @cache
       if option_delete?
         delete option_csv_file
       else
