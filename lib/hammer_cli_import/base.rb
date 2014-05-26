@@ -84,11 +84,11 @@ module HammerCLIImport
     end
 
     def was_translated(entity_type, import_id)
-      return @pm[entity_type].to_hash.has_value?(import_id)
+      return @pm[entity_type].to_hash.value?(import_id)
     end
 
     def lookup_entity_in_cache(entity_type, search_hash)
-      get_cache(entity_type).each do |entity_id, entity|
+      get_cache(entity_type).each do |_entity_id, entity|
         return entity if entity.merge(search_hash) == entity
       end
       return nil
@@ -99,8 +99,8 @@ module HammerCLIImport
     end
 
     def split_multival(multival, convert_to_int = true, separator = ';')
-      arr = (multival || '').split(separator).delete_if { |v| v == "None" }
-      arr.map! {|x| x.to_i} if convert_to_int
+      arr = (multival || '').split(separator).delete_if { |v| v == 'None' }
+      arr.map! { |x| x.to_i } if convert_to_int
       return arr
     end
 
@@ -113,7 +113,7 @@ module HammerCLIImport
 
     def list_server_entities(entity_type, extra_hash = {})
       @cache[entity_type] ||= {}
-      if extra_hash.empty? and @per_org[entity_type]
+      if extra_hash.empty? && @per_org[entity_type]
         results = []
         # check only entities in imported orgs (not all of them)
         @pm[:organizations].to_hash.values.each do |org_id|
