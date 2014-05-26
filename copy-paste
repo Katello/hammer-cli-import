@@ -1,0 +1,31 @@
+#!/bin/bash
+
+echo "Bad idea..."
+exit 1
+
+# Prepare
+
+mkdir -p ~/.hammer
+cat >> ~/.hammer/cli_config.yml << EOF
+:modules:
+- hammer_cli_import
+EOF
+
+# Run
+
+env RUBYOPT=-Ilib hammer import
+
+# To build/install as a gem:
+
+gem build hammer_cli_import.gemspec
+gem install hammer_cli_import-0.0.1.gem
+hammer import
+
+# RuboCop prepare
+
+yum install ruby193-ruby-devel
+scl enable ruby193 "gem install rubocop"
+
+# RuboCop run
+
+scl enable ruby193 "/opt/rh/ruby193/root/usr/local/share/gems/gems/*/bin/rubocop"
