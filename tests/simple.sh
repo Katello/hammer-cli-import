@@ -11,10 +11,6 @@ die() {
 
 # params: subcommand
 count_entities() {
-    # workaround due to Bug 1094635
-    if [[ "repository" =~ $1 ]]; then
-        return
-    fi
     if [[ "organization user" =~ $1 ]]; then
         echo $( $HAMMER --csv $1 list | sed '1 d' | wc -l )
     else
@@ -41,10 +37,6 @@ import_cmd() {
         die "'$HAMMER import $1 --csv-file=$2 $3' failed with $RET."
     fi
     COUNT2=$(count_entities $1)
-    # workaround due to Bug 1094635
-    if [[ "repository" =~ $1 ]]; then
-        return
-    fi
     # echo "$1 COUNT: $COUNT1 -> $COUNT2"
     if [ "$3" == "--delete" ]; then
         let "COUNT2_EXP = $COUNT1 - 1"
