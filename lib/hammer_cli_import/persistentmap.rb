@@ -8,6 +8,8 @@ module PersistentMap
 
   class << Fixnum
     def from_s(x)
+      return x if x.nil?
+      raise PersistentMapError, "Expecting integer: #{x}" unless x.to_i.to_s == x
       x.to_i
     end
   end
