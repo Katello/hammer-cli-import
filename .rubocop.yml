@@ -27,7 +27,7 @@ LineLength:
   Max: 125
 
 MethodLength:
-  Max: 25
+  Max: 50
 
 Next:
   Enabled: false
