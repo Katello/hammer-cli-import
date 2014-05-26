@@ -28,7 +28,7 @@ To build/install as a gem:
 
 [RuboCop][rubocop] requires at least Ruby 1.9.2. That is available in SCL.
 
-    # yum install ruby193-ruby-devel
+    # yum install -y ruby193-ruby-devel
     # scl enable ruby193 "gem install rubocop"
 
 It needs to be run with newer Ruby too (it will pick up its configuration
