@@ -65,8 +65,8 @@ module HammerCLIImport
     end
 
     def load_cache
-      maps.each do |map_sym|
-        list_server_entities map_target_entity[map_sym]
+      maps.collect { |map_sym| map_target_entity[map_sym] } .uniq.each do |entity_type|
+        list_server_entities entity_type
       end
     end
 
