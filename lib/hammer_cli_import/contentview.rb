@@ -5,6 +5,9 @@ require 'set'
 module HammerCLIImport
   class ImportCommand
     class LocalRepositoryImportCommand < BaseCommand
+      extend ImportTools::Repository::Extend
+      include ImportTools::Repository::Include
+
       command_name 'content-view'
       desc 'Create content-views based on local/cloned channels.'
 
@@ -13,6 +16,7 @@ module HammerCLIImport
       persistent_maps :organizations, :repositories, :local_repositories, :content_views, :products
 
       option ['--dir'], 'DIR', 'Export directory'
+      add_repo_options
 
       def directory
         option_dir || File.dirname(option_csv_file)
@@ -35,20 +39,8 @@ module HammerCLIImport
           :content_type => 'yum'
         }
       end
-
-      def sync_repo(repo)
-        action = @api.resource(:repositories).call(:sync, {:id => repo['id']})
-        puts 'Sync started!'
-        p action
-      end
       # <-
       #######
-
-      def repo_synced?(repo)
-        info = @api.resource(:repositories).call(:show, {:id => repo['id']})
-        return false unless info['sync_state'] == 'finished'
-        Time.parse(info['last_sync']) > Time.parse(info['updated_at'])
-      end
 
       def publish_content_view(id)
         puts "Publishing content view with id=#{id}"
