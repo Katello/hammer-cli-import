@@ -23,7 +23,7 @@ hammer import
 
 # RuboCop prepare
 
-yum install ruby193-ruby-devel
+yum -y install ruby193-ruby-devel
 scl enable ruby193 "gem install rubocop"
 
 # RuboCop run
