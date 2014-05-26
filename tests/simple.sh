@@ -19,8 +19,8 @@ count_entities() {
         echo $( $HAMMER --csv $1 list | sed '1 d' | wc -l )
     else
         COUNT=0
-        for org_label in $(get_org_labels); do
-            COUNT_ORG=$($HAMMER --csv $1 list --organization-id="$org_label" | sed '1 d' | wc -l)
+        for org_id in $(get_org_ids); do
+            COUNT_ORG=$($HAMMER --csv $1 list --organization-id="$org_id" | sed '1 d' | wc -l)
 #COUNT_ORG=1
             let "COUNT=$COUNT + $COUNT_ORG"
         done
@@ -28,8 +28,8 @@ count_entities() {
     fi
 }
 
-get_org_labels() {
-    echo $( $HAMMER --output=base organization list | sed -n 's/^Label:\s*//p' )
+get_org_ids() {
+    echo $( $HAMMER --output=base organization list | sed -n 's/^Id:\s*//p' )
 }
 
 # params: subcommand, csv_file, extra cmd arguments
