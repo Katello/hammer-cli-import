@@ -7,7 +7,7 @@ module HammerCLIImport
       command_name 'user'
       desc 'Import users.'
 
-      option ['--new-passwords'], 'FILE_NAME', 'Output for new passwords', :required => true
+      option ['--new-passwords'], 'FILE_NAME', 'Output for new passwords'
 
       csv_columns 'organization_id', 'user_id', 'username',\
                   'last_name', 'first_name', 'email', 'role', 'active'
@@ -34,12 +34,33 @@ module HammerCLIImport
       end
 
       def post_import(_)
-        CSVHelper.csv_write_hashes(option_new_passwords, [:mail, :login, :password], @new_passwords)
+        return if @new_passwords.nil? || @new_passwords.empty?
+        CSVHelper.csv_write_hashes option_new_passwords, [:mail, :login, :password], @new_passwords
       end
 
       def import_single_row(data)
         user = mk_user_hash data
-        create_entity(:users, user, data['user_id'].to_i)
+        new_user = true
+
+        user_id = data['user_id'].to_i
+        login = user[:login]
+
+        unless @pm[:users][user_id].nil?
+          puts "User #{login} already imported."
+          return
+        end
+
+        existing_user = lookup_entity_in_cache :users, 'login' => user[:login]
+
+        unless existing_user.nil?
+          puts "User with login #{login} already exists. Associating..."
+          @pm[:users][user_id] = existing_user['id']
+          new_user = false
+        end
+
+        return unless new_user
+
+        create_entity :users, user, user_id
 
         @new_passwords ||= []
         @new_passwords << {:login => user[:login], :password => user[:password], :mail => user[:mail]}
