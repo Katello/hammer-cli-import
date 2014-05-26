@@ -97,13 +97,17 @@ module HammerCLIImport
       end
 
       def delete_single_row(data)
+        unless @pm[:activation_keys][data['token']]
+          puts to_singular(:activation_keys).capitalize + ' with id ' + data['token'] + " wasn't imported. Skipping deletion."
+          return
+        end
         ak = @cache[:activation_keys][get_translated_id(:activation_keys, data['token'])]
-        delete_ak_content_view(ak['content_view']) if ak['content_view'] and was_translated(:ak_content_views, ak['content_view']['id'])
         delete_entity(:activation_keys, data['token'])
+        delete_ak_content_view(ak['content_view']) if ak['content_view'] and was_translated(:ak_content_views, ak['content_view']['id'])
       end
 
       def delete_ak_content_view cv
-        p "Deleting ak_content_view:", cv
+        delete_entity_by_import_id(:ak_content_views, cv["id"])
       end
 
     end

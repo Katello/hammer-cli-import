@@ -185,7 +185,7 @@ module HammerCLIImport
         end
         original_id = '?' unless original_id
       end
-      puts 'Deleting imported ' + type + ' [' + original_id.to_s + '->' + @pm[entity_type][original_id].to_s + '].'
+      puts "Deleting imported #{type} [#{original_id}->#{@pm[entity_type][original_id]}]."
       api_mapped_resource(entity_type).call(:destroy, {:id => import_id})
       # delete from cache
       get_cache(entity_type).delete(import_id)
