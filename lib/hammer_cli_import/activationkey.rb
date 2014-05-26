@@ -78,6 +78,8 @@ module HammerCLIImport
             if cv
               puts "  Content view #{cv_label} already created, reusing."
             else
+              # create composite content view
+              # for activation key purposes
               cv = create_entity(
                 :ak_content_views,
                 {
@@ -89,6 +91,8 @@ module HammerCLIImport
                   :component_ids => cv_versions
                 },
                 cv_label)
+              # publish the content view
+              p api_mapped_resource(:ak_content_views).call(:publish, { :id => cv['id'] })
             end
             ak_cv_hash[:content_view_id] = cv['id']
           end
