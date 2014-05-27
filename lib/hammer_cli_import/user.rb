@@ -11,6 +11,7 @@ module HammerCLIImport
         raise ArgumentError, "File #{filename} already exists" if File.exist? filename
         filename
       end
+      option ['--merge-users'], :flag, 'Merge pre-created users (except admin)', :default => false
 
       validate_options do
         any(:option_new_passwords, :option_delete).required
@@ -27,6 +28,7 @@ module HammerCLIImport
 
       def mk_user_hash(data)
         username = data['username']
+        username = 'sat5_admin' if username == 'admin'
         {
           :login => username,
           :firstname => data['first_name'],
@@ -57,12 +59,14 @@ module HammerCLIImport
           return
         end
 
-        existing_user = lookup_entity_in_cache :users, 'login' => user[:login]
+        if option_merge_users?
+          existing_user = lookup_entity_in_cache :users, 'login' => user[:login]
 
-        unless existing_user.nil?
-          puts "User with login #{login} already exists. Associating..."
-          @pm[:users][user_id] = existing_user['id']
-          new_user = false
+          unless existing_user.nil?
+            puts "User with login #{login} already exists. Associating..."
+            @pm[:users][user_id] = existing_user['id']
+            new_user = false
+          end
         end
 
         return unless new_user
