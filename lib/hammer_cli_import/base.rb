@@ -32,7 +32,10 @@ module HammerCLIImport
       @api = nil
     end
 
-    option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true
+    option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true do |filename|
+      raise ArgumentError, "File #{filename} does not exist" unless File.exist? filename
+      filename
+    end
     option ['--delete'], :flag, 'Delete entities from CSV file', :default => false
     option ['--verify'], :flag, 'Verify entities from CSV file'
 
