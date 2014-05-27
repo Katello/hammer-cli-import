@@ -9,6 +9,10 @@ module HammerCLIImport
 
       option ['--new-passwords'], 'FILE_NAME', 'Output for new passwords'
 
+      validate_options do
+        any(:option_new_passwords, :option_delete).required
+      end
+
       csv_columns 'organization_id', 'user_id', 'username',\
                   'last_name', 'first_name', 'email', 'role', 'active'
 
