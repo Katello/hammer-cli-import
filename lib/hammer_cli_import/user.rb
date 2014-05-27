@@ -7,7 +7,10 @@ module HammerCLIImport
       command_name 'user'
       desc 'Import users.'
 
-      option ['--new-passwords'], 'FILE_NAME', 'Output for new passwords'
+      option ['--new-passwords'], 'FILE_NAME', 'Output for new passwords' do |filename|
+        raise ArgumentError, "File #{filename} already exists" if File.exist? filename
+        filename
+      end
 
       validate_options do
         any(:option_new_passwords, :option_delete).required
