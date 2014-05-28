@@ -92,7 +92,8 @@ module HammerCLIImport
                 },
                 cv_label)
               # publish the content view
-              p api_mapped_resource(:ak_content_views).call(:publish, { :id => cv['id'] })
+              puts "  Publishing content view: #{cv['id']}"
+              api_mapped_resource(:ak_content_views).call(:publish, { :id => cv['id'] })
             end
             ak_cv_hash[:content_view_id] = cv['id']
           end
@@ -115,7 +116,20 @@ module HammerCLIImport
       end
 
       def delete_ak_content_view(cv)
-        delete_entity_by_import_id(:ak_content_views, cv['id'])
+        content_view = get_cache(:ak_content_views)[cv['id'].to_i]
+
+        cv_versions = content_view['versions'].collect { |v| v['id'] }
+
+        task = api_mapped_resource(:ak_content_views).call(
+            :remove,
+            {
+              :id => content_view['id'],
+              :content_view_version_ids => cv_versions
+            })
+
+        wait_for_task(task['id'], 1, 0)
+
+        delete_entity_by_import_id(:ak_content_views, content_view['id'])
       end
     end
   end
