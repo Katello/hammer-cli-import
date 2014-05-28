@@ -1,5 +1,6 @@
 # vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby
 require 'csv'
+require 'set'
 
 require 'apipie-bindings'
 require 'hammer_cli'
@@ -19,13 +20,13 @@ module HammerCLIImport
       # APIs return objects encapsulated in extra hash
       @wrap_in = {:organizations => 'organization'}
       # entities that needs organization to be listed
-      @per_org = {
-        :host_collections => true,
-        :repositories => true,
-        :products => true,
-        :content_views => true,
-        :activation_keys => true,
-        :content_view_versions => true}
+      @per_org = Set[
+        :host_collections,
+        :repositories,
+        :products,
+        :content_views,
+        :activation_keys,
+        :content_view_versions]
       # cache imported objects (created/lookuped)
       @cache = {}
       # apipie binding
@@ -116,7 +117,7 @@ module HammerCLIImport
 
     def list_server_entities(entity_type, extra_hash = {})
       @cache[entity_type] ||= {}
-      if extra_hash.empty? && @per_org[entity_type]
+      if extra_hash.empty? && @per_org.include?(entity_type)
         results = []
         # check only entities in imported orgs (not all of them)
         @pm[:organizations].to_hash.values.each do |org_id|
