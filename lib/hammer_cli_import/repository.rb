@@ -5,6 +5,9 @@ require 'uri'
 module HammerCLIImport
   class ImportCommand
     class RepositoryImportCommand < BaseCommand
+      extend ImportTools::Repository::Extend
+      include ImportTools::Repository::Include
+
       command_name 'repository'
       desc 'Import repositories.'
 
@@ -12,7 +15,7 @@ module HammerCLIImport
 
       persistent_maps :organizations, :repositories, :products
 
-      option ['--sync'], :flag, 'Synchronize imported repositories', :default => false
+      add_repo_options
 
       def mk_product_hash(data, product_name)
         {
@@ -30,10 +33,6 @@ module HammerCLIImport
         }
       end
 
-      def sync_repo(repo)
-        @api.resource(:repositories).call(:sync, {:id => repo['id']})
-      end
-
       def import_single_row(data)
         begin
           product_name = URI.parse(data['source_url']).host.split('.')[-2, 2].join('.').upcase
@@ -47,7 +46,7 @@ module HammerCLIImport
         repo_hash = mk_repo_hash data, product_id
         repo = create_entity(:repositories, repo_hash, data['id'].to_i)
 
-        sync_repo repo if option_sync?
+        sync_repo repo unless repo_synced? repo
       end
 
       def delete_single_row(data)

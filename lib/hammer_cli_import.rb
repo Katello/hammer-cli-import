@@ -9,6 +9,7 @@ module HammerCLIImport
   require 'hammer_cli_import/csvhelper'
   require 'hammer_cli_import/deltahash'
   require 'hammer_cli_import/fixtime'
+  require 'hammer_cli_import/importtools'
   require 'hammer_cli_import/persistentmap'
 
   require 'hammer_cli_import/base'
