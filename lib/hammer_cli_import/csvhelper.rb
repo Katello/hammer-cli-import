@@ -9,6 +9,7 @@ module CSVHelper
     fail CSVHelperError, 'Expecting block' unless block_given?
     reader = CSV.open(filename, 'r')
     real_header = reader.shift
+    fail CSVHelperError, "No header in #{filename}" if real_header.nil?
     to_discard = real_header - headers
     headers.each do |col|
       raise CSVHelperError, "column #{col} expected in #{filename}" unless real_header.include? col
