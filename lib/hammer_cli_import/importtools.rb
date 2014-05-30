@@ -16,7 +16,7 @@ module ImportTools
       def repo_synced?(repo)
         raise ArgumentError, 'nil is not a valid repository' if repo.nil?
 
-        info = @api.resource(:repositories).call(:show, {:id => repo['id']})
+        info = lookup_entity(:repositories, repo['id'], true)
         return false unless info['sync_state'] == 'finished'
         Time.parse(info['last_sync']) > Time.parse(info['updated_at'])
       end
