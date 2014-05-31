@@ -12,7 +12,7 @@ module CSVHelper
     fail CSVHelperError, "No header in #{filename}" if real_header.nil?
     to_discard = real_header - headers
     headers.each do |col|
-      raise CSVHelperError, "column #{col} expected in #{filename}" unless real_header.include? col
+      raise CSVHelperError, "Column #{col} expected in #{filename}" unless real_header.include? col
     end
     reader.each do |row|
       data = Hash[real_header.zip row]
