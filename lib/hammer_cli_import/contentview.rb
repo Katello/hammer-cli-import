@@ -22,8 +22,6 @@ module HammerCLIImport
         option_dir || File.dirname(option_csv_file)
       end
 
-      #######
-      # -> DUPE
       def mk_product_hash(data, product_name)
         {
           :name => product_name,
@@ -39,8 +37,6 @@ module HammerCLIImport
           :content_type => 'yum'
         }
       end
-      # <-
-      #######
 
       def publish_content_view(id)
         puts "Publishing content view with id=#{id}"
