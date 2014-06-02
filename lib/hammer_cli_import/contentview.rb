@@ -110,6 +110,31 @@ module HammerCLIImport
         cw = create_entity :content_views, content_view, data['channel_id'].to_i
         publish_content_view cw['id'] if newer_repositories cw
       end
+
+      def delete_single_row(data)
+        cv_id = data['channel_id'].to_i
+        translated = get_translated_id :content_views, cv_id
+
+        # delete_entity :content_views, cv_id
+        delete_content_view translated
+      end
+
+      def delete_content_view(cv_id)
+        content_view = get_cache(:content_views)[cv_id]
+
+        cv_versions = content_view['versions'].collect { |v| v['id'] }
+
+        task = api_mapped_resource(:content_views).call(
+            :remove,
+            {
+              :id => content_view['id'],
+              :content_view_version_ids => cv_versions
+            })
+
+        wait_for_task(task['id'], 1, 0)
+
+        delete_entity_by_import_id(:content_views, content_view['id'])
+      end
     end
   end
 end
