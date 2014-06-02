@@ -42,6 +42,16 @@ class DeltaHash
     @new.delete(key)
   end
 
+  def delete_value(value)
+    deleted = 0
+    to_hash.each do |k, v|
+      next unless v == value
+      delete(k)
+      deleted += 1
+    end
+    return deleted
+  end
+
   def to_s
     to_hash.to_s
   end

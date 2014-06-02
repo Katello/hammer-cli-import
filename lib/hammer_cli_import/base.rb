@@ -98,6 +98,10 @@ module HammerCLIImport
       return nil
     end
 
+    def last_in_cache?(entity_type, id)
+      return get_cache(entity_type).size == 1 && get_cache(entity_type).first[0] == id
+    end
+
     def to_singular(plural)
       return plural.to_s.sub(/s$/, '').sub(/ie$/, 'y')
     end
@@ -131,6 +135,21 @@ module HammerCLIImport
       results.each do |entity|
         @cache[entity_type][entity['id']] = entity
       end
+    end
+
+    def map_entity(entity_type, original_id, id)
+      if @pm[entity_type][original_id]
+        puts "#{to_singular(entity_type).capitalize} [#{original_id}->#{@pm[entity_type][original_id]}] already mapped. " + \
+        'Skipping.'
+        return
+      end
+      puts "Mapping #{to_singular(entity_type)} [#{original_id}->#{id}]."
+      @pm[entity_type][original_id] = id
+    end
+
+    def unmap_entity(entity_type, target_id)
+      deleted = @pm[entity_type].delete_value(target_id)
+      puts "Unmapped #{to_singular(entity_type)} with id #{target_id}: #{deleted}x" if deleted > 1
     end
 
     def create_entity(entity_type, entity_hash, original_id)
@@ -173,7 +192,7 @@ module HammerCLIImport
       # delete from cache
       get_cache(entity_type).delete(@pm[entity_type][original_id])
       # delete from pm
-      @pm[entity_type].delete original_id
+      unmap_entity(entity_type, @pm[entity_type][original_id])
     end
 
     def wait_for_task(uuid, start_wait = 0, delta_wait = 1, max_wait = 10)
