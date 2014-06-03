@@ -90,6 +90,13 @@ module HammerCLIImport
         local_repo
       end
 
+      def api_call(resource, action, params = {})
+        @api.resource(resource).call(action, params)
+      rescue
+        puts "Error on api.resource(#{resource}).call(#{action}, #{params}):"
+        raise
+      end
+
       def import_single_row(data)
         local_repo = add_local_repo data
         sync_repo local_repo unless repo_synced? local_repo
