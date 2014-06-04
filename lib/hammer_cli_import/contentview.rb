@@ -31,7 +31,7 @@ module HammerCLIImport
 
       def mk_repo_hash(data, product_id)
         {
-          :name => "Local-repository-for-#{data['channel_label']}",
+          :name => "Local repository for #{data['channel_label']}",
           :product_id => product_id,
           :url => 'file://' + File.join(directory, data['org_id'], data['channel_id']),
           :content_type => 'yum'
@@ -68,15 +68,17 @@ module HammerCLIImport
         headers = %w(org_id channel_id package_nevra package_rpm_name in_repo in_parent_channel)
         file = File.join directory, org_id.to_s, channel_id.to_s + '.csv'
 
+        packages_in_channel = Set[]
         repo_ids = Set[]
         parent_channel_ids = Set[]
 
         CSVHelper.csv_each file, headers do |data|
+          packages_in_channel << data['package_nevra']
           parent_channel_ids << data['in_parent_channel']
           repo_ids << data['in_repo']
         end
 
-        [repo_ids.to_a, parent_channel_ids.to_a]
+        [repo_ids.to_a, parent_channel_ids.to_a, packages_in_channel.to_a]
       end
 
       def add_local_repo(data)
@@ -97,11 +99,39 @@ module HammerCLIImport
         raise
       end
 
+      def add_repo_filters(content_view_id, nevras)
+        cw_filter = @api.resource(:content_view_filters)\
+          .call(:create,
+                { :content_view_id => content_view_id,
+                  :name => 'Satellite 5 channel equivalence filter',
+                  :type => 'rpm',
+                  :inclusion => true})
+
+        packages = nevras.collect do |package_nevra|
+          match = /^([^:]+)-(\d+):([^-]+)-(.*)\.([^.]*)$/.match(package_nevra)
+          raise "Bad nevra: #{package_nevra}" unless match
+
+          { :name => match[1],
+            :epoch => match[2],
+            :version => match[3],
+            :release => match[4],
+            :architecture => match[5]
+          }
+        end
+        packages.group_by { |package| package[:name] } .each do |name, _packages|
+          api_call :content_view_filter_rules,
+                   :create,
+                   { :content_view_filter_id => cw_filter['id'],
+                     :name => name}
+        end
+      end
+
       def import_single_row(data)
         local_repo = add_local_repo data
         sync_repo local_repo unless repo_synced? local_repo
 
-        repo_ids, _ = load_custom_channel_info data['org_id'].to_i, data['channel_id'].to_i
+        repo_ids, _b, packages = load_custom_channel_info data['org_id'].to_i, data['channel_id'].to_i
+
         repo_ids.delete nil
         repo_ids.map! { |id| get_translated_id :repositories, id.to_i }
         repo_ids.push local_repo['id'].to_i
@@ -115,6 +145,7 @@ module HammerCLIImport
         content_view = mk_content_view_hash data, repo_ids
 
         cw = create_entity :content_views, content_view, data['channel_id'].to_i
+        add_repo_filters cw['id'], packages
         publish_content_view cw['id'] if newer_repositories cw
       end
 
