@@ -11,7 +11,7 @@ module HammerCLIImport
                                        :username => HammerCLI::Settings.get(:foreman, :username),
                                        :password => HammerCLI::Settings.get(:foreman, :password),
                                        :api_version => 2
-      })
+                                     })
       puts @api.resource(:organizations).call(:index)['results'].length
       HammerCLI::EX_OK
     end

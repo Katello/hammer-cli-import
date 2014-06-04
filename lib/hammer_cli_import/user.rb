@@ -29,7 +29,7 @@ module HammerCLIImport
       def mk_user_hash(data)
         username = data['username']
         username = 'sat5_admin' if username == 'admin'
-        is_admin = (not data['role'].nil? and data['role'].include? 'Organization Administrator')
+        is_admin = (!data['role'].nil? && data['role'].include?('Organization Administrator'))
         {
           :login => username,
           :firstname => data['first_name'],
