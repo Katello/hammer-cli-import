@@ -29,6 +29,7 @@ module HammerCLIImport
       def mk_user_hash(data)
         username = data['username']
         username = 'sat5_admin' if username == 'admin'
+        is_admin = (not data['role'].nil? and data['role'].include? 'Organization Administrator')
         {
           :login => username,
           :firstname => data['first_name'],
@@ -38,6 +39,7 @@ module HammerCLIImport
           :password => genpw(username),
           :organization_ids => [get_translated_id(:organizations, data['organization_id'].to_i)],
           :location_ids => [],
+          :admin => is_admin,
           :role_ids => []
         }
       end
