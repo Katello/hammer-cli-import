@@ -1,5 +1,6 @@
 # vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby
 require 'csv'
+require 'json'
 require 'set'
 
 require 'apipie-bindings'
@@ -7,6 +8,9 @@ require 'hammer_cli'
 
 module HammerCLIImport
   class MissingObjectError < RuntimeError
+  end
+
+  class ImportRecoveryError < RuntimeError
   end
 
   class BaseCommand < HammerCLI::Apipie::Command
@@ -40,6 +44,12 @@ module HammerCLIImport
     option ['--delete'], :flag, 'Delete entities from CSV file', :default => false
     # TODO: Implement logic for verify
     # option ['--verify'], :flag, 'Verify entities from CSV file'
+    option ['--recover'], 'RECOVER', 'Recover strategy, can be: rename (default), map, none', :default => :rename \
+    do |strategy|
+      raise ArgumentError, "Unknown '#{strategy}' strategy argument." \
+        unless [:rename, :map, :none].include? strategy.to_sym
+      strategy.to_sym
+    end
 
     ############
     ## -> Stuff related to csv columns
@@ -150,10 +160,49 @@ module HammerCLIImport
 
     def unmap_entity(entity_type, target_id)
       deleted = @pm[entity_type].delete_value(target_id)
-      puts "Unmapped #{to_singular(entity_type)} with id #{target_id}: #{deleted}x" if deleted > 1
+      puts " Unmapped #{to_singular(entity_type)} with id #{target_id}: #{deleted}x" if deleted > 1
     end
 
-    def create_entity(entity_type, entity_hash, original_id)
+    def create_entity(entity_type, entity_hash, original_id, recover = nil)
+      begin
+        return _create_entity(entity_type, entity_hash, original_id)
+      rescue RestClient::UnprocessableEntity => ue
+        puts " Creation of #{to_singular(entity_type)} failed."
+        errs = JSON.parse(ue.response)['errors']
+        uniq = errs.first[0] if errs.first[1].kind_of?(Array) && errs.first[1][0] =~ /must be unique/
+
+        raise ue unless uniq
+      end
+
+      uniq = uniq.to_sym unless entity_hash[uniq]
+
+      case recover || option_recover.to_sym
+      when :rename
+        prefix = [entity_hash[:organization_id], original_id].compact[0].to_s
+        entity_hash[uniq] = prefix + '-' + entity_hash[uniq]
+        puts " Recovering by renaming to: \"#{uniq}\"=\"#{entity_hash[uniq]}\""
+        begin
+          return _create_entity(entity_type, entity_hash, original_id)
+        rescue StandardError => e2
+          puts "Creation of #{entity_type} not recovered by \'#{recover}\' strategy."
+          raise e2
+        end
+      when :map
+        entity = lookup_entity_in_cache(entity_type, {uniq.to_s => entity_hash[uniq]})
+        if entity
+          puts " Recovering by remapping to: #{entity['id']}"
+          map_entity(entity_type, original_id, entity['id'])
+        else
+          raise ImportRecoveryError, "Creation of #{entity_type} not recovered by \'#{recover}\' strategy."
+        end
+      else
+        p 'No recover strategy.'
+        raise ue
+      end
+      nil
+    end
+
+    def _create_entity(entity_type, entity_hash, original_id)
       type = to_singular(entity_type)
       if @pm[entity_type][original_id]
         puts type.capitalize + ' [' + original_id.to_s + '->' + @pm[entity_type][original_id].to_s + '] already imported.'
@@ -161,18 +210,12 @@ module HammerCLIImport
       else
         puts 'Creating new ' + type + ': ' + entity_hash.values_at(:name, :label, :login).compact[0]
         entity_hash = {@wrap_out[entity_type] => entity_hash} if @wrap_out[entity_type]
-        begin
-          entity = api_mapped_resource(entity_type).call(:create, entity_hash)
-          # p "created entity:", entity
-          entity = entity[@wrap_in[entity_type]] if @wrap_in[entity_type]
-          @pm[entity_type][original_id] = entity['id']
-          get_cache(entity_type)[entity['id']] = entity
-          # p "@pm[entity_type]:", @pm[entity_type]
-        rescue StandardError => e
-          puts "Creation of #{type} failed with #{e.inspect}"
-          print 'Entity_hash: '
-          p entity_hash
-        end
+        entity = api_mapped_resource(entity_type).call(:create, entity_hash)
+        # p "created entity:", entity
+        entity = entity[@wrap_in[entity_type]] if @wrap_in[entity_type]
+        @pm[entity_type][original_id] = entity['id']
+        get_cache(entity_type)[entity['id']] = entity
+        # p "@pm[entity_type]:", @pm[entity_type]
         return entity
       end
     end

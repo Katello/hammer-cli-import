@@ -46,3 +46,6 @@ SignalException:
 
 SpaceInsideHashLiteralBraces:
   Enabled: false # we allow spaces inside hash brackets
+
+Style/CyclomaticComplexity:
+  Max: 11
