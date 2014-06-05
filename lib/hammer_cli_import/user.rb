@@ -30,7 +30,7 @@ module HammerCLIImport
         username = data['username']
         username = 'sat5_admin' if username == 'admin'
         roles = split_multival(data['role'], false)
-        is_admin = (roles.include?('Organization Administrator') or roles.include?('Satellite Administrator'))
+        is_admin = (roles.include?('Organization Administrator') || roles.include?('Satellite Administrator'))
         {
           :login => username,
           :firstname => data['first_name'],
