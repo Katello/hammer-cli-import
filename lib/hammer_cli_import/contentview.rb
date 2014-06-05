@@ -39,15 +39,13 @@ module HammerCLIImport
       end
 
       def publish_content_view(id)
-        puts "Publishing content view with id=#{id}"
-        @api.resource(:content_views).call(:publish, {:id => id})
+        api_call :content_views, :publish, {:id => id}
       end
 
       def mk_content_view_hash(data, repo_ids)
         {
           :name => data['channel_name'],
 
-          # :description => data['description'],
           :description => 'Channel migrated from Satellite 5',
 
           :organization_id => get_translated_id(:organizations, data['org_id'].to_i),
@@ -100,12 +98,12 @@ module HammerCLIImport
       end
 
       def add_repo_filters(content_view_id, nevras)
-        cw_filter = @api.resource(:content_view_filters)\
-          .call(:create,
-                { :content_view_id => content_view_id,
-                  :name => 'Satellite 5 channel equivalence filter',
-                  :type => 'rpm',
-                  :inclusion => true})
+        cw_filter = api_call :content_view_filters,
+                             :create,
+                             { :content_view_id => content_view_id,
+                               :name => 'Satellite 5 channel equivalence filter',
+                               :type => 'rpm',
+                               :inclusion => true}
 
         packages = nevras.collect do |package_nevra|
           match = /^([^:]+)-(\d+):([^-]+)-(.*)\.([^.]*)$/.match(package_nevra)
