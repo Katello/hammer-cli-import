@@ -16,6 +16,7 @@ module HammerCLIImport
       persistent_maps :organizations, :repositories, :local_repositories, :content_views, :products
 
       option ['--dir'], 'DIR', 'Export directory'
+      option ['--filter'], :flag, 'Filter content-views for package names present in Sat5 channel', :default => false
       add_repo_options
 
       def directory
@@ -144,7 +145,7 @@ module HammerCLIImport
         content_view = mk_content_view_hash data, repo_ids
 
         cw = create_entity :content_views, content_view, data['channel_id'].to_i
-        add_repo_filters cw['id'], packages
+        add_repo_filters cw['id'], packages if option_filter?
         publish_content_view cw['id'] if newer_repositories cw
       end
 
