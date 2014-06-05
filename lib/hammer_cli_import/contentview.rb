@@ -90,6 +90,7 @@ module HammerCLIImport
         local_repo
       end
 
+      # TODO: Move higher into hierarchy?
       def api_call(resource, action, params = {})
         @api.resource(resource).call(action, params)
       rescue
@@ -155,6 +156,7 @@ module HammerCLIImport
         delete_content_view translated
       end
 
+      # TODO: Eliminate duplicity with activation keys
       def delete_content_view(cv_id)
         content_view = get_cache(:content_views)[cv_id]
 
