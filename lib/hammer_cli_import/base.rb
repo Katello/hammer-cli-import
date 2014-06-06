@@ -163,7 +163,8 @@ module HammerCLIImport
       puts " Unmapped #{to_singular(entity_type)} with id #{target_id}: #{deleted}x" if deleted > 1
     end
 
-    def create_entity(entity_type, entity_hash, original_id, recover = nil)
+    def create_entity(entity_type, entity_hash, original_id, recover = nil, retries = 2)
+      raise ImportRecoveryError, "Creation of #{entity_type} not recovered by \'#{recover}\' strategy." if retries < 0
       begin
         return _create_entity(entity_type, entity_hash, original_id)
       rescue RestClient::UnprocessableEntity => ue
@@ -181,12 +182,7 @@ module HammerCLIImport
         prefix = [entity_hash[:organization_id], original_id].compact[0].to_s
         entity_hash[uniq] = prefix + '-' + entity_hash[uniq]
         puts " Recovering by renaming to: \"#{uniq}\"=\"#{entity_hash[uniq]}\""
-        begin
-          return _create_entity(entity_type, entity_hash, original_id)
-        rescue StandardError => e2
-          puts "Creation of #{entity_type} not recovered by \'#{recover}\' strategy."
-          raise e2
-        end
+        return create_entity(entity_type, entity_hash, original_id, recover, retries - 1)
       when :map
         entity = lookup_entity_in_cache(entity_type, {uniq.to_s => entity_hash[uniq]})
         if entity
