@@ -179,8 +179,7 @@ module HammerCLIImport
 
       case recover || option_recover.to_sym
       when :rename
-        prefix = [entity_hash[:organization_id], original_id].compact[0].to_s
-        entity_hash[uniq] = prefix + '-' + entity_hash[uniq]
+        entity_hash[uniq] = original_id.to_s + '-' + entity_hash[uniq]
         puts " Recovering by renaming to: \"#{uniq}\"=\"#{entity_hash[uniq]}\""
         return create_entity(entity_type, entity_hash, original_id, recover, retries - 1)
       when :map
