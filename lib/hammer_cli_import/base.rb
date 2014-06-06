@@ -38,7 +38,7 @@ module HammerCLIImport
       filename
     end
     option ['--delete'], :flag, 'Delete entities from CSV file', :default => false
-    # TODO:
+    # TODO: Implement logic for verify
     # option ['--verify'], :flag, 'Verify entities from CSV file'
 
     ############
