@@ -181,6 +181,7 @@ module HammerCLIImport
       api_mapped_resource(entity_type).call(:update, {:id => id}.merge!(entity_hash))
     end
 
+    # Delete entity by original (Sat5) id
     def delete_entity(entity_type, original_id)
       type = to_singular(entity_type)
       unless @pm[entity_type][original_id]
@@ -195,21 +196,7 @@ module HammerCLIImport
       unmap_entity(entity_type, @pm[entity_type][original_id])
     end
 
-    def wait_for_task(uuid, start_wait = 0, delta_wait = 1, max_wait = 10)
-      wait_time = start_wait
-      print "Waiting for the task [#{uuid}] "
-      loop do
-        sleep wait_time
-        wait_time = [wait_time + delta_wait, max_wait].min
-        print '.'
-        STDOUT.flush
-        task = @api.resource(:foreman_tasks).call(:show, {:id => uuid})
-        next unless task['state'] == 'stopped'
-        print "\n"
-        return task['return'] == 'success'
-      end
-    end
-
+    # Delete entity by target (Sat6) id
     def delete_entity_by_import_id(entity_type, import_id)
       original_id = nil
       type = to_singular(entity_type)
@@ -229,6 +216,21 @@ module HammerCLIImport
       get_cache(entity_type).delete(import_id)
       # delete from pm
       @pm[entity_type].delete original_id
+    end
+
+    def wait_for_task(uuid, start_wait = 0, delta_wait = 1, max_wait = 10)
+      wait_time = start_wait
+      print "Waiting for the task [#{uuid}] "
+      loop do
+        sleep wait_time
+        wait_time = [wait_time + delta_wait, max_wait].min
+        print '.'
+        STDOUT.flush
+        task = @api.resource(:foreman_tasks).call(:show, {:id => uuid})
+        next unless task['state'] == 'stopped'
+        print "\n"
+        return task['return'] == 'success'
+      end
     end
 
     def cvs_iterate(filename, action)
