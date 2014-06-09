@@ -1,6 +1,6 @@
 $LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
 
-require 'lib/hammer_cli_import/version'
+require 'hammer_cli_import/version'
 
 Gem::Specification.new do |spec|
   spec.name = 'hammer_cli_import'
