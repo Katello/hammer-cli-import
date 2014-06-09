@@ -17,7 +17,9 @@ URL:        http://code.engineering.redhat.com/stargate.git
 Source0:    %{gemname}-%{version}.gem
 Source1:    import.yml
 
-%if 0%{?rhel} == 6 || 0%{?fedora} < 19
+%if 0%{?rhel} > 6 || 0%{?fedora} > 18
+Requires: ruby(release)
+%else
 Requires: ruby(abi)
 %endif
 Requires: ruby(rubygems)
