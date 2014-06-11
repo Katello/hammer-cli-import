@@ -13,7 +13,7 @@ Summary:    Sat5-import command plugin for the Hammer CLI
 
 Group:      Development/Languages
 License:    GPLv3
-URL:        http://code.engineering.redhat.com/stargate.git
+URL:        https://github.com/Katello/hammer-cli-import
 Source0:    %{gemname}-%{version}.gem
 Source1:    import.yml
 
