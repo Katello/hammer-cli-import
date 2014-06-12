@@ -1,0 +1,10 @@
+# sat5-role-label,sat6-role-name-list
+# _admin_ means "flag any user with this role as an Administrator"
+#
+Satellite-Administrator      : [ _admin_ ]
+Organization-Administrator   : [ _admin_ ]
+Channel-Administrator        : [ ]
+Configuration-Administrator  : [ ]
+Monitoring-Administrator     : [ ]
+System-Group-Administrator   : [ ]
+Activation-Key-Administrator : [ ]

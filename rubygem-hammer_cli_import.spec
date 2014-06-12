@@ -16,6 +16,7 @@ License:    GPLv3
 URL:        https://github.com/Katello/hammer-cli-import
 Source0:    %{gemname}-%{version}.gem
 Source1:    import.yml
+Source2:    role_map.yml
 
 %if 0%{?rhel} > 6 || 0%{?fedora} > 18
 Requires: ruby(release)
@@ -53,6 +54,7 @@ gem install --local --install-dir .%{gem_dir} \
 %install
 mkdir -p %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d
 install -m 755 %{SOURCE1} %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import.yml
+install -m 644 %{SOURCE2} %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/role_map.yml
 mkdir -p %{buildroot}%{gem_dir}
 cp -pa .%{gem_dir}/* \
         %{buildroot}%{gem_dir}/
@@ -61,6 +63,7 @@ cp -pa .%{gem_dir}/* \
 %dir %{geminstdir}
 %{geminstdir}/lib
 %config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/import.yml
+%config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/role_map.yml
 %exclude %{gem_dir}/cache/%{gemname}-%{version}.gem
 %{gem_dir}/specifications/%{gemname}-%{version}.gemspec
 
