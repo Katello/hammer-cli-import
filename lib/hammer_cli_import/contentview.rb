@@ -1,5 +1,4 @@
 # vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby
-require 'hammer_cli'
 require 'set'
 
 module HammerCLIImport
@@ -63,6 +62,10 @@ module HammerCLIImport
         end
       end
 
+      def push_unless_nil(col, obj)
+        col << obj unless obj.nil?
+      end
+
       def load_custom_channel_info(org_id, channel_id)
         headers = %w(org_id channel_id package_nevra package_rpm_name in_repo in_parent_channel)
         file = File.join directory, org_id.to_s, channel_id.to_s + '.csv'
@@ -73,9 +76,11 @@ module HammerCLIImport
 
         CSVHelper.csv_each file, headers do |data|
           packages_in_channel << data['package_nevra']
-          parent_channel_ids << data['in_parent_channel']
-          repo_ids << data['in_repo']
+          push_unless_nil parent_channel_ids, data['in_parent_channel']
+          push_unless_nil repo_ids, data['in_repo']
         end
+
+        raise "Multiple parents for channel #{channel_id}?" unless parent_channel_ids.size.between? 0, 1
 
         [repo_ids.to_a, parent_channel_ids.to_a, packages_in_channel.to_a]
       end
@@ -130,11 +135,19 @@ module HammerCLIImport
         local_repo = add_local_repo data
         sync_repo local_repo unless repo_synced? local_repo
 
-        repo_ids, _b, packages = load_custom_channel_info data['org_id'].to_i, data['channel_id'].to_i
+        repo_ids, clone_parents, packages = load_custom_channel_info data['org_id'].to_i, data['channel_id'].to_i
 
-        repo_ids.delete nil
         repo_ids.map! { |id| get_translated_id :repositories, id.to_i }
         repo_ids.push local_repo['id'].to_i
+
+        clone_parents.collect { |x| Integer(x) } .each do |parent_id|
+          begin
+            parent_cv = get_cache(:content_views)[get_translated_id :content_views, parent_id]
+            repo_ids += parent_cv['repositories'].collect { |x| x['id'] }
+          rescue
+            puts "No such content_view: #{parent_id}"
+          end
+        end
 
         repo_ids.collect { |id| lookup_entity :repositories, id } .each do |repo|
           unless repo_synced? repo
