@@ -15,8 +15,7 @@ module HammerCLIImport
 
       option ['--merge-users'], :flag, 'Merge pre-created users (except admin)', :default => false
 
-      option ['--role-mapping'], 'FILE_NAME', 'Mapping of Satellite-5 role names to Satellite-6 defined roles',
-        :default => '/etc/hammer/cli.modules.d/role_map.yml'
+      option ['--role-mapping'], 'FILE_NAME', 'Mapping of Satellite-5 role names to Satellite-6 defined roles', :default => '/etc/hammer/cli.modules.d/role_map.yml'
 
       validate_options do
         any(:option_new_passwords, :option_delete).required
@@ -28,7 +27,7 @@ module HammerCLIImport
       persistent_maps :organizations, :users
 
       # Override so we can read the role-map *once*, not *once per user*
-      def execute()
+      def execute
         if option_role_mapping
           @role_map = YAML.load_file(option_role_mapping)
         end
@@ -44,7 +43,7 @@ module HammerCLIImport
         roles = split_multival(data['role'], false)
         is_admin = false
         roles.each do |r|
-          is_admin = is_admin || (@role_map[r.gsub(' ', '-')].include? '_admin_')
+          is_admin ||= (@role_map[r.gsub(' ', '-')].include? '_admin_')
         end
         return is_admin
       end
