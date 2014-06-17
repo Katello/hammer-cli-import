@@ -28,8 +28,10 @@ module HammerCLIImport
 
       # Override so we can read the role-map *once*, not *once per user*
       def execute
-        if option_role_mapping
+        if File.exist? option_role_mapping
           @role_map = YAML.load_file(option_role_mapping)
+        else
+          puts "Role-mapping file #{option_role_mapping} not found, no roles will be assigned"
         end
         super()
       end
@@ -40,6 +42,8 @@ module HammerCLIImport
 
       # Admin-flag should be set if any Sat5-role has '_admin_' in its map
       def admin?(data)
+        return false if @role_map.nil?
+
         roles = split_multival(data['role'], false)
         is_admin = false
         roles.each do |r|
@@ -54,6 +58,8 @@ module HammerCLIImport
       # It does serve to show the infrastructure/approach required
       def role_ids_for(data)
         role_list = []
+        return role_list if @role_map.nil?
+
         users_roles = split_multival(data['role'], false)
         # Someday, this will work
         #fm_roles = @api.resource(:roles).call(:index, 'per_page' => 999999);
