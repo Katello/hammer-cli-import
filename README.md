@@ -46,4 +46,10 @@ You can add to your `~/.irbrc`:
       end
     end
 
+    def methods_re(re)
+      methods.find do |m|
+        re.match m
+      end
+    end
+
 [rubocop]: http://batsov.com/rubocop/ "Ruby code analyzer"
