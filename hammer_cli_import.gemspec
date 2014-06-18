@@ -14,6 +14,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.files = Dir['lib/**/*.rb']
+  spec.files += ['LICENSE', 'README.md', 'channel_data_pretty.json']
   spec.test_files = []
 
   spec.add_dependency('hammer_cli')
