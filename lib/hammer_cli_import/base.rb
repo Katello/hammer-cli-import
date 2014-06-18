@@ -205,8 +205,9 @@ module HammerCLIImport
       else
         puts 'Creating new ' + type + ': ' + entity_hash.values_at(:name, :label, :login).compact[0]
         entity_hash = {@wrap_out[entity_type] => entity_hash} if @wrap_out[entity_type]
+        # p 'entity_hash:', entity_hash
         entity = api_mapped_resource(entity_type).call(:create, entity_hash)
-        # p "created entity:", entity
+        # p 'created entity:', entity
         entity = entity[@wrap_in[entity_type]] if @wrap_in[entity_type]
         @pm[entity_type][original_id] = entity['id']
         get_cache(entity_type)[entity['id']] = entity
