@@ -22,6 +22,7 @@ module HammerCLIImport
   require 'hammer_cli_import/organization'
   require 'hammer_cli_import/repository'
   require 'hammer_cli_import/repositorydiscovery'
+  require 'hammer_cli_import/templatesnippet.rb'
   require 'hammer_cli_import/user'
   require 'hammer_cli_import/version'
 

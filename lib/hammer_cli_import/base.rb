@@ -20,7 +20,10 @@ module HammerCLIImport
     def initialize(*list)
       super(*list)
       # wrap API parameters into extra hash
-      @wrap_out = {:users => :user}
+      @wrap_out = {
+        :users => :user,
+        :template_snippets => :config_template
+      }
       # APIs return objects encapsulated in extra hash
       @wrap_in = {:organizations => 'organization'}
       # entities that needs organization to be listed
