@@ -61,7 +61,7 @@ cp -pa .%{gem_dir}/* \
 
 %files
 %dir %{geminstdir}
-%{geminstdir}/lib
+%{geminstdir}/
 %config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/import.yml
 %config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/role_map.yml
 %exclude %{gem_dir}/cache/%{gemname}-%{version}.gem
