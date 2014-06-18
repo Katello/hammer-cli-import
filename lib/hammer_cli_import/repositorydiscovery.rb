@@ -51,7 +51,7 @@ module HammerCLIImport
         archs = %w(i386 x86_64 s390x s390 ppc64 ppc ia64)
         parsed.each do |c|
           path_lst = c['path'].split('/')
-          arch_ndx = path_lst.index{ |a| archs.include?(a) }
+          arch_ndx = path_lst.index { |a| archs.include?(a) }
           if arch_ndx.nil?
             puts 'Arch not found: [' + c['path'] + '], skipping...'
             next
