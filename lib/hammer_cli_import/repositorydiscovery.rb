@@ -40,10 +40,10 @@ module HammerCLIImport
       # We should be able to match set-url to repo-set['url']
       # Fun!
       def read_channel_map(filename)
-        rc = Hash.new
+        rc = {}
         parsed = ''
         File.open(filename, 'r') do |f|
-          json = f.read()
+          json = f.read
           # [ {'channel', 'path'}...]
           parsed = JSON.parse(json)
         end
@@ -51,7 +51,7 @@ module HammerCLIImport
         archs = %w(i386 x86_64 s390x s390 ppc64 ppc ia64)
         parsed.each do |c|
           path_lst = c['path'].split('/')
-          arch_ndx = path_lst.index{|a| archs.include?(a)}
+          arch_ndx = path_lst.index{ |a| archs.include?(a) }
           if arch_ndx.nil?
             puts 'Arch not found: [' + c['path'] + '], skipping...'
             next
@@ -72,18 +72,23 @@ module HammerCLIImport
         return rc
       end
 
-      def get_orgs
+      def orgs
         orgs = @api.resource(:organizations).call(:index, 'per_page' => 999999)
         return orgs['results']
       end
 
-      def get_products(org)
-        prods = @api.resource(:products).call(:index, 'organization_id' => org['id'], 'per_page' => 999999)
+      def products(org)
+        prods = @api.resource(:products).call(:index,
+                                              'organization_id' => org['id'],
+                                              'per_page' => 999999)
         return prods['results']
       end
 
-      def get_repository_sets(org, prod)
-        repo_sets = @api.resource(:repository_sets).call(:index, 'organization_id' => org['id'], 'product_id' => prod['id'], 'per_page' => 999999)
+      def repository_sets(org, prod)
+        repo_sets = @api.resource(:repository_sets).call(:index,
+                                                         'organization_id' => org['id'],
+                                                         'product_id' => prod['id'],
+                                                         'per_page' => 999999)
         return repo_sets['results']
       end
 
@@ -105,7 +110,7 @@ module HammerCLIImport
         return channel_map unless File.exist? filename
 
         File.open(filename, 'r') do |f|
-          json = f.read()
+          json = f.read
           channel_map = JSON.parse(json)
         end
         return channel_map
@@ -137,7 +142,7 @@ module HammerCLIImport
                                                'releasever' => info['version']) unless option_dry_run?
         rescue RestClient::Exception  => e
           throw e unless e.http_code == 409
-          puts "...already enabled."
+          puts '...already enabled.'
         end
       end
 
@@ -157,9 +162,9 @@ module HammerCLIImport
         })
 
         # Go find all our repository-sets
-        get_orgs.each do |o|
-          get_products(o).each do |p|
-            get_repository_sets(o, p).each do |rs|
+        orgs.each do |o|
+          products(o).each do |p|
+            repository_sets(o, p).each do |rs|
               # Do we care about a channel that matches this repo-set?
               matching_channel = repo_to_channel[rs['contentUrl']]
               next if matching_channel.nil?
@@ -178,4 +183,3 @@ module HammerCLIImport
     end
   end
 end
-

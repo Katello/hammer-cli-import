@@ -15,7 +15,9 @@ module HammerCLIImport
 
       option ['--merge-users'], :flag, 'Merge pre-created users (except admin)', :default => false
 
-      option ['--role-mapping'], 'FILE_NAME', 'Mapping of Satellite-5 role names to Satellite-6 defined roles', :default => '/etc/hammer/cli.modules.d/role_map.yml'
+      option ['--role-mapping'], 'FILE_NAME',
+             'Mapping of Satellite-5 role names to Satellite-6 defined roles',
+             :default => '/etc/hammer/cli.modules.d/role_map.yml'
 
       validate_options do
         any(:option_new_passwords, :option_delete).required
