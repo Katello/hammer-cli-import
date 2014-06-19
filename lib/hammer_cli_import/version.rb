@@ -1,4 +1,4 @@
-# vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby
+#
 # Copyright (c) 2014 Red Hat Inc.
 #
 # This file is part of hammer-cli-import.
@@ -15,8 +15,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with hammer-cli-import.  If not, see <http://www.gnu.org/licenses/>.
+#
+
 module HammerCLIImport
   def self.version
     @version ||= Gem::Version.new('0.6.0')
   end
 end
+# vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby
