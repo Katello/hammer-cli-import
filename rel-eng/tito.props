@@ -10,3 +10,10 @@ template_file = ./rel-eng/version_template_file
 
 [requirements]
 tito=0.4.12
+
+
+[koji]
+autobuild_tags = katello-nightly-rhel6
+
+[katello-nightly-rhel6]
+disttag = .el6
