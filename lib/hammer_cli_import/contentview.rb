@@ -168,12 +168,13 @@ module HammerCLIImport
 
         cv_versions = content_view['versions'].collect { |v| v['id'] }
 
-        task = mapped_api_call(:content_views,
-            :remove,
-            {
-              :id => content_view['id'],
-              :content_view_version_ids => cv_versions
-            })
+        task = mapped_api_call(
+          :content_views,
+          :remove,
+          {
+            :id => content_view['id'],
+            :content_view_version_ids => cv_versions
+          })
 
         wait_for_task(task['id'], 1, 0)
 

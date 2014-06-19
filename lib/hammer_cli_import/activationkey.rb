@@ -28,7 +28,8 @@ module HammerCLIImport
       def associate_host_collections(ak_id, server_group_ids)
         translated_ids = server_group_ids.collect { |sg_id| get_translated_id(:host_collections, sg_id) }
         puts "  Associating activation key [#{ak_id}] with host collections [#{translated_ids.join(', ')}]"
-        api_call(:activation_keys,
+        api_call(
+          :activation_keys,
           :add_host_collections,
           {
             :id => ak_id,
@@ -120,12 +121,13 @@ module HammerCLIImport
 
         cv_versions = content_view['versions'].collect { |v| v['id'] }
 
-        task = mapped_api_call(:ak_content_views,
-            :remove,
-            {
-              :id => content_view['id'],
-              :content_view_version_ids => cv_versions
-            })
+        task = mapped_api_call(
+          :ak_content_views,
+          :remove,
+          {
+            :id => content_view['id'],
+            :content_view_version_ids => cv_versions
+          })
 
         wait_for_task(task['id'], 1, 0)
 
