@@ -310,7 +310,8 @@ module HammerCLIImport
         :uri => HammerCLI::Settings.get(:foreman, :host),
         :username => HammerCLI::Settings.get(:foreman, :username),
         :password => HammerCLI::Settings.get(:foreman, :password),
-        :api_version => 2
+        :api_version => 2,
+        :logger => Logger.new('/dev/null')
       })
       load_persistent_maps
       load_cache
