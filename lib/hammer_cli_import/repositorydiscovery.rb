@@ -79,8 +79,8 @@ module HammerCLIImport
       end
 
       # BaseCommand will read our channel-csv for us
-      def import_single_row(_row)
-        @channels << _row['channel_label'] if _row['org_id'].nil?
+      def import_single_row(row)
+        @channels << row['channel_label'] if row['org_id'].nil?
       end
 
       # Hydrate the channel-to-repository-data mapping struct
