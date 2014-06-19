@@ -71,4 +71,7 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Thu Jun 19 2014 Tomas Lestach <tlestach@redhat.com> 0.6.0-1
+- initial hammer-cli-import tag
+
 
