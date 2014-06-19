@@ -1,0 +1,12 @@
+[globalconfig]
+default_builder = tito.builder.GemBuilder
+default_tagger = tito.tagger.VersionTagger
+changelog_do_not_remove_cherrypick = 0
+changelog_format = %s (%ae)
+
+[version_template]
+destination_file = ./lib/hammer_cli_import/version.rb
+template_file = ./rel-eng/version_template_file
+
+[requirements]
+tito=0.4.12
