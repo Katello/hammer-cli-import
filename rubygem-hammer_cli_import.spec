@@ -7,7 +7,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.6.0
+Version:    0.6.1
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -71,6 +71,11 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Thu Jun 19 2014 Grant Gainey 0.6.1-1
+- * Look for the default repository-map where the gem puts it * Clarify the
+  output when we decide to enable a repo (ggainey@redhat.com)
+- let git ignore .swp files (tlestach@redhat.com)
+
 * Thu Jun 19 2014 Tomas Lestach <tlestach@redhat.com> 0.6.0-1
 - initial hammer-cli-import tag
 
