@@ -96,14 +96,6 @@ module HammerCLIImport
         local_repo
       end
 
-      # TODO: Move higher into hierarchy?
-      def api_call(resource, action, params = {})
-        @api.resource(resource).call(action, params)
-      rescue
-        puts "Error on api.resource(#{resource}).call(#{action}, #{params}):"
-        raise
-      end
-
       def add_repo_filters(content_view_id, nevras)
         cw_filter = api_call :content_view_filters,
                              :create,
@@ -176,7 +168,7 @@ module HammerCLIImport
 
         cv_versions = content_view['versions'].collect { |v| v['id'] }
 
-        task = api_mapped_resource(:content_views).call(
+        task = mapped_api_call(:content_views,
             :remove,
             {
               :id => content_view['id'],

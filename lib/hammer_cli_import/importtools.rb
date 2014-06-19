@@ -1,4 +1,7 @@
 # vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby
+
+# Modules to help with imports. To be used as Extend/Import on classes that inherit
+# from module HammerCLIImport::BaseCommand.
 module ImportTools
   module Repository
     module Extend
@@ -23,7 +26,7 @@ module ImportTools
 
       def sync_repo(repo)
         return unless option_sync?
-        task = @api.resource(:repositories).call(:sync, {:id => repo['id']})
+        task = api_call(:repositories, :sync, {:id => repo['id']})
         puts 'Sync started!'
         return unless option_synchronous?
         wait_for_task task['id']

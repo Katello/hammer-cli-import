@@ -36,8 +36,6 @@ module HammerCLIImport
         :content_view_versions]
       # cache imported objects (created/lookuped)
       @cache = {}
-      # apipie binding
-      @api = nil
     end
 
     option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true do |filename|
@@ -66,6 +64,35 @@ module HammerCLIImport
     ## <-
     ############
 
+    class << self
+      def api_init
+        @api = ApipieBindings::API.new(
+        {
+          :uri => HammerCLI::Settings.get(:foreman, :host),
+          :username => HammerCLI::Settings.get(:foreman, :username),
+          :password => HammerCLI::Settings.get(:foreman, :password),
+          :api_version => 2
+          :logger => Logger.new('/dev/null')
+        })
+        nil
+      end
+
+      def api_call(resource, action, params = {}, debug = false)
+        @api.resource(resource).call(action, params)
+      rescue
+        puts "Error on api.resource(#{resource}).call(#{action}, #{params}):" if debug
+        raise
+      end
+    end
+
+    def api_call(*list)
+      self.class.api_call(*list)
+    end
+
+    def mapped_api_call(entity_type, *list)
+      api_call(map_target_entity[entity_type], *list)
+    end
+
     def data_dir
       File.join(File.expand_path('~'), 'data')
     end
@@ -88,13 +115,9 @@ module HammerCLIImport
       end
     end
 
-    def api_mapped_resource(entity_type)
-      @api.resource(map_target_entity[entity_type])
-    end
-
     def lookup_entity(entity_type, entity_id, online_lookup = false)
       if (!get_cache(entity_type)[entity_id] || online_lookup)
-        get_cache(entity_type)[entity_id] = api_mapped_resource(entity_type).call(:show, {'id' => entity_id})
+        get_cache(entity_type)[entity_id] = mapped_api_call(entity_type, :show, {'id' => entity_id})
       else
         # puts "#{to_singular(entity_type).capitalize} #{entity_id} taken from cache."
       end
@@ -139,11 +162,11 @@ module HammerCLIImport
         results = []
         # check only entities in imported orgs (not all of them)
         @pm[:organizations].to_hash.values.each do |org_id|
-          entities = @api.resource(entity_type).call(:index, {'per_page' => 999999, 'organization_id' => org_id})
+          entities = api_call(entity_type, :index, {'per_page' => 999999, 'organization_id' => org_id})
           results += entities['results']
         end
       else
-        entities = @api.resource(entity_type).call(:index, {'per_page' => 999999}.merge(extra_hash))
+        entities = api_call(entity_type, :index, {'per_page' => 999999}.merge(extra_hash))
         results =  entities['results']
       end
       results.each do |entity|
@@ -209,7 +232,7 @@ module HammerCLIImport
         puts 'Creating new ' + type + ': ' + entity_hash.values_at(:name, :label, :login).compact[0]
         entity_hash = {@wrap_out[entity_type] => entity_hash} if @wrap_out[entity_type]
         # p 'entity_hash:', entity_hash
-        entity = api_mapped_resource(entity_type).call(:create, entity_hash)
+        entity = mapped_api_call(entity_type, :create, entity_hash)
         # p 'created entity:', entity
         entity = entity[@wrap_in[entity_type]] if @wrap_in[entity_type]
         @pm[entity_type][original_id] = entity['id']
@@ -221,7 +244,7 @@ module HammerCLIImport
 
     def update_entity(entity_type, id, entity_hash)
       puts "Updating #{to_singular(entity_type)} with id: #{id}"
-      api_mapped_resource(entity_type).call(:update, {:id => id}.merge!(entity_hash))
+      mapped_api_call(entity_type, :update, {:id => id}.merge!(entity_hash))
     end
 
     # Delete entity by original (Sat5) id
@@ -232,7 +255,7 @@ module HammerCLIImport
         return nil
       end
       puts 'Deleting imported ' + type + ' [' + original_id.to_s + '->' + @pm[entity_type][original_id].to_s + '].'
-      api_mapped_resource(entity_type).call(:destroy, {:id => @pm[entity_type][original_id]})
+      mapped_api_call(entity_type, :destroy, {:id => @pm[entity_type][original_id]})
       # delete from cache
       get_cache(entity_type).delete(@pm[entity_type][original_id])
       # delete from pm
@@ -254,7 +277,7 @@ module HammerCLIImport
         original_id = '?' unless original_id
       end
       puts "Deleting imported #{type} [#{original_id}->#{@pm[entity_type][original_id]}]."
-      api_mapped_resource(entity_type).call(:destroy, {:id => import_id})
+      mapped_api_call(entity_type, :destroy, {:id => import_id})
       # delete from cache
       get_cache(entity_type).delete(import_id)
       # delete from pm
@@ -269,7 +292,7 @@ module HammerCLIImport
         wait_time = [wait_time + delta_wait, max_wait].min
         print '.'
         STDOUT.flush
-        task = @api.resource(:foreman_tasks).call(:show, {:id => uuid})
+        task = api_call(:foreman_tasks, :show, {:id => uuid})
         next unless task['state'] == 'stopped'
         print "\n"
         return task['return'] == 'success'
@@ -305,14 +328,7 @@ module HammerCLIImport
       Dir.mkdir data_dir unless File.directory? data_dir
 
       # initialize apipie binding
-      @api = ApipieBindings::API.new(
-      {
-        :uri => HammerCLI::Settings.get(:foreman, :host),
-        :username => HammerCLI::Settings.get(:foreman, :username),
-        :password => HammerCLI::Settings.get(:foreman, :password),
-        :api_version => 2,
-        :logger => Logger.new('/dev/null')
-      })
+      self.class.api_init
       load_persistent_maps
       load_cache
       prune_persistent_maps @cache

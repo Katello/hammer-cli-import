@@ -114,7 +114,7 @@ module HammerCLIImport
         puts "Enabling #{info['url']}"
         begin
           unless option_dry_run?
-            rc = @api.resource(:repository_sets).call(
+            rc = api_call(:repository_sets,
               :enable,
               'organization_id' => org_id,
               'product_id' => prod_id,

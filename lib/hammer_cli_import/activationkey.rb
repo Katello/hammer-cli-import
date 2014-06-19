@@ -28,7 +28,7 @@ module HammerCLIImport
       def associate_host_collections(ak_id, server_group_ids)
         translated_ids = server_group_ids.collect { |sg_id| get_translated_id(:host_collections, sg_id) }
         puts "  Associating activation key [#{ak_id}] with host collections [#{translated_ids.join(', ')}]"
-        @api.resource(:activation_keys).call(
+        api_call(:activation_keys,
           :add_host_collections,
           {
             :id => ak_id,
@@ -93,7 +93,7 @@ module HammerCLIImport
                 cv_label)
               # publish the content view
               puts "  Publishing content view: #{cv['id']}"
-              api_mapped_resource(:ak_content_views).call(:publish, { :id => cv['id'] })
+              mapped_api_call(:ak_content_views, :publish, { :id => cv['id'] })
             end
             ak_cv_hash[:content_view_id] = cv['id']
           end
@@ -120,7 +120,7 @@ module HammerCLIImport
 
         cv_versions = content_view['versions'].collect { |v| v['id'] }
 
-        task = api_mapped_resource(:ak_content_views).call(
+        task = mapped_api_call(:ak_content_views,
             :remove,
             {
               :id => content_view['id'],

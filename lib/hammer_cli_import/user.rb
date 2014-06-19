@@ -64,7 +64,8 @@ module HammerCLIImport
 
         users_roles = split_multival(data['role'], false)
         # Someday, this will work
-        #fm_roles = @api.resource(:roles).call(:index, 'per_page' => 999999);
+        # TODO: Use list_server_entities
+        # fm_roles = api_call(:roles, :index, 'per_page' => 999999);
         # Until then - here's some fake data to drive the plumbing
         fm_roles = [{'id' => 1, 'name' => 'foo'},
                     {'id' => 2, 'name' => 'bar'},
