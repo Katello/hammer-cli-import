@@ -1,20 +1,15 @@
 require 'hammer_cli'
 require 'hammer_cli_import'
 require 'json'
-require 'csv'
 
 module HammerCLIImport
   class ImportCommand
-    class ChannelDiscoveryCommand < HammerCLI::Apipie::Command
+    class RepositoryDiscoveryCommand < BaseCommand
+      extend ImportTools::Repository::Extend
+      include ImportTools::Repository::Include
+
       command_name 'repository-discovery'
       desc 'Discover all Repositories accessible to any Organization'
-
-      option ['--csv-channels'],
-             'FILE_NAME',
-             'CSV of channels synchronized to source Satellite instance' do |filename|
-        raise ArgumentError, "File #{filename} not found!" unless File.exist? filename
-        filename
-      end
 
       option ['--repository-map'],
              'FILE_NAME',
@@ -22,6 +17,12 @@ module HammerCLIImport
              :default => '/etc/hammer/cli.modules.d/channel_data.json'
 
       option ['--dry-run'], :flag, 'Only show the repositories that would be enabled', :default => false
+
+      add_repo_options
+
+      # Required or BaseCommand gets angry at you
+      csv_columns 'channel_label', 'channel_name', 'number_of_packages', 'org_id'
+      persistent_maps :organizations, :products
 
       # We provide the output of this process in the distribution of the tool - this code exists
       # only if someone wants to do their own mapping (?!?)
@@ -72,36 +73,14 @@ module HammerCLIImport
         return rc
       end
 
-      def orgs
-        orgs = @api.resource(:organizations).call(:index, 'per_page' => 999999)
-        return orgs['results']
+      def initialize(*list)
+        super(*list)
+        @channels = []
       end
 
-      def products(org)
-        prods = @api.resource(:products).call(:index,
-                                              'organization_id' => org['id'],
-                                              'per_page' => 999999)
-        return prods['results']
-      end
-
-      def repository_sets(org, prod)
-        repo_sets = @api.resource(:repository_sets).call(:index,
-                                                         'organization_id' => org['id'],
-                                                         'product_id' => prod['id'],
-                                                         'per_page' => 999999)
-        return repo_sets['results']
-      end
-
-      # Find channel-labels for RH channels (org_id = nil)
-      def read_exported_channels(filename)
-        channels = []
-        return channels unless File.exist? filename
-
-        # channel_label,channel_name,number_of_packages,org_id
-        CSV.foreach(filename) do |col|
-          channels << col[0] if col[3].nil?
-        end
-        return channels
+      # BaseCommand will read our channel-csv for us
+      def import_single_row(_row)
+        @channels << _row['channel_label'] if _row['org_id'].nil?
       end
 
       # Hydrate the channel-to-repository-data mapping struct
@@ -130,43 +109,41 @@ module HammerCLIImport
 
       # Given a repository-set and a channel-to-repo info for that channel,
       # enable the correct repository
-      def enable_repos(org, prod, repo_set, info)
+      # TODO: persist the resulting repo-id so we don't have to look it up later
+      def enable_repos(org_id, prod_id, repo_set_id, info)
         puts "Enabling #{info['url']}"
-
+        rc = {}
         begin
-          @api.resource(:repository_sets).call(:enable,
-                                               'organization_id' => org['id'],
-                                               'product_id' => prod['id'],
-                                               'id' => repo_set['id'],
-                                               'basearch' => info['arch'],
-                                               'releasever' => info['version']) unless option_dry_run?
+          unless option_dry_run?
+            rc = @api.resource(:repository_sets).call(:enable,
+                                                 'organization_id' => org_id,
+                                                 'product_id' => prod_id,
+                                                 'id' => repo_set_id,
+                                                 'basearch' => info['arch'],
+                                                 'releasever' => info['version'])
+
+            return rc['input']['repository']
+          end
         rescue RestClient::Exception  => e
           throw e unless e.http_code == 409
           puts '...already enabled.'
         end
       end
 
-      def execute
+      def post_import(file)
         # Set up/hydrate our data structures
-        rh_channels = read_exported_channels(option_csv_channels)
         channel_to_repo = read_channel_mapping_data(option_repository_map)
-        repo_to_channel = construct_repo_map(channel_to_repo, rh_channels)
+        repo_to_channel = construct_repo_map(channel_to_repo, @channels)
 
-        # initialize apipie binding
-        @api = ApipieBindings::API.new(
-        {
-          :uri => HammerCLI::Settings.get(:foreman, :host),
-          :username => HammerCLI::Settings.get(:foreman, :username),
-          :password => HammerCLI::Settings.get(:foreman, :password),
-          :api_version => 2
-        })
+        get_cache(:organizations).each do |oid, org|
+          get_cache(:products).each do |pid, prod|
+            next unless org['label'] == prod['organization']['label']
 
-        # Go find all our repository-sets
-        orgs.each do |o|
-          products(o).each do |p|
-            repository_sets(o, p).each do |rs|
+            prod['product_content'].each do |rs|
+              rs_id = rs['content']['id']
+              rs_url = rs['content']['contentUrl']
               # Do we care about a channel that matches this repo-set?
-              matching_channel = repo_to_channel[rs['contentUrl']]
+              matching_channel = repo_to_channel[rs_url]
               next if matching_channel.nil?
 
               # Get the repo-set-info that applies to that channel
@@ -174,10 +151,15 @@ module HammerCLIImport
               next if repo_set_info.nil?
 
               # Turn on the specific repository
-              enable_repos(o, p, rs, repo_set_info)
+              enabled_repo = enable_repos(oid, pid, rs_id, repo_set_info)
+              next if enabled_repo.nil? || option_dry_run?
+
+              # Finally, if requested, kick off a sync
+              sync_repo enabled_repo
             end
           end
         end
+
         HammerCLI::EX_OK
       end
     end
