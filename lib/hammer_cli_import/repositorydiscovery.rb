@@ -33,9 +33,12 @@ module HammerCLIImport
       option ['--repository-map'],
              'FILE_NAME',
              'JSON file mapping channel-labels to repository information',
-             :default => '/etc/hammer/cli.modules.d/channel_data.json'
+             :default => File.dirname(__FILE__) + '/../../channel_data_pretty.json'
 
-      option ['--dry-run'], :flag, 'Only show the repositories that would be enabled', :default => false
+      option ['--dry-run'],
+             :flag,
+             'Only show the repositories that would be enabled',
+             :default => false
 
       add_repo_options
 
@@ -105,7 +108,7 @@ module HammerCLIImport
       # Hydrate the channel-to-repository-data mapping struct
       def read_channel_mapping_data(filename)
         channel_map = {}
-        return channel_map unless File.exist? filename
+        abort("Channel-to-repository-map file #{filename} not found - aborting...") unless File.exist? filename
 
         File.open(filename, 'r') do |f|
           json = f.read
@@ -129,8 +132,8 @@ module HammerCLIImport
       # Given a repository-set and a channel-to-repo info for that channel,
       # enable the correct repository
       # TODO: persist the resulting repo-id so we don't have to look it up later
-      def enable_repos(org_id, prod_id, repo_set_id, info)
-        puts "Enabling #{info['url']}"
+      def enable_repos(org_id, prod_id, repo_set_id, info, c)
+        puts "Enabling #{info['url']} for channel #{c}"
         begin
           unless option_dry_run?
             rc = api_call(
@@ -171,7 +174,7 @@ module HammerCLIImport
               next if repo_set_info.nil?
 
               # Turn on the specific repository
-              enabled_repo = enable_repos(oid, pid, rs_id, repo_set_info)
+              enabled_repo = enable_repos(oid, pid, rs_id, repo_set_info, matching_channel)
               next if enabled_repo.nil? || option_dry_run?
 
               # Finally, if requested, kick off a sync
