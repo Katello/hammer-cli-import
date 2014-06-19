@@ -112,7 +112,6 @@ module HammerCLIImport
       # TODO: persist the resulting repo-id so we don't have to look it up later
       def enable_repos(org_id, prod_id, repo_set_id, info)
         puts "Enabling #{info['url']}"
-        rc = {}
         begin
           unless option_dry_run?
             rc = @api.resource(:repository_sets).call(:enable,
