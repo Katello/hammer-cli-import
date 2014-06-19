@@ -129,7 +129,7 @@ module HammerCLIImport
         end
       end
 
-      def post_import(file)
+      def post_import(_file)
         # Set up/hydrate our data structures
         channel_to_repo = read_channel_mapping_data(option_repository_map)
         repo_to_channel = construct_repo_map(channel_to_repo, @channels)
