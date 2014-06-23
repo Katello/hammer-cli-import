@@ -115,10 +115,14 @@ module HammerCLIImport
       File.join(File.expand_path('~'), 'data')
     end
 
+    # This method is called to process single CSV line when
+    # importing.
     def import_single_row(_row)
       puts 'Import not implemented.'
     end
 
+    # This method is called to process single CSV line when
+    # deleting
     def delete_single_row(_row)
       puts 'Delete not implemented.'
     end
@@ -157,6 +161,11 @@ module HammerCLIImport
       return get_cache(entity_type).size == 1 && get_cache(entity_type).first[0] == id
     end
 
+    # Method for use when writing messages to user.
+    #     > to_singular(:contentveiws)
+    #     "contentview"
+    #     > to_singular(:repositories)
+    #     "repository"
     def to_singular(plural)
       return plural.to_s.sub(/s$/, '').sub(/ie$/, 'y')
     end
@@ -207,6 +216,11 @@ module HammerCLIImport
       puts " Unmapped #{to_singular(entity_type)} with id #{target_id}: #{deleted}x" if deleted > 1
     end
 
+    # Create entity, with recovery strategy.
+    #
+    # * +:map+ - Use existing entity
+    # * +:rename+ - Change name
+    # * +nil+ - Fail
     def create_entity(entity_type, entity_hash, original_id, recover = nil, retries = 2)
       raise ImportRecoveryError, "Creation of #{entity_type} not recovered by \'#{recover}\' strategy." if retries < 0
       begin
@@ -302,6 +316,12 @@ module HammerCLIImport
       @pm[entity_type].delete original_id
     end
 
+    # Wait for asynchronous task.
+    #
+    # * +uuid+ - UUID of async task.
+    # * +start_wait+ - Seconds to wait before first check.
+    # * +delta_wait+ - How much longer will every next wait be (unless +max_wait+ is reached).
+    # * +max_wait+ - Maximum time to wait between two checks.
     def wait_for_task(uuid, start_wait = 0, delta_wait = 1, max_wait = 10)
       wait_time = start_wait
       print "Waiting for the task [#{uuid}] "
