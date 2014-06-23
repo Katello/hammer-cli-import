@@ -70,19 +70,18 @@ module HammerCLIImport
       strategy.to_sym
     end
 
-    ############
-    ## -> Stuff related to csv columns
     class << self
+      # Which columns have to be be present in CSV.
       def csv_columns(*list)
         return @csv_columns if list.empty?
         raise 'set more than once' if @csv_columns
         @csv_columns = list
       end
     end
-    ## <-
-    ############
 
     class << self
+      # Initialize API. Needed to be called before any +api_call+ calls.
+      # It is error to call this more than once.
       def api_init
         raise 'called more than once' if @api
         @api = ApipieBindings::API.new(
@@ -96,6 +95,8 @@ module HammerCLIImport
         nil
       end
 
+      # Call API. Ideally accessed via +api_call+ instance method.
+      # This is supposed to be the only way to access @api.
       def api_call(resource, action, params = {}, debug = false)
         @api.resource(resource).call(action, params)
       rescue
@@ -104,10 +105,12 @@ module HammerCLIImport
       end
     end
 
+    # Call API. Convenience method for calling +api_call+ class method.
     def api_call(*list)
       self.class.api_call(*list)
     end
 
+    # Call API on corresponding resource (defined by +map_target_entity+).
     def mapped_api_call(entity_type, *list)
       api_call(map_target_entity[entity_type], *list)
     end
@@ -256,6 +259,7 @@ module HammerCLIImport
       nil
     end
 
+    # Use +create_entity+ instead.
     def _create_entity(entity_type, entity_hash, original_id)
       type = to_singular(entity_type)
       if @pm[entity_type][original_id]
