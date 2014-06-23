@@ -84,6 +84,7 @@ module HammerCLIImport
 
     class << self
       def api_init
+        raise 'called more than once' if @api
         @api = ApipieBindings::API.new(
         {
           :uri => HammerCLI::Settings.get(:foreman, :host),
