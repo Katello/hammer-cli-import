@@ -19,7 +19,7 @@
 
 module HammerCLIImport
   def self.version
-    @version ||= Gem::Version.new('0.6.2')
+    @version ||= Gem::Version.new('0.7.0')
   end
 end
 # vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby
