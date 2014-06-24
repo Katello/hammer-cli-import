@@ -23,12 +23,12 @@ require 'json'
 
 module HammerCLIImport
   class ImportCommand
-    class RepositoryDiscoveryCommand < BaseCommand
+    class RepositoryEnableCommand < BaseCommand
       extend ImportTools::Repository::Extend
       include ImportTools::Repository::Include
 
-      command_name 'repository-discovery'
-      desc 'Discover all Repositories accessible to any Organization'
+      command_name 'repository-enable'
+      desc 'Enable any Red Hat repositories accessible to any Organization'
 
       option ['--repository-map'],
              'FILE_NAME',
@@ -148,9 +148,17 @@ module HammerCLIImport
             return rc['input']['repository']
           end
         rescue RestClient::Exception  => e
-          throw e unless e.http_code == 409
-          puts '...already enabled.'
+          if e.http_code == 409
+            puts '...already enabled.'
+          else
+            puts "...unknown error #{e.http_code}, #{e.message} - skipping."
+          end
         end
+      end
+
+      def get_products(org_id)
+        prods = api_call(:products, :index, 'organization_id' => org_id, 'per_page' => 999999)
+        return prods['results']
       end
 
       def post_import(_file)
@@ -159,9 +167,12 @@ module HammerCLIImport
         repo_to_channel = construct_repo_map(channel_to_repo, @channels)
 
         get_cache(:organizations).each do |oid, org|
-          get_cache(:products).each do |pid, prod|
+          puts "Looking at Organization #{org['label']}..."
+          prods_rc = get_products(oid)
+          #get_cache(:products).each do |pid, prod|
+          prods_rc.each do |prod|
             next unless org['label'] == prod['organization']['label']
-
+            pid = prod['id']
             prod['product_content'].each do |rs|
               rs_id = rs['content']['id']
               rs_url = rs['content']['contentUrl']

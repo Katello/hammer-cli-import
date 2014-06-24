@@ -23,11 +23,11 @@ module ImportTools
   module Repository
     module Extend
       def add_repo_options
-        option ['--sync'], :flag, 'Synchronize imported repositories', :default => false
-        option ['--synchronous'], :flag, 'Wait for repository synchronization to finish', :default => false
+        option ['--synchronize'], :flag, 'Synchronize imported repositories', :default => false
+        option ['--wait'], :flag, 'Wait for repository synchronization to finish', :default => false
 
         validate_options do
-          option(:option_sync).required if option(:option_synchronous).exist?
+          option(:option_synchronize).required if option(:option_wait).exist?
         end
       end
     end
@@ -42,10 +42,10 @@ module ImportTools
       end
 
       def sync_repo(repo)
-        return unless option_sync?
+        return unless option_synchronize?
         task = api_call(:repositories, :sync, {:id => repo['id']})
         puts 'Sync started!'
-        return unless option_synchronous?
+        return unless option_wait?
         wait_for_task task['id']
       end
     end
