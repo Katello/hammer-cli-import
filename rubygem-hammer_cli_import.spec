@@ -7,7 +7,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.6.2
+Version:    0.6.3
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -71,6 +71,9 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Tue Jun 24 2014 Grant Gainey 0.6.3-1
+- Subcommand and option name-chgs in response to comments (ggainey@redhat.com)
+
 * Mon Jun 23 2014 Grant Gainey 0.6.2-1
 - Add some more documentation (mkollar@redhat.com)
 - Some sanity checking (mkollar@redhat.com)
