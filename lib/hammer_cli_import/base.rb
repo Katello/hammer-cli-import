@@ -187,6 +187,21 @@ module HammerCLIImport
       raise MissingObjectError, 'Need to import ' + to_singular(entity_type) + ' with id ' + entity_id.to_s
     end
 
+    # this method returns a *first* found original_id
+    # (since we're able to map several organizations into one)
+    def get_original_id(entity_type, import_id)
+      if was_translated(entity_type, import_id)
+        # find original_ids
+        @pm[entity_type].to_hash.each do |key, value|
+          return key if value == import_id
+        end
+      else
+        # puts 'Unknown imported ' + to_singular(entity_type) + ' [' + import_id.to_s + '].'
+      end
+      return nil
+    end
+
+
     def list_server_entities(entity_type, extra_hash = {})
       @cache[entity_type] ||= {}
       if extra_hash.empty? && @per_org.include?(entity_type)
@@ -301,17 +316,11 @@ module HammerCLIImport
 
     # Delete entity by target (Sat6) id
     def delete_entity_by_import_id(entity_type, import_id)
-      original_id = nil
       type = to_singular(entity_type)
-      if ! @pm[entity_type].to_hash.values.include?(import_id)
+      original_id = get_original_id(entity_type, import_id)
+      if original_id.nil?
         puts 'Unknown imported ' + type + ' to delete [' + import_id.to_s + '].'
         return nil
-      else
-        # find original_id
-        @pm[entity_type].to_hash.each do |key, value|
-          original_id = key if value == import_id
-        end
-        original_id = '?' unless original_id
       end
       puts "Deleting imported #{type} [#{original_id}->#{@pm[entity_type][original_id]}]."
       mapped_api_call(entity_type, :destroy, {:id => import_id})
