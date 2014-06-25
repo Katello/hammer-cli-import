@@ -44,7 +44,8 @@ module HammerCLIImport
 
       # Required or BaseCommand gets angry at you
       csv_columns 'channel_label', 'channel_name', 'number_of_packages', 'org_id'
-      persistent_maps :organizations, :products
+      persistent_maps :organizations, :products,
+                      :redhat_repositories, :repositories
 
       # We provide the output of this process in the distribution of the tool - this code exists
       # only if someone wants to do their own mapping (?!?)
@@ -155,6 +156,8 @@ module HammerCLIImport
               'basearch' => info['arch'],
               'releasever' => info['version'])
 
+            original_org_id = get_original_id(:organizations, org_id)
+            map_entity(:redhat_repositories, [original_org_id, c], rc['input']['repository']['id'])
             return rc['input']['repository']
           end
         rescue RestClient::Exception  => e
