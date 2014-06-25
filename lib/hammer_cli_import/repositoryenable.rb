@@ -156,23 +156,16 @@ module HammerCLIImport
         end
       end
 
-      def get_products(org_id)
-        prods = api_call(:products, :index, 'organization_id' => org_id, 'per_page' => 999999)
-        return prods['results']
-      end
-
       def post_import(_file)
         # Set up/hydrate our data structures
         channel_to_repo = read_channel_mapping_data(option_repository_map)
         repo_to_channel = construct_repo_map(channel_to_repo, @channels)
 
+        puts 'Only repositories available to IMPORTED organizations will be enabled!'
         get_cache(:organizations).each do |oid, org|
-          puts "Looking at Organization #{org['label']}..."
-          prods_rc = get_products(oid)
-          #get_cache(:products).each do |pid, prod|
-          prods_rc.each do |prod|
+          puts "Organization #{org['label']}..."
+          get_cache(:products).each do |pid, prod|
             next unless org['label'] == prod['organization']['label']
-            pid = prod['id']
             prod['product_content'].each do |rs|
               rs_id = rs['content']['id']
               rs_url = rs['content']['contentUrl']
