@@ -33,7 +33,7 @@ module HammerCLIImport
       option ['--repository-map'],
              'FILE_NAME',
              'JSON file mapping channel-labels to repository information',
-             :default => File.dirname(__FILE__) + '/../../channel_data_pretty.json'
+             :default => File.expand_path('../../channel_data_pretty.json', File.dirname(__FILE__))
 
       option ['--dry-run'],
              :flag,
