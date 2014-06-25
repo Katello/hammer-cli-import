@@ -95,14 +95,35 @@ module HammerCLIImport
         return rc
       end
 
-      def initialize(*list)
-        super(*list)
-        @channels = []
-      end
-
       # BaseCommand will read our channel-csv for us
       def import_single_row(row)
-        @channels << row['channel_label'] if row['org_id'].nil?
+        if row['org_id']
+          puts " Skipping #{row['channel_label']} in organization #{row['org_id']}"
+          return
+        end
+
+        @channel_to_repo ||= read_channel_mapping_data(option_repository_map)
+        channel_label = row['channel_label']
+        repo_set_info = @channel_to_repo[channel_label]
+
+        # rely on we see only products in imported organizations
+        get_cache(:products).each do |product_id, product|
+          product['product_content'].each do |rs|
+            rs_id = rs['content']['id']
+            rs_url = rs['content']['contentUrl']
+
+            next if repo_set_info['set-url'] != rs_url
+
+            product_org = lookup_entity_in_cache(:organizations, {'label' => product['organization']['label']})
+            # Turn on the specific repository
+            enabled_repo = enable_repos(product_org['id'], product_id, rs_id, repo_set_info, channel_label)
+            p enabled_repo
+            next if enabled_repo.nil? || option_dry_run?
+
+            # Finally, if requested, kick off a sync
+            sync_repo enabled_repo unless repo_synced? enabled_repo
+          end
+        end
       end
 
       # Hydrate the channel-to-repository-data mapping struct
@@ -117,23 +138,11 @@ module HammerCLIImport
         return channel_map
       end
 
-      # Construct reverse-map {set-url {channel-label}, ...}
-      def construct_repo_map(channel_map, channels)
-        repo_map = {}
-        channels.each do |c|
-          repo = channel_map[c]
-          next if repo.nil?
-
-          repo_map[repo['set-url']] = c
-        end
-        return repo_map
-      end
-
       # Given a repository-set and a channel-to-repo info for that channel,
       # enable the correct repository
       # TODO: persist the resulting repo-id so we don't have to look it up later
       def enable_repos(org_id, prod_id, repo_set_id, info, c)
-        puts "Enabling #{info['url']} for channel #{c}"
+        puts "Enabling #{info['url']} for channel #{c} in org #{org_id}"
         begin
           unless option_dry_run?
             rc = api_call(
@@ -157,36 +166,6 @@ module HammerCLIImport
       end
 
       def post_import(_file)
-        # Set up/hydrate our data structures
-        channel_to_repo = read_channel_mapping_data(option_repository_map)
-        repo_to_channel = construct_repo_map(channel_to_repo, @channels)
-
-        puts 'Only repositories available to IMPORTED organizations will be enabled!'
-        get_cache(:organizations).each do |oid, org|
-          puts "Organization #{org['label']}..."
-          get_cache(:products).each do |pid, prod|
-            next unless org['label'] == prod['organization']['label']
-            prod['product_content'].each do |rs|
-              rs_id = rs['content']['id']
-              rs_url = rs['content']['contentUrl']
-              # Do we care about a channel that matches this repo-set?
-              matching_channel = repo_to_channel[rs_url]
-              next if matching_channel.nil?
-
-              # Get the repo-set-info that applies to that channel
-              repo_set_info = channel_to_repo[matching_channel]
-              next if repo_set_info.nil?
-
-              # Turn on the specific repository
-              enabled_repo = enable_repos(oid, pid, rs_id, repo_set_info, matching_channel)
-              next if enabled_repo.nil? || option_dry_run?
-
-              # Finally, if requested, kick off a sync
-              sync_repo enabled_repo
-            end
-          end
-        end
-
         HammerCLI::EX_OK
       end
     end
