@@ -168,6 +168,7 @@ module HammerCLIImport
 
             original_org_id = get_original_id(:organizations, org_id)
             map_entity(:redhat_repositories, [original_org_id, c], rc['input']['repository']['id'])
+            get_cache(:redhat_repositories)[rc['input']['repository']['id']] = rc['input']['repository']
             return rc['input']['repository']
           end
         rescue RestClient::Exception  => e
@@ -194,6 +195,7 @@ module HammerCLIImport
 
             get_original_id(:organizations, org_id)
             unmap_entity(:redhat_repositories, rc['input']['repository']['id'])
+            get_cache(:redhat_repositories).delete(rc['input']['repository']['id'])
             return rc['input']['repository']
           end
         rescue RestClient::Exception  => e
