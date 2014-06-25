@@ -98,6 +98,14 @@ module HammerCLIImport
 
       # BaseCommand will read our channel-csv for us
       def import_single_row(row)
+        handle_row(row, true)
+      end
+
+      def delete_single_row(row)
+        handle_row(row, false)
+      end
+
+      def handle_row(row, enable)
         if row['org_id']
           puts " Skipping #{row['channel_label']} in organization #{row['org_id']}"
           return
@@ -116,13 +124,16 @@ module HammerCLIImport
             next if repo_set_info['set-url'] != rs_url
 
             product_org = lookup_entity_in_cache(:organizations, {'label' => product['organization']['label']})
-            # Turn on the specific repository
-            enabled_repo = enable_repos(product_org['id'], product_id, rs_id, repo_set_info, channel_label)
-            p enabled_repo
-            next if enabled_repo.nil? || option_dry_run?
+            if enable
+              # Turn on the specific repository
+              rh_repo = enable_repos(product_org['id'], product_id, rs_id, repo_set_info, channel_label)
+              next if rh_repo.nil? || option_dry_run?
 
-            # Finally, if requested, kick off a sync
-            sync_repo enabled_repo unless repo_synced? enabled_repo
+              # Finally, if requested, kick off a sync
+              sync_repo rh_repo unless repo_synced? rh_repo
+            else
+              disable_repos(product_org['id'], product_id, rs_id, repo_set_info, channel_label)
+            end
           end
         end
       end
@@ -149,7 +160,7 @@ module HammerCLIImport
             rc = api_call(
               :repository_sets,
               :enable,
-              'organization_id' => org_id,
+              # 'organization_id' => org_id,
               'product_id' => prod_id,
               'id' => repo_set_id,
               'basearch' => info['arch'],
@@ -162,6 +173,32 @@ module HammerCLIImport
         rescue RestClient::Exception  => e
           if e.http_code == 409
             puts '...already enabled.'
+          else
+            puts "...unknown error #{e.http_code}, #{e.message} - skipping."
+          end
+        end
+      end
+
+      def disable_repos(org_id, prod_id, repo_set_id, info, c)
+        puts "Disabling #{info['url']} for channel #{c} in org #{org_id}"
+        begin
+          unless option_dry_run?
+            rc = api_call(
+              :repository_sets,
+              :disable,
+              #'organization_id' => org_id,
+              'product_id' => prod_id,
+              'id' => repo_set_id,
+              'basearch' => info['arch'],
+              'releasever' => info['version'])
+
+            get_original_id(:organizations, org_id)
+            unmap_entity(:redhat_repositories, rc['input']['repository']['id'])
+            return rc['input']['repository']
+          end
+        rescue RestClient::Exception  => e
+          if e.http_code == 404
+            puts '...no such repository to disable.'
           else
             puts "...unknown error #{e.http_code}, #{e.message} - skipping."
           end
