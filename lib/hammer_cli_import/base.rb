@@ -45,13 +45,15 @@ module HammerCLIImport
       # APIs return objects encapsulated in extra hash
       @wrap_in = {:organizations => 'organization'}
       # entities that needs organization to be listed
-      @per_org = Set[
-        :host_collections,
-        :repositories,
-        :products,
-        :content_views,
-        :activation_keys,
-        :content_view_versions]
+      @prerequisite = {
+        :host_collections => :organizations,
+        :repositories => :organizations,
+        :products => :organizations,
+        :content_views => :organizations,
+        :activation_keys => :organizations,
+        :content_view_versions => :organizations,
+        :repository_sets => :products
+      }
       # cache imported objects (created/lookuped)
       @cache = {}
     end
@@ -201,19 +203,30 @@ module HammerCLIImport
       return nil
     end
 
-
     def list_server_entities(entity_type, extra_hash = {})
+      @cache[@prerequisite[entity_type]] ||= list_server_entities(@prerequisite[entity_type]) if @prerequisite[entity_type]
       @cache[entity_type] ||= {}
-      if extra_hash.empty? && @per_org.include?(entity_type)
-        results = []
+      results = []
+      if !extra_hash.empty? || entity_type == :organizations
+        entities = api_call(entity_type, :index, {'per_page' => 999999}.merge(extra_hash))
+        results = entities['results']
+      elsif @prerequisite[entity_type] == :organizations
         # check only entities in imported orgs (not all of them)
         @pm[:organizations].to_hash.values.each do |org_id|
           entities = api_call(entity_type, :index, {'per_page' => 999999, 'organization_id' => org_id})
           results += entities['results']
         end
       else
-        entities = api_call(entity_type, :index, {'per_page' => 999999}.merge(extra_hash))
-        results =  entities['results']
+        @cache[@prerequisite[entity_type]].each do |pre_id, _|
+          entities = api_call(
+            entity_type,
+            :index,
+            {
+              'per_page' => 999999,
+              @prerequisite[entity_type].to_s.sub(/s$/, '_id').to_sym => pre_id
+            })
+          results += entities['results']
+        end
       end
       results.each do |entity|
         @cache[entity_type][entity['id']] = entity
