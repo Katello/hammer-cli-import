@@ -50,6 +50,8 @@ module PersistentMap
       @definitions[:template_snippets] = ['id' => Fixnum], ['sat6' => Fixnum], :config_templates
       @definitions[:local_repositories] = [{'org_id' => Fixnum}, {'channel_id' => Fixnum}], ['sat6' => Fixnum], :repositories
       @definitions[:products] = [{'org_id' => Fixnum}, {'label' => String}], ['sat6' => Fixnum], :products
+      @definitions[:redhat_repositories] = [{'org_id' => Fixnum}, {'channel_label' => String}], ['sat6' => Fixnum],
+                                           :repositories
 
       @definitions.freeze
     end
