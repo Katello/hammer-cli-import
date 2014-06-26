@@ -232,7 +232,7 @@ module HammerCLIImport
       rescue RestClient::UnprocessableEntity => ue
         puts " Creation of #{to_singular(entity_type)} failed."
         errs = JSON.parse(ue.response)['errors']
-        uniq = errs.first[0] if errs.first[1].kind_of?(Array) && errs.first[1][0] =~ /must be unique/
+        uniq = errs.first[0] if errs.first[1].is_a?(Array) && errs.first[1][0] =~ /must be unique/
 
         raise ue unless uniq
       end
