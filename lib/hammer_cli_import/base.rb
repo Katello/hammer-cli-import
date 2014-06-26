@@ -156,9 +156,22 @@ module HammerCLIImport
       return @pm[entity_type].to_hash.value?(import_id)
     end
 
+    def _compare_hash(entity_hash, search_hash)
+      equal = nil
+      search_hash.each do |key, value|
+        if value.is_a? Hash
+          equal = _compare_hash(entity_hash[key], search_hash[key])
+        else
+          equal = entity_hash[key] == value
+        end
+        return false unless equal
+      end
+      return true
+    end
+
     def lookup_entity_in_cache(entity_type, search_hash)
-      get_cache(entity_type).each do |_entity_id, entity|
-        return entity if entity.merge(search_hash) == entity
+      get_cache(entity_type).each do |_entity_id, entity_hash|
+        return entity_hash if _compare_hash(entity_hash, search_hash)
       end
       return nil
     end

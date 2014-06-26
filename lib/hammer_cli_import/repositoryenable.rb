@@ -155,6 +155,16 @@ module HammerCLIImport
       # enable the correct repository
       # TODO: persist the resulting repo-id so we don't have to look it up later
       def enable_repos(org_id, prod_id, repo_set_id, info, c)
+        repo = lookup_entity_in_cache(
+          :redhat_repositories,
+          {
+            'content_id' => repo_set_id,
+            'organization' => {'label' => get_cache(:organizations)[org_id]['label']}
+          })
+        if repo
+          puts "Repository #{repo['url']} already enabled as #{repo['id']}"
+          return repo
+        end
         puts "Enabling #{info['url']} for channel #{c} in org #{org_id}"
         begin
           unless option_dry_run?
@@ -169,8 +179,9 @@ module HammerCLIImport
 
             original_org_id = get_original_id(:organizations, org_id)
             map_entity(:redhat_repositories, [original_org_id, c], rc['input']['repository']['id'])
-            get_cache(:redhat_repositories)[rc['input']['repository']['id']] = rc['input']['repository']
-            return rc['input']['repository']
+            # store to cache (using lookup_entity, because :redhat_repositories api
+            # does not return full repository hash)
+            return lookup_entity(:redhat_repositories, rc['input']['repository']['id'], true)
           end
         rescue RestClient::Exception  => e
           if e.http_code == 409
@@ -182,6 +193,16 @@ module HammerCLIImport
       end
 
       def disable_repos(org_id, prod_id, repo_set_id, info, c)
+        repo = lookup_entity_in_cache(
+          :redhat_repositories,
+          {
+            'content_id' => repo_set_id,
+            'organization' => {'label' => get_cache(:organizations)[org_id]['label']}
+          })
+        unless repo
+          puts "Unknown repository (#{c} equivalent) to disable."
+          return
+        end
         puts "Disabling #{info['url']} for channel #{c} in org #{org_id}"
         begin
           unless option_dry_run?
@@ -194,7 +215,6 @@ module HammerCLIImport
               'basearch' => info['arch'],
               'releasever' => info['version'])
 
-            get_original_id(:organizations, org_id)
             unmap_entity(:redhat_repositories, rc['input']['repository']['id'])
             get_cache(:redhat_repositories).delete(rc['input']['repository']['id'])
             return rc['input']['repository']
