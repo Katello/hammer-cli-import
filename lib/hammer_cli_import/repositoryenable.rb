@@ -127,13 +127,13 @@ module HammerCLIImport
             product_org = lookup_entity_in_cache(:organizations, {'label' => product['organization']['label']})
             if enable
               # Turn on the specific repository
-              rh_repo = enable_repos(product_org['id'], product_id, rs_id, repo_set_info, channel_label)
+              rh_repo = enable_repos(product_org, product_id, rs_id, repo_set_info, channel_label)
               next if rh_repo.nil? || option_dry_run?
 
               # Finally, if requested, kick off a sync
               sync_repo rh_repo unless repo_synced? rh_repo
             else
-              disable_repos(product_org['id'], product_id, rs_id, repo_set_info, channel_label)
+              disable_repos(product_org, product_id, rs_id, repo_set_info, channel_label)
             end
           end
         end
@@ -154,30 +154,29 @@ module HammerCLIImport
       # Given a repository-set and a channel-to-repo info for that channel,
       # enable the correct repository
       # TODO: persist the resulting repo-id so we don't have to look it up later
-      def enable_repos(org_id, prod_id, repo_set_id, info, c)
+      def enable_repos(org, prod_id, repo_set_id, info, c)
         repo = lookup_entity_in_cache(
           :redhat_repositories,
           {
             'content_id' => repo_set_id,
-            'organization' => {'label' => get_cache(:organizations)[org_id]['label']}
+            'organization' => {'label' => org['label']}
           })
         if repo
           puts "Repository #{repo['url']} already enabled as #{repo['id']}"
           return repo
         end
-        puts "Enabling #{info['url']} for channel #{c} in org #{org_id}"
+        puts "Enabling #{info['url']} for channel #{c} in org #{org['id']}"
         begin
           unless option_dry_run?
             rc = api_call(
               :repository_sets,
               :enable,
-              # 'organization_id' => org_id,
               'product_id' => prod_id,
               'id' => repo_set_id,
               'basearch' => info['arch'],
               'releasever' => info['version'])
 
-            original_org_id = get_original_id(:organizations, org_id)
+            original_org_id = get_original_id(:organizations, org['id'])
             map_entity(:redhat_repositories, [original_org_id, c], rc['input']['repository']['id'])
             # store to cache (using lookup_entity, because :redhat_repositories api
             # does not return full repository hash)
@@ -192,24 +191,23 @@ module HammerCLIImport
         end
       end
 
-      def disable_repos(org_id, prod_id, repo_set_id, info, c)
+      def disable_repos(org, prod_id, repo_set_id, info, c)
         repo = lookup_entity_in_cache(
           :redhat_repositories,
           {
             'content_id' => repo_set_id,
-            'organization' => {'label' => get_cache(:organizations)[org_id]['label']}
+            'organization' => {'label' => org['label']}
           })
         unless repo
           puts "Unknown repository (#{c} equivalent) to disable."
           return
         end
-        puts "Disabling #{info['url']} for channel #{c} in org #{org_id}"
+        puts "Disabling #{info['url']} for channel #{c} in org #{org['id']}"
         begin
           unless option_dry_run?
             rc = api_call(
               :repository_sets,
               :disable,
-              #'organization_id' => org_id,
               'product_id' => prod_id,
               'id' => repo_set_id,
               'basearch' => info['arch'],
