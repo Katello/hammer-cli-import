@@ -41,7 +41,7 @@ module PersistentMap
       return @definitions if @definitions
       @definitions = {}
 
-      [:content_views, :host_collections, :organizations, :repositories, :users].each do |symbol|
+      [:content_views, :host_collections, :organizations, :repositories, :systems, :users].each do |symbol|
         @definitions[symbol] = ['sat5' => Fixnum], ['sat6' => Fixnum], symbol
       end
 
