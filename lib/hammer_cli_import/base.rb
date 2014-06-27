@@ -84,10 +84,9 @@ module HammerCLIImport
 
     class << self
       # Initialize API. Needed to be called before any +api_call+ calls.
-      # It is error to call this more than once.
+      # If used in shell, it may be called multiple times
       def api_init
-        raise 'called more than once' if @api
-        @api = ApipieBindings::API.new(
+        @api ||= ApipieBindings::API.new(
         {
           :uri => HammerCLI::Settings.get(:foreman, :host),
           :username => HammerCLI::Settings.get(:foreman, :username),
