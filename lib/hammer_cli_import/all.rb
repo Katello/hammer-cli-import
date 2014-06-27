@@ -35,7 +35,8 @@ module HammerCLIImport
 
       # An ordered-list of the entities we know how to import
       class << self; attr_accessor :entity_order end
-      @entity_order = %w(organization user host-collection repository-enable repository content-view activation-key template-snippet)
+      @entity_order = %w(organization user host-collection repository-enable repository
+                         content-view activation-key template-snippet)
 
       #
       # A list of what we know how to do.
@@ -46,46 +47,46 @@ module HammerCLIImport
       #
       class << self; attr_accessor :known end
       @known = {
-                 'activation-key' =>
+        'activation-key' =>
                     {'export-file' => 'activation-keys',
                      'import-class' => 'ActivationKeyImportCommand',
                      'depends-on' => 'organization',
                      'import' => false },
-                 'content-view' =>
+        'content-view' =>
                     {'export-file' => 'CHANNELS/export',
                      'import-class' => 'LocalRepositoryImportCommand',
                      'depends-on' => 'repository',
                      'import' => false },
-                 'repository' =>
+        'repository' =>
                     {'export-file' => 'repositories',
                      'import-class' => 'RepositoryImportCommand',
                      'depends-on' => 'organization',
                      'import' => false },
-                 'host-collection' =>
+        'host-collection' =>
                     {'export-file' => 'system-groups',
                      'import-class' => 'SystemGroupImportCommand',
                      'depends-on' => 'organization',
                      'import' => false },
-                 'organization' =>
+        'organization' =>
                     {'export-file' => 'users',
                      'import-class' => 'OrganizationImportCommand',
                      'depends-on' => '',
                      'import' => false },
-                 'repository-enable' =>
+        'repository-enable' =>
                     {'export-file' => 'channels',
                      'import-class' => 'RepositoryEnableCommand',
                      'depends-on' => 'organization',
                      'import' => false },
-                 'template-snippet' =>
+        'template-snippet' =>
                     {'export-file' => 'kickstart-scripts',
                      'import-class' => 'TemplateSnippetImportCommand',
                      'import' => false },
-                 'user' =>
+        'user' =>
                     {'export-file' => 'users',
                      'import-class' => 'UserImportCommand',
                      'depends-on' => 'organization',
                      'import' => false }
-                }
+      }
 
       def do_list
         puts 'Entities I understand:'
@@ -142,7 +143,7 @@ module HammerCLIImport
             import_file = "#{option_directory}/#{a_map['export-file']}.csv"
             # TODO: catch thrown error and skip with message
             args = build_args(key, import_file)
-            puts sprintf("Import %-20s using %s", key, args.join(' '))
+            puts format('Import %-20s using %s', key, args.join(' '))
             if File.exist? import_file
 
               #############################################################
