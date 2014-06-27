@@ -52,6 +52,7 @@ module HammerCLIImport
         :products => :organizations,
         :content_views => :organizations,
         :activation_keys => :organizations,
+        :content_views => :organizations,
         :content_view_versions => :organizations,
         :repository_sets => :products
       }
@@ -217,9 +218,13 @@ module HammerCLIImport
     end
 
     def list_server_entities(entity_type, extra_hash = {})
-      @cache[@prerequisite[entity_type]] ||= list_server_entities(@prerequisite[entity_type]) if @prerequisite[entity_type]
+      if @prerequisite[entity_type]
+        list_server_entities(@prerequisite[entity_type]) unless @cache[@prerequisite[entity_type]]
+      end
+
       @cache[entity_type] ||= {}
       results = []
+
       if !extra_hash.empty? || entity_type == :organizations
         entities = api_call(entity_type, :index, {'per_page' => 999999}.merge(extra_hash))
         results = entities['results']
@@ -229,7 +234,7 @@ module HammerCLIImport
           entities = api_call(entity_type, :index, {'per_page' => 999999, 'organization_id' => org_id})
           results += entities['results']
         end
-      else
+      elsif @prerequisite[entity_type]
         @cache[@prerequisite[entity_type]].each do |pre_id, _|
           entities = api_call(
             entity_type,
@@ -241,6 +246,7 @@ module HammerCLIImport
           results += entities['results']
         end
       end
+
       results.each do |entity|
         @cache[entity_type][entity['id']] = entity
       end
