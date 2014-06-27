@@ -58,6 +58,12 @@ module HammerCLIImport
       }
       # cache imported objects (created/lookuped)
       @cache = {}
+      class << @cache
+        def []=(key, val)
+          fail "@cache: #{val.inspect} is not a hash!" unless val.is_a? Hash
+          super
+        end
+      end
     end
 
     option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true do |filename|
