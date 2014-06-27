@@ -46,6 +46,7 @@ module HammerCLIImport
       @wrap_in = {:organizations => 'organization'}
       # entities that needs organization to be listed
       @prerequisite = {
+        :users => :organizations,
         :host_collections => :organizations,
         :repositories => :organizations,
         :products => :organizations,
