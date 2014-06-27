@@ -28,7 +28,7 @@ module HammerCLIImport
 
       csv_columns 'group_id', 'name', 'org_id'
 
-      persistent_maps :host_collections, :organizations
+      persistent_maps :organizations, :host_collections
 
       def mk_sg_hash(data)
         {
