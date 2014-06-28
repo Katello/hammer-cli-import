@@ -142,7 +142,7 @@ module HammerCLIImport
             import_file = "#{option_directory}/#{a_map['export-file']}.csv"
             # TODO: catch thrown error and skip with message
             args = build_args(key, import_file)
-            puts sprintf("Import %-20s using %s", key, args.inspect)
+            puts sprintf("Import %-20s using %s", key, args.join(' '))
             if File.exist? import_file
 
               #############################################################
