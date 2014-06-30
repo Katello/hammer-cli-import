@@ -46,14 +46,14 @@ module HammerCLIImport
       @wrap_in = {:organizations => 'organization'}
       # entities that needs organization to be listed
       @prerequisite = {
-        :users => :organizations,
-        :host_collections => :organizations,
-        :repositories => :organizations,
-        :products => :organizations,
-        :content_views => :organizations,
         :activation_keys => :organizations,
+        :content_views => :organizations,
         :content_view_versions => :organizations,
+        :host_collections => :organizations,
+        :products => :organizations,
+        :repositories => :organizations,
         :repository_sets => :products
+        :users => :organizations,
       }
       # cache imported objects (created/lookuped)
       @cache = {}
