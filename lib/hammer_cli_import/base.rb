@@ -52,8 +52,8 @@ module HammerCLIImport
         :host_collections => :organizations,
         :products => :organizations,
         :repositories => :organizations,
-        :repository_sets => :products
-        :users => :organizations,
+        :repository_sets => :products,
+        :users => :organizations
       }
       # cache imported objects (created/lookuped)
       @cache = {}
