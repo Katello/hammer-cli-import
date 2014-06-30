@@ -230,7 +230,7 @@ module HammerCLIImport
       @cache[entity_type] ||= {}
       results = []
 
-      if !extra_hash.empty? || entity_type == :organizations
+      if !extra_hash.empty? || @prerequisite[entity_type].nil?
         entities = api_call(entity_type, :index, {'per_page' => 999999}.merge(extra_hash))
         results = entities['results']
       elsif @prerequisite[entity_type] == :organizations
@@ -239,7 +239,7 @@ module HammerCLIImport
           entities = api_call(entity_type, :index, {'per_page' => 999999, 'organization_id' => org_id})
           results += entities['results']
         end
-      elsif @prerequisite[entity_type]
+      else
         @cache[@prerequisite[entity_type]].each do |pre_id, _|
           entities = api_call(
             entity_type,
