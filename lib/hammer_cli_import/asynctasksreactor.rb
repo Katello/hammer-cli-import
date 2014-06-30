@@ -36,6 +36,8 @@ module HammerCLIImport
         @mutex = Mutex.new
         @task_map = {}
         @thread_finish = false
+        @async_tasks_todo = 0
+        @async_tasks_done = 0
       end
 
       # Call to pospone execution of @block@ till all tasks are finished
@@ -66,7 +68,8 @@ module HammerCLIImport
       private
 
       def add_task(uuids, p)
-        fail ThreadError, 'need to own mutex' unless @mutex.owned?
+        fail ThreadError, 'Need to own mutex' unless @mutex.owned?
+        @async_tasks_todo += 1
         @task_map[uuids] ||= []
         @task_map[uuids] << p
         @thread.wakeup if @thread && @thread.status == 'sleep'
@@ -88,11 +91,13 @@ module HammerCLIImport
                 puts "Condition #{uuids} met"
                 @task_map[uuids].each do |task|
                   task.call
+                  @async_tasks_done += 1
                 end
                 @task_map.delete uuids
               end
 
               puts "Waiting tasks: #{@task_map.values.reduce(0) { |a, e| a + e.size }}"
+              puts "Async tasks: #{@async_tasks_done}/#{@async_tasks_todo} done"
               if @task_map.empty?
                 # This can not be removed in favour of later one, as
                 # deadlock may occur.
