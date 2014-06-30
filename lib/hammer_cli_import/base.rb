@@ -52,7 +52,6 @@ module HammerCLIImport
         :products => :organizations,
         :content_views => :organizations,
         :activation_keys => :organizations,
-        :content_views => :organizations,
         :content_view_versions => :organizations,
         :repository_sets => :products
       }
