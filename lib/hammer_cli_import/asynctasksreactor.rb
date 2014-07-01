@@ -19,13 +19,21 @@
 
 # Note to future self (and possibly others): unless there is a
 # (serious) bug here, you probably do not want to modify this code.
+
+#  Main thread                     Thread for async tasks
+#     |                                 |
+#     |  enq task          deq task     |<---.
+#     |'----------> Queue ----------->  |     |
+#     |                                 |'---'
+#     |                                 |
+#     V                                 V
 require 'thread'
 
 module HammerCLIImport
   # Reactor for async tasks
   # Include submodule should be included in class that
-  # implements @get_finished@ that takes list of UUIDS
-  # and returns list of finished UUIDS.
+  # implements @filter_finished_tasks@ that takes list
+  # of UUIDS and returns list of finished UUIDS.
   module AsyncTasksReactor
     module Include
       # Call from init
@@ -34,6 +42,7 @@ module HammerCLIImport
         @thread = nil
 
         @mutex = Mutex.new
+        @queue = Queue.new
         @task_map = {}
         @thread_finish = false
         @async_tasks_todo = 0
@@ -45,11 +54,7 @@ module HammerCLIImport
         puts "Registering tasks for uuids: #{uuids.inspect}."
         p = Proc.new(&block)
         uuids.sort!
-        if @mutex.owned?
-          add_task uuids, p
-        else
-          @mutex.synchronize { add_task uuids, p }
-        end
+        @queue.enq([uuids, p])
         start_async_task_thread
       end
 
@@ -58,7 +63,7 @@ module HammerCLIImport
         puts 'Waiting for async tasks to finish' unless @task_map.empty?
         @mutex.synchronize do
           @thread_finish = true
-          @thread.wakeup
+          @thread.run
         end
         @thread.join
       rescue NoMethodError
@@ -68,50 +73,62 @@ module HammerCLIImport
       private
 
       def add_task(uuids, p)
-        fail ThreadError, 'Need to own mutex' unless @mutex.owned?
         @async_tasks_todo += 1
         @task_map[uuids] ||= []
         @task_map[uuids] << p
-        @thread.wakeup if @thread && @thread.status == 'sleep'
+      end
+
+      def pick_up_tasks_from_the_queue
+        Thread.stop if @mutex.synchronize do
+          if @task_map.empty? && @queue.empty?
+            if @thread_finish
+              puts 'Exiting thread (exit requested, all tasks done).'
+              Thread.exit
+            else
+              true
+            end
+          else
+            false
+          end
+        end
+
+        # Do at most what we have at some point
+        @queue.size.times do
+          begin
+            uuids, p = @queue.deq true
+            add_task uuids, p
+          rescue ThreadError
+            break
+          end
+        end
       end
 
       def start_async_task_thread
         puts 'Starting thread for async tasks' unless @thread
         @thread ||= Thread.new do
           loop do
-            all_uuids = @mutex.synchronize do
-              @task_map.keys.flatten.uniq
-            end
+            some_tasks_done = false
+            pick_up_tasks_from_the_queue
+
+            next if @task_map.empty?
+
+            all_uuids = @task_map.keys.flatten.uniq
             finished = get_finished all_uuids
 
-            @mutex.synchronize do
-
-              @task_map.keys.each do |uuids|
-                next unless (uuids - finished).empty?
-                puts "Condition #{uuids} met"
-                @task_map[uuids].each do |task|
-                  task.call
-                  @async_tasks_done += 1
-                end
-                @task_map.delete uuids
+            @task_map.keys.each do |uuids|
+              next unless (uuids - finished).empty?
+              puts "Condition #{uuids.inspect} met"
+              @task_map[uuids].each do |task|
+                task.call
+                @async_tasks_done += 1
+                some_tasks_done = true
               end
-
-              puts "Waiting tasks: #{@task_map.values.reduce(0) { |a, e| a + e.size }}"
-              puts "Async tasks: #{@async_tasks_done}/#{@async_tasks_todo} done"
-              if @task_map.empty?
-                # This can not be removed in favour of later one, as
-                # deadlock may occur.
-                Thread.current.exit if @thread_finish
-                @mutex.sleep
-              else
-                @mutex.sleep 1
-              end
-
-              # Avoid one more loop if we know we are going to finish anyway...
-              # We have to re-check emptyness, as we were in sleep and anything
-              # could have happened
-              Thread.current.exit if @thread_finish && @task_map.empty?
+              @task_map.delete uuids
             end
+
+            puts "Asynchronous tasks: #{@async_tasks_done} of #{@async_tasks_todo + @queue.size} done." if some_tasks_done
+
+            sleep 1 unless @task_map.empty?
           end
         end
       end
