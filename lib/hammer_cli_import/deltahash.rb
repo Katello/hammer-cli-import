@@ -56,7 +56,7 @@ class DeltaHash
   end
 
   def delete(key)
-    fail DeltaHashError, 'Key does not exist' unless self[key]
+    fail DeltaHashError, "Key #{key} does not exist" unless self[key]
     @del << key if @old[key]
     @new.delete(key)
   end
