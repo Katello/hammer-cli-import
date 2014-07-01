@@ -24,6 +24,7 @@ module HammerCLIImport
   #   HammerCLIImport::ExceptionHandler
   # end
 
+  require 'hammer_cli_import/asynctasksreactor'
   require 'hammer_cli_import/csvhelper'
   require 'hammer_cli_import/deltahash'
   require 'hammer_cli_import/fixtime'

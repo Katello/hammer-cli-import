@@ -35,6 +35,9 @@ module HammerCLIImport
     extend PersistentMap::Extend
     include PersistentMap::Include
 
+    include ImportTools::Task::Include
+    include AsyncTasksReactor::Include
+
     def initialize(*list)
       super(*list)
       # wrap API parameters into extra hash
@@ -63,6 +66,8 @@ module HammerCLIImport
           super
         end
       end
+      # Initialize AsyncTaskReactor
+      atr_init
     end
 
     option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true do |filename|
@@ -432,6 +437,7 @@ module HammerCLIImport
           puts e.backtrace.join "\n"
         end
       end
+      atr_exit
       save_persistent_maps
       HammerCLI::EX_OK
     end
