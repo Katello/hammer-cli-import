@@ -27,7 +27,8 @@ module HammerCLIImport
 
       csv_columns 'server_id', 'profile_name', 'hostname', 'description',
                   'organization_id', 'architecture', 'release',
-                  'base_channel_id', 'child_channel_id', 'system_group_id'
+                  'base_channel_id', 'child_channel_id', 'system_group_id',
+                  'virtual_host', 'virtual_guest'
 
       persistent_maps :organizations, :content_views, :host_collections, :systems
 
@@ -46,12 +47,31 @@ module HammerCLIImport
       end
 
       def import_single_row(data)
+        @vguests ||= {}
         profile = mk_profile_hash data
         create_entity(:systems, profile, data['server_id'].to_i)
+        # associate virtual guests in post_import to make sure, all the guests
+        # are already imported (and known to sat6)
+        @vguests[data['server_id'].to_i] = split_multival(data['virtual_guest']) if data['virtual_host'] == data['server_id']
+        # p 'vguests:', @vguests
+      end
+
+      def post_import(_file)
+        @vguests.each do |system_id, guest_ids|
+          uuid = get_translated_id(:systems, system_id)
+          vguest_uuids = guest_ids.collect { |id| get_translated_id(:systems, id) } if guest_ids
+          # p 'uuid:', uuid
+          # p 'vguest_ids:', vguest_ids
+          update_entity(
+            :systems,
+            uuid,
+            {:guest_ids => vguest_uuids}
+            ) if uuid && guest_ids
+        end
       end
 
       def delete_single_row(data)
-        profile_id = data['system_id'].to_i
+        profile_id = data['server_id'].to_i
         unless @pm[:systems][profile_id]
           puts "#{to_singular(:systems).capitalize} with id #{profile_id} wasn't imported. Skipping deletion."
           return
