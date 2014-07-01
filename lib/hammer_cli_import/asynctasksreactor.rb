@@ -113,7 +113,7 @@ module HammerCLIImport
             next if @task_map.empty?
 
             all_uuids = @task_map.keys.flatten.uniq
-            finished = get_finished all_uuids
+            finished = filter_finished_tasks all_uuids
 
             @task_map.keys.each do |uuids|
               next unless (uuids - finished).empty?

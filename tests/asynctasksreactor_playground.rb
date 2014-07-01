@@ -23,7 +23,7 @@ class Experiment
     res
   end
 
-  def get_finished(ns)
+  def filter_finished_tasks(ns)
     ret = []
     get_statuses(ns).each { |key, val| ret << key if val[:finished] }
     ret
