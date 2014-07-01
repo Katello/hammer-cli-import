@@ -41,7 +41,7 @@ module PersistentMap
       return @definitions if @definitions
       @definitions = {}
 
-      [:content_views, :host_collections, :organizations, :repositories, :systems, :users].each do |symbol|
+      [:content_views, :host_collections, :organizations, :repositories, :users].each do |symbol|
         @definitions[symbol] = ['sat5' => Fixnum], ['sat6' => Fixnum], symbol
       end
 
@@ -52,6 +52,7 @@ module PersistentMap
       @definitions[:products] = [{'org_id' => Fixnum}, {'label' => String}], ['sat6' => Fixnum], :products
       @definitions[:redhat_repositories] = [{'org_id' => Fixnum}, {'channel_label' => String}], ['sat6' => Fixnum],
                                            :repositories
+      @definitions[:systems] = ['sat5' => Fixnum], ['sat6' => String], :systems
 
       @definitions.freeze
     end
