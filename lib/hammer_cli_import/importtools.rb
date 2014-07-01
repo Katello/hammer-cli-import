@@ -50,5 +50,33 @@ module ImportTools
       end
     end
   end
+
+  module Task
+    module Include
+      # [uuid] -> [uuid]
+      def filter_finished_tasks(uuids)
+        ret = []
+        get_tasks_statuses(uuids).each do |uuid, stat|
+          ret << uuid if stat['state'] == 'stopped'
+        end
+        ret
+      end
+
+      private
+
+      # [uuid] -> {uuid: task_status}
+      def get_tasks_statuses(uuids)
+        searches = uuids.collect { |uuid| {:type => :task, :task_id => uuid} }
+        ret = api_call :foreman_tasks, :bulk_search, {:searches => searches}
+        statuses = {}
+        ret.each do |status_result|
+          status_result['results'].each do |task_info|
+            statuses[task_info['id']] = task_info
+          end
+        end
+        statuses
+      end
+    end
+  end
 end
 # vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby
