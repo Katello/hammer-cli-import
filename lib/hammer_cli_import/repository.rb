@@ -62,9 +62,9 @@ module HammerCLIImport
         composite_id = [data['org_id'].to_i, product_name]
         product_id = create_entity(:products, product_hash, composite_id)['id']
         repo_hash = mk_repo_hash data, product_id
-        repo = create_entity(:repositories, repo_hash, data['id'].to_i)
 
-        sync_repo repo unless repo_synced? repo
+        return unless option_synchronize?
+        with_synced_repo(create_entity(:repositories, repo_hash, data['id'].to_i))
       end
 
       def delete_single_row(data)
