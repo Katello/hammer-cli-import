@@ -23,6 +23,8 @@ require 'apipie-bindings'
 module HammerCLIImport
   class ImportCommand
     class ActivationKeyImportCommand < BaseCommand
+      include ImportTools::ContentView::Include
+
       command_name 'activation-key'
       desc 'Import activation keys.'
 
@@ -130,26 +132,8 @@ module HammerCLIImport
         end
         ak = @cache[:activation_keys][get_translated_id(:activation_keys, data['token'])]
         delete_entity(:activation_keys, data['token'])
-        delete_ak_content_view(ak['content_view']) if
+        delete_content_view(ak['content_view']['id'].to_i, :ak_content_views) if
           ak['content_view'] && was_translated(:ak_content_views, ak['content_view']['id'])
-      end
-
-      def delete_ak_content_view(cv)
-        content_view = get_cache(:ak_content_views)[cv['id'].to_i]
-
-        cv_versions = content_view['versions'].collect { |v| v['id'] }
-
-        task = mapped_api_call(
-          :ak_content_views,
-          :remove,
-          {
-            :id => content_view['id'],
-            :content_view_version_ids => cv_versions
-          })
-
-        wait_for_task(task['id'], 1, 0)
-
-        delete_entity_by_import_id(:ak_content_views, content_view['id'])
       end
     end
   end

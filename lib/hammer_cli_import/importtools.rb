@@ -108,6 +108,26 @@ module ImportTools
       def publish_content_view(id)
         api_call :content_views, :publish, {:id => id}
       end
+
+      # use entity_type as parameter to be able to re-use the method for
+      # :content_views, :ak_content_views, :redhat_content_views, ...
+      def delete_content_view(cv_id, entity_type = :content_views)
+        content_view = get_cache(entity_type)[cv_id]
+
+        cv_version_ids = content_view['versions'].collect { |v| v['id'] }
+
+        task = mapped_api_call(
+          entity_type,
+          :remove,
+          {
+            :id => content_view['id'],
+            :content_view_version_ids => cv_version_ids
+          })
+
+        wait_for_task(task['id'], 1, 0)
+
+        delete_entity_by_import_id(entity_type, content_view['id'])
+      end
     end
   end
 end

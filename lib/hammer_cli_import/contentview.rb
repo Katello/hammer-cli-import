@@ -176,25 +176,6 @@ module HammerCLIImport
         # delete_entity :content_views, cv_id
         delete_content_view translated
       end
-
-      # TODO: Eliminate duplicity with activation keys
-      def delete_content_view(cv_id)
-        content_view = get_cache(:content_views)[cv_id]
-
-        cv_versions = content_view['versions'].collect { |v| v['id'] }
-
-        task = mapped_api_call(
-          :content_views,
-          :remove,
-          {
-            :id => content_view['id'],
-            :content_view_version_ids => cv_versions
-          })
-
-        wait_for_task(task['id'], 1, 0)
-
-        delete_entity_by_import_id(:content_views, content_view['id'])
-      end
     end
   end
 end

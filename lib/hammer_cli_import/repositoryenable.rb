@@ -101,7 +101,9 @@ module HammerCLIImport
               end if cont_with_cvs
             else
               if @pm[:redhat_content_views][composite_rhcv_id]
-                delete_entity(:redhat_content_views, composite_rhcv_id)
+                delete_content_view(
+                  get_translated_id(:redhat_content_views, composite_rhcv_id),
+                  :redhat_content_views)
               end
               disable_repos(product_org, product_id, rs_id, repo_set_info, channel_label)
             end
