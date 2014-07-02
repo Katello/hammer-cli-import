@@ -77,6 +77,7 @@ module HammerCLIImport
             next if repo_set_info['set-url'] != rs_url
 
             product_org = lookup_entity_in_cache(:organizations, {'label' => product['organization']['label']})
+            composite_rhcv_id = [product_org['id'], row['channel_label']]
             if enable
               # Turn on the specific repository
               rh_repo = enable_repos(product_org, product_id, rs_id, repo_set_info, channel_label)
@@ -94,13 +95,13 @@ module HammerCLIImport
                     :description => 'Red Hat channel migrated from Satellite 5',
                     :repository_ids  => [rh_repo['id']]
                   },
-                  [product_org['id'], row['channel_label']]
+                  composite_rhcv_id
                   )
                 publish_content_view(cv['id'])
               end if cont_with_cvs
             else
-              if @pm[:redhat_content_views][product_org['id'], row['channel_label']]
-                delete_entity(:redhat_content_views, [product_org['id'], row['channel_label']])
+              if @pm[:redhat_content_views][composite_rhcv_id]
+                delete_entity(:redhat_content_views, composite_rhcv_id)
               end
               disable_repos(product_org, product_id, rs_id, repo_set_info, channel_label)
             end
