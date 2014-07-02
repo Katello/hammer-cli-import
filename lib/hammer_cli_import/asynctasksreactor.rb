@@ -52,9 +52,8 @@ module HammerCLIImport
       # Call to pospone execution of @block@ till all tasks are finished
       def postpone_till(uuids, &block)
         puts "Registering tasks for uuids: #{uuids.inspect}."
-        p = Proc.new(&block)
         uuids.sort!
-        @queue.enq([uuids, p])
+        @queue.enq([uuids, block])
         start_async_task_thread
       end
 
