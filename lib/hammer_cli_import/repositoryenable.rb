@@ -128,7 +128,7 @@ module HammerCLIImport
             'organization' => {'label' => org['label']}
           })
         if repo
-          puts "Repository #{repo['url']} already enabled as #{repo['id']}"
+          puts "Repository #{[repo['url'], repo['label']].compact[0]} already enabled as #{repo['id']}"
           return repo
         end
         puts "Enabling #{info['url']} for channel #{c} in org #{org['id']}"
