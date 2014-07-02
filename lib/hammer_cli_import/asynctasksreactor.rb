@@ -119,7 +119,12 @@ module HammerCLIImport
               next unless (uuids - finished).empty?
               puts "Condition #{uuids.inspect} met"
               @task_map[uuids].each do |task|
-                task.call
+                begin
+                  task.call
+                rescue => e
+                  puts "Exception caught while executing post-#{uuids.inspect}:"
+                  puts e.inspect
+                end
                 @async_tasks_done += 1
                 some_tasks_done = true
               end
