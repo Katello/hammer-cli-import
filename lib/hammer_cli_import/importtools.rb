@@ -41,12 +41,36 @@ module ImportTools
         Time.parse(info['last_sync']) > Time.parse(info['updated_at'])
       end
 
+      # TODO: Shall be removed and in its place will come sync_repo2
       def sync_repo(repo)
         return unless option_synchronize?
         task = api_call(:repositories, :sync, {:id => repo['id']})
         puts 'Sync started!'
         return unless option_wait?
         wait_for_task task['id']
+      end
+
+      # TODO: This shall replace sync_repo
+      def sync_repo2(repo)
+        task = api_call(:repositories, :sync, {:id => repo['id']})
+        puts 'Sync started!'
+        task['id']
+      end
+
+      def with_synced_repo(repo, &block)
+        # So we can not give empty block
+        if block_given?
+          action = proc(&block)
+        else
+          action = proc {}
+        end
+
+        if repo_synced?(repo)
+          action.call
+        else
+          uuid = sync_repo2 repo
+          postpone_till([uuid], &action) if option_wait?
+        end
       end
     end
   end
