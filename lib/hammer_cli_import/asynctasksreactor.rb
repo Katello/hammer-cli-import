@@ -131,7 +131,10 @@ module HammerCLIImport
               @task_map.delete uuids
             end
 
-            puts "Asynchronous tasks: #{@async_tasks_done} of #{@async_tasks_todo + @queue.size} done." if some_tasks_done
+            print = @mutex.synchronize do
+              some_tasks_done || @thread_finish
+            end
+            puts "Asynchronous tasks: #{@async_tasks_done} of #{@async_tasks_todo + @queue.size} done." if print
 
             sleep 1 unless @task_map.empty?
           end
