@@ -112,6 +112,8 @@ module ImportTools
       # use entity_type as parameter to be able to re-use the method for
       # :content_views, :ak_content_views, :redhat_content_views, ...
       def delete_content_view(cv_id, entity_type = :content_views)
+        raise "delete_content_view with #{entity_type}" unless map_target_entity[entity_type] == :content_views
+
         content_view = get_cache(entity_type)[cv_id]
 
         cv_version_ids = content_view['versions'].collect { |v| v['id'] }
