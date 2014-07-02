@@ -99,6 +99,9 @@ module HammerCLIImport
                 publish_content_view(cv['id'])
               end if cont_with_cvs
             else
+              if @pm[:redhat_content_views][product_org['id'], row['channel_label']]
+                delete_entity(:redhat_content_views, [product_org['id'], row['channel_label']])
+              end
               disable_repos(product_org, product_id, rs_id, repo_set_info, channel_label)
             end
           end
