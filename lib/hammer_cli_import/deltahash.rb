@@ -42,7 +42,7 @@ class DeltaHash
   end
 
   def []=(key, val)
-    fail DeltaHashError, 'Key exists' if self[key]
+    raise DeltaHashError, 'Key exists' if self[key]
     @del.delete key
     @new[key] = val unless @old[key] == val
   end
@@ -56,7 +56,7 @@ class DeltaHash
   end
 
   def delete(key)
-    fail DeltaHashError, "Key #{key} does not exist" unless self[key]
+    raise DeltaHashError, "Key #{key} does not exist" unless self[key]
     @del << key if @old[key]
     @new.delete(key)
   end

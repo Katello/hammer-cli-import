@@ -62,7 +62,7 @@ module HammerCLIImport
       @cache = {}
       class << @cache
         def []=(key, val)
-          fail "@cache: #{val.inspect} is not a hash!" unless val.is_a? Hash
+          raise "@cache: #{val.inspect} is not a hash!" unless val.is_a? Hash
           super
         end
       end

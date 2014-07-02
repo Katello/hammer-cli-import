@@ -24,10 +24,10 @@ module CSVHelper
   end
 
   def self.csv_each(filename, headers)
-    fail CSVHelperError, 'Expecting block' unless block_given?
+    raise CSVHelperError, 'Expecting block' unless block_given?
     reader = CSV.open(filename, 'r')
     real_header = reader.shift
-    fail CSVHelperError, "No header in #{filename}" if real_header.nil?
+    raise CSVHelperError, "No header in #{filename}" if real_header.nil?
     to_discard = real_header - headers
     headers.each do |col|
       raise CSVHelperError, "Column #{col} expected in #{filename}" unless real_header.include? col
