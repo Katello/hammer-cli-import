@@ -24,6 +24,7 @@ module HammerCLIImport
     class LocalRepositoryImportCommand < BaseCommand
       extend ImportTools::Repository::Extend
       include ImportTools::Repository::Include
+      include ImportTools::ContentView::Include
 
       command_name 'content-view'
       desc 'Create content-views based on local/cloned channels.'
@@ -54,10 +55,6 @@ module HammerCLIImport
           :url => 'file://' + File.join(directory, data['org_id'], data['channel_id']),
           :content_type => 'yum'
         }
-      end
-
-      def publish_content_view(id)
-        api_call :content_views, :publish, {:id => id}
       end
 
       def mk_content_view_hash(data, repo_ids)

@@ -102,5 +102,13 @@ module ImportTools
       end
     end
   end
+
+  module ContentView
+    module Include
+      def publish_content_view(id)
+        api_call :content_views, :publish, {:id => id}
+      end
+    end
+  end
 end
 # vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby

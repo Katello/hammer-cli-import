@@ -26,6 +26,7 @@ module HammerCLIImport
     class RepositoryEnableCommand < BaseCommand
       extend ImportTools::Repository::Extend
       include ImportTools::Repository::Include
+      include ImportTools::ContentView::Include
 
       command_name 'repository-enable'
       desc 'Enable any Red Hat repositories accessible to any Organization'
@@ -45,7 +46,7 @@ module HammerCLIImport
       # Required or BaseCommand gets angry at you
       csv_columns 'channel_label', 'channel_name', 'number_of_packages', 'org_id'
       persistent_maps :organizations, :products,
-                      :redhat_repositories, :repositories
+                      :redhat_repositories, :redhat_content_views, :repositories
 
       # BaseCommand will read our channel-csv for us
       def import_single_row(row)
@@ -82,7 +83,21 @@ module HammerCLIImport
               next if rh_repo.nil? || option_dry_run?
 
               # Finally, if requested, kick off a sync
-              sync_repo rh_repo unless repo_synced? rh_repo
+              uuid = sync_repo rh_repo if option_synchronize? unless repo_synced? rh_repo
+              cont_with_cvs = repo_synced?(rh_repo) || option_wait?
+              postpone_till([uuid].compact) do
+                cv = create_entity(
+                  :redhat_content_views,
+                  {
+                    :organization_id => product_org['id'],
+                    :name => row['channel_name'],
+                    :description => 'Red Hat channel migrated from Satellite 5',
+                    :repository_ids  => [rh_repo['id']]
+                  },
+                  [product_org['id'], row['channel_label']]
+                  )
+                publish_content_view(cv['id'])
+              end if cont_with_cvs
             else
               disable_repos(product_org, product_id, rs_id, repo_set_info, channel_label)
             end
