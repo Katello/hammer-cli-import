@@ -42,7 +42,7 @@ RedundantReturn:
   Enabled: false
 
 SignalException:
-  Enabled: false
+  EnforcedStyle: only_raise
 
 SpaceInsideHashLiteralBraces:
   Enabled: false # we allow spaces inside hash brackets
