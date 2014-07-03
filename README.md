@@ -44,11 +44,11 @@ You can add to your `~/.irbrc`:
       def imethods
         methods - Object.instance_methods
       end
-    end
 
-    def methods_re(re)
-      methods.find do |m|
-        re.match m
+      def methods_re(re)
+        methods.select do |m|
+          re.match m.to_s
+        end
       end
     end
 
