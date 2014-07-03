@@ -60,7 +60,7 @@ module ImportTools
       def with_synced_repo(repo, &block)
         # So we can not give empty block
         if block_given?
-          action = proc(&block)
+          action = block
         else
           action = proc {}
         end
