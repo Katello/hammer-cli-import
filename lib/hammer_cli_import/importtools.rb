@@ -57,6 +57,8 @@ module ImportTools
         task['id']
       end
 
+      # TODO: Add logic to handle state
+      # when there is sync already running
       def with_synced_repo(repo, &block)
         # So we can not give empty block
         if block_given?
