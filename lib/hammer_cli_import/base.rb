@@ -426,18 +426,23 @@ module HammerCLIImport
       load_persistent_maps
       load_cache
       prune_persistent_maps @cache
-      if option_delete?
-        delete option_csv_file
-      else
-        import option_csv_file
-        begin
-          post_import option_csv_file
-        rescue => e
-          puts "Caught #{e.class}:#{e.message} while post_import"
-          puts e.backtrace.join "\n"
+      # TODO: This big ugly thing might need some cleanup
+      begin
+        if option_delete?
+          delete option_csv_file
+        else
+          import option_csv_file
+          begin
+            post_import option_csv_file
+          rescue => e
+            puts "Caught #{e.class}:#{e.message} while post_import"
+            puts e.backtrace.join "\n"
+          end
         end
+        atr_exit
+      rescue StandardError, SystemExit, Interrupt
+        puts 'Interrupred by user'
       end
-      atr_exit
       save_persistent_maps
       HammerCLI::EX_OK
     end
