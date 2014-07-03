@@ -55,6 +55,10 @@ module ImportTools
         task = api_call(:repositories, :sync, {:id => repo['id']})
         puts 'Sync started!'
         task['id']
+      rescue
+        uuid = workaround_1116063 repo['id']
+        puts 'Sync already running!'
+        uuid
       end
 
       # TODO: Add logic to handle state
@@ -73,6 +77,23 @@ module ImportTools
           uuid = sync_repo2 repo
           postpone_till([uuid], &action) if option_wait?
         end
+      end
+
+      private
+
+      # When BZ 1116063 get fixed, this might
+      # be simplified using either
+      # > api_call(:repositories, :show, {'id' => 1})
+      # or maybe with
+      # > api_call(:sync, :index, {:repository_id => 1})
+      def workaround_1116063(repo_id)
+        res = api_call :foreman_tasks, :bulk_search, \
+                       :searches => [{:type => :resource, :resource_type => 'Katello::Repository', :resource_id => repo_id}]
+
+        res.first['results'] \
+          .select { |x| x['result'] != 'error' } \
+          .sort_by { |x| Time.parse(x['started_at']) } \
+          .last['id']
       end
     end
   end
