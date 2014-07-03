@@ -60,7 +60,7 @@ You can play with apipie-bindings on command line. For that you need bundler. Ex
     [hammer-cli-import]$ bundle exec irb
 
     require 'apipie-bindings'
-    api = ApipieBindings::API.new({:uri => 'http://localhost/', :username => 'admin', :password => :changeme, :api_version=> '2', :aggressive_cache_checking => true})
+    api = ApipieBindings::API.new({:uri => 'http://localhost/', :username => 'admin', :password => :changeme, :api_version => '2', :aggressive_cache_checking => true})
     user_hash = {
     :login => "newuser",
     :firstname => "user",
