@@ -151,7 +151,7 @@ module HammerCLIImport
           begin
             parent_cv = get_cache(:content_views)[get_translated_id :content_views, parent_id]
             repo_ids += parent_cv['repositories'].collect { |x| x['id'] }
-          rescue
+          rescue HammerCLIImport::MissingObjectError
             puts "No such content_view: #{parent_id}"
           end
         end
