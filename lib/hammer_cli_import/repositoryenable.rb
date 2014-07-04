@@ -29,7 +29,7 @@ module HammerCLIImport
       include ImportTools::ContentView::Include
 
       command_name 'repository-enable'
-      desc 'Enable any Red Hat repositories accessible to any Organization'
+      desc 'Enable any Red Hat repositories accessible to any Organization.'
 
       option ['--repository-map'],
              'FILE_NAME',
