@@ -23,7 +23,7 @@ module HammerCLIImport
   class ImportCommand
     class ContentHostImportCommand < BaseCommand
       command_name 'content-host'
-      desc 'Import content hosts.'
+      desc 'Import Content Hosts.'
 
       csv_columns 'server_id', 'profile_name', 'hostname', 'description',
                   'organization_id', 'architecture', 'release',

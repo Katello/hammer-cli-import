@@ -24,7 +24,7 @@ module HammerCLIImport
   class ImportCommand
     class UserImportCommand < BaseCommand
       command_name 'user'
-      desc 'Import users.'
+      desc 'Import Users.'
 
       option ['--new-passwords'], 'FILE_NAME', 'Output for new passwords' do |filename|
         raise ArgumentError, "File #{filename} already exists" if File.exist? filename

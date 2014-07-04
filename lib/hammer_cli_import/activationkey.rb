@@ -26,7 +26,7 @@ module HammerCLIImport
       include ImportTools::ContentView::Include
 
       command_name 'activation-key'
-      desc 'Import activation keys.'
+      desc 'Import Activation Keys.'
 
       csv_columns 'token', 'org_id', 'note', 'usage_limit', 'base_channel_id', 'child_channel_id', 'server_group_id'
 

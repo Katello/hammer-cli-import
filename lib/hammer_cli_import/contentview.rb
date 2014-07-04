@@ -27,7 +27,7 @@ module HammerCLIImport
       include ImportTools::ContentView::Include
 
       command_name 'content-view'
-      desc 'Create content-views based on local/cloned channels.'
+      desc 'Create Content Views based on local/cloned Channels.'
 
       csv_columns 'org_id', 'channel_id', 'channel_label', 'channel_name'
 

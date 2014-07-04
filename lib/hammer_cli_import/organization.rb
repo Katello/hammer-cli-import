@@ -23,7 +23,7 @@ module HammerCLIImport
   class ImportCommand
     class OrganizationImportCommand < BaseCommand
       command_name 'organization'
-      desc 'Import organizations.'
+      desc 'Import Organizations.'
 
       option ['--into-org-id'], 'ORG_ID', 'Import all organizations into one specified by id' do |x|
         Integer(x)
