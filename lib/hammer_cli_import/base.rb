@@ -113,7 +113,7 @@ module HammerCLIImport
       def api_call(resource, action, params = {}, debug = false)
         @api.resource(resource).call(action, params)
       rescue
-        puts "Error on api.resource(#{resource}).call(#{action}, #{params}):" if debug
+        puts "Error on api.resource(#{resource.inspect}).call(#{action.inspect}, #{params.inspect}):" if debug
         raise
       end
     end
