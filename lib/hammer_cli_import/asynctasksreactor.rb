@@ -50,6 +50,7 @@ module HammerCLIImport
       end
 
       # Call to pospone execution of @block@ till all tasks are finished
+      # Never ever use @return@ inside provided do block.
       def postpone_till(uuids, &block)
         if uuids.empty?
           puts 'Nothing to wait for, running in main thread.'
