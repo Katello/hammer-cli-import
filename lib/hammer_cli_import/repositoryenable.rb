@@ -34,7 +34,10 @@ module HammerCLIImport
       option ['--repository-map'],
              'FILE_NAME',
              'JSON file mapping channel-labels to repository information',
-             :default => File.expand_path('../../channel_data_pretty.json', File.dirname(__FILE__))
+             :default => File.expand_path('../../channel_data_pretty.json', File.dirname(__FILE__)) do |filename|
+        raise ArgumentError, "Channel-to-repository-map file #{filename} does not exist" unless File.exist? filename
+        filename
+      end
 
       option ['--dry-run'],
              :flag,
@@ -114,7 +117,6 @@ module HammerCLIImport
       # Hydrate the channel-to-repository-data mapping struct
       def read_channel_mapping_data(filename)
         channel_map = {}
-        abort("Channel-to-repository-map file #{filename} not found - aborting...") unless File.exist? filename
 
         File.open(filename, 'r') do |f|
           json = f.read
