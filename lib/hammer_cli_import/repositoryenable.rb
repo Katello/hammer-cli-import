@@ -61,7 +61,7 @@ module HammerCLIImport
       end
 
       def handle_row(row, enable)
-        if row['org_id']
+        if row['org_id'] # Not a Red Hat channel
           puts " Skipping #{row['channel_label']} in organization #{row['org_id']}"
           return
         end
@@ -70,6 +70,11 @@ module HammerCLIImport
         @channel_to_repo ||= read_channel_mapping_data(option_repository_map)
         channel_label = row['channel_label']
         repo_set_info = @channel_to_repo[channel_label]
+
+        if repo_set_info.nil? # not mapped channel (like proxy)
+          puts " Skipping nontransferable #{row['channel_label']}"
+          return
+        end
 
         # rely on we see only products in imported organizations
         get_cache(:products).each do |product_id, product|
