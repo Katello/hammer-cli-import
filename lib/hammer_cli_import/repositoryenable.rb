@@ -92,9 +92,8 @@ module HammerCLIImport
               next if rh_repo.nil? || option_dry_run?
 
               # Finally, if requested, kick off a sync
-              uuid = sync_repo rh_repo if option_synchronize? unless repo_synced? rh_repo
-              cont_with_cvs = repo_synced?(rh_repo) || option_wait?
-              postpone_till([uuid].compact) do
+              next unless option_synchronize?
+              with_synced_repo rh_repo do
                 cv = create_entity(
                   :redhat_content_views,
                   {
@@ -103,10 +102,9 @@ module HammerCLIImport
                     :description => 'Red Hat channel migrated from Satellite 5',
                     :repository_ids  => [rh_repo['id']]
                   },
-                  composite_rhcv_id
-                  )
+                  composite_rhcv_id)
                 publish_content_view(cv['id'])
-              end if cont_with_cvs
+              end
             else
               if @pm[:redhat_content_views][composite_rhcv_id]
                 delete_content_view(
