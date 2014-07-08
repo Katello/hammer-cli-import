@@ -29,6 +29,13 @@ module HammerCLIImport
         Integer(x)
       end
 
+      # Where do we expect to find manifest-files?
+      #  NOTE: we won't upload manifests if we're doing into-org-id - the expectation is that
+      #  you have already set up your org
+      option ['--upload-manifests-from'],
+             'MANIFEST_DIR',
+             'Upload manifests found at MANIFEST_DIR/<org_name>.zip to matching organizations'
+
       csv_columns 'organization_id', 'organization'
 
       persistent_maps :organizations
@@ -41,6 +48,31 @@ module HammerCLIImport
         }
       end
 
+      # :subscriptions :upload {:org_id => id, :content => File.new(filename, 'rb')}
+      def upload_manifest_for(label, id)
+        # Remember labels we've already processed in this run
+        @manifests ||= []
+        return if @manifests.include? label
+
+        @manifests << label
+        filename = option_upload_manifests_from + '/' + label + '.zip'
+        unless File.exists? filename
+          puts "No manifest #{filename} available."
+          return
+        end
+
+        puts "Uploading manifest #{filename} to org-id #{id}"
+        manifest_file = File.new(filename, 'rb')
+        request_headers = {:content_type => 'multipart/form-data', :multipart => true}
+
+        begin
+          api_call :subscriptions, :upload, {:organization_id => id, :content => manifest_file}, request_headers
+        rescue Exception => e
+          puts e.inspect
+          raise e
+        end
+      end
+
       def import_single_row(data)
         if option_into_org_id
           unless lookup_entity_in_cache(:organizations, {'id' => option_into_org_id})
@@ -51,7 +83,8 @@ module HammerCLIImport
           return
         end
         org = mk_org_hash data
-        create_entity(:organizations, org, data['organization_id'].to_i)
+        new_org = create_entity(:organizations, org, data['organization_id'].to_i)
+        upload_manifest_for(new_org['label'], new_org['id']) unless option_upload_manifests_from.nil?
       end
 
       def delete_single_row(data)

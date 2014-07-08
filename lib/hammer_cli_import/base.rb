@@ -110,8 +110,8 @@ module HammerCLIImport
 
       # Call API. Ideally accessed via +api_call+ instance method.
       # This is supposed to be the only way to access @api.
-      def api_call(resource, action, params = {}, debug = false)
-        @api.resource(resource).call(action, params)
+      def api_call(resource, action, params = {}, headers = {}, debug = false)
+        @api.resource(resource).call(action, params, headers)
       rescue
         puts "Error on api.resource(#{resource.inspect}).call(#{action.inspect}, #{params.inspect}):" if debug
         raise
