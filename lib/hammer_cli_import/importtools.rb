@@ -38,7 +38,12 @@ module ImportTools
 
         info = lookup_entity(:repositories, repo['id'], true)
         return false unless info['sync_state'] == 'finished'
-        Time.parse(info['last_sync']) > Time.parse(info['updated_at'])
+
+        begin
+          Time.parse(info['last_sync']) > Time.parse(info['updated_at'])
+        rescue
+          false
+        end
       end
 
       # TODO: Shall be removed and in its place will come sync_repo2
