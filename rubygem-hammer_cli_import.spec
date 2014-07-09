@@ -3,6 +3,10 @@
 %if 0%{?rhel}
 %global gem_dir /usr/lib/ruby/gems/1.8
 %endif
+%if 0%{?rhel} > 6
+%global gem_dir /usr/share/gems
+%endif
+
 
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
