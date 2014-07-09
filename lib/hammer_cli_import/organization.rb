@@ -56,7 +56,7 @@ module HammerCLIImport
 
         @manifests << label
         filename = option_upload_manifests_from + '/' + label + '.zip'
-        unless File.exists? filename
+        unless File.exist? filename
           puts "No manifest #{filename} available."
           return
         end
