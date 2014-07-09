@@ -65,12 +65,7 @@ module HammerCLIImport
         manifest_file = File.new(filename, 'rb')
         request_headers = {:content_type => 'multipart/form-data', :multipart => true}
 
-        begin
-          api_call :subscriptions, :upload, {:organization_id => id, :content => manifest_file}, request_headers
-        rescue Exception => e
-          puts e.inspect
-          raise e
-        end
+        api_call :subscriptions, :upload, {:organization_id => id, :content => manifest_file}, request_headers
       end
 
       def import_single_row(data)
