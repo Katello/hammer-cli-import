@@ -1,2 +1,2 @@
-:modules:
-    - hammer_cli_import
+:import:
+    :enable_module: true
