@@ -95,8 +95,7 @@ module ImportTools
 
         res.first['results'] \
           .select { |x| x['result'] != 'error' } \
-          .sort_by { |x| Time.parse(x['started_at']) } \
-          .last['id']
+          .max_by { |x| Time.parse(x['started_at']) }['id']
       end
     end
   end
