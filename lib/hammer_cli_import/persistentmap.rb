@@ -121,7 +121,7 @@ module PersistentMap
             end
           end
         end
-        @pm[map_sym] = DeltaHash[hash]
+        @pm[map_sym] = add_checks(DeltaHash[hash], self.class.map_description[map_sym], map_sym)
       end
     end
 
@@ -161,6 +161,31 @@ module PersistentMap
     end
 
     private
+
+    # Protective black magic.
+    # Checks whether given values and keys matches description
+    # at the moment of insertion...
+    def add_checks(hash, kv_desc, map_sym)
+      hash.instance_eval do
+        ks, vs = kv_desc
+        @key_desc = ks.collect { |x| x.values } .flatten
+        @val_desc = vs.collect { |x| x.values } .flatten
+        @map_sym = map_sym
+      end
+      class << hash
+        def []=(ks, vs)
+          key, val = ks, vs
+          key = [key] unless key.is_a? Array
+          val = [val] unless val.is_a? Array
+          raise "Bad key for persistent map #{@map_sym}: (#{key.inspect} - #{@key_desc.inspect})" \
+            unless key.size == @key_desc.size && key.zip(@key_desc).all? { |k, d| k.is_a? d }
+          raise "Bad value for persistent map #{@map_sym}: (#{val.inspect} - #{@val_desc.inspect}" \
+            unless val.size == @val_desc.size && val.zip(@val_desc).all? { |v, d| v.is_a? d }
+          super
+        end
+      end
+      hash
+    end
 
     def pm_decode_row(map_sym, row)
       key_spec, val_spec = self.class.map_description[map_sym]
