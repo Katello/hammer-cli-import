@@ -49,9 +49,9 @@ module PersistentMap
       @definitions[:ak_content_views] = ['ak_id' => String], ['sat6' => Fixnum], :content_views
       @definitions[:local_repositories] = [{'org_id' => Fixnum}, {'channel_id' => Fixnum}], ['sat6' => Fixnum], :repositories
       @definitions[:products] = [{'org_id' => Fixnum}, {'label' => String}], ['sat6' => Fixnum], :products
-      @definitions[:redhat_content_views] = [{'org_id' => Fixnum}, {'channel_label' => String}], ['sat6' => Fixnum],
+      @definitions[:redhat_content_views] = [{'org_id' => Fixnum}, {'channel_id' => Fixnum}], ['sat6' => Fixnum],
                                             :content_views
-      @definitions[:redhat_repositories] = [{'org_id' => Fixnum}, {'channel_label' => String}], ['sat6' => Fixnum],
+      @definitions[:redhat_repositories] = [{'org_id' => Fixnum}, {'channel_id' => Fixnum}], ['sat6' => Fixnum],
                                            :repositories
       @definitions[:systems] = ['sat5' => Fixnum], ['sat6' => String], :systems
       @definitions[:template_snippets] = ['id' => Fixnum], ['sat6' => Fixnum], :config_templates
