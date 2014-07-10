@@ -27,6 +27,7 @@ module HammerCLIImport
       desc 'Load ALL data from a specified directory that is in spacewalk-export format.'
 
       option ['--directory'], 'DIR_PATH', 'stargate-export directory', :default => '/tmp/exports'
+      option ['--manifest-directory'], 'DIR_PATH', 'Directory holding manifests'
       option ['--entities'], 'entity[,entity...]', 'Import specific entities', :default => 'all'
       option ['--list-entities'], :flag, 'List entities we understand', :default => false
       option ['--into-org-id'], 'ORG_ID', 'Import all organizations into one specified by id'
@@ -123,6 +124,7 @@ module HammerCLIImport
         case key
         when 'organization'
           args << '--into-org-id' << option_into_org_id unless option_into_org_id.nil?
+          args << '--upload-manifests-from' << option_manifest_directory unless option_manifest_directory.nil?
         when 'content-view'
           args = ['--csv-file', "#{option_directory}/CHANNELS/export.csv"]
           args << '--dir' << "#{option_directory}/CHANNELS"
