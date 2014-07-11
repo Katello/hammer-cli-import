@@ -440,8 +440,8 @@ module HammerCLIImport
           end
         end
         atr_exit
-      rescue StandardError, SystemExit, Interrupt
-        puts 'Interrupred by user'
+      rescue StandardError, SystemExit, Interrupt => e
+        puts "Exiting: #{e}"
       end
       save_persistent_maps
       HammerCLI::EX_OK
