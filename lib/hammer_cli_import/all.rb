@@ -23,6 +23,8 @@ require 'hammer_cli_import'
 module HammerCLIImport
   class ImportCommand
     class AllCommand < HammerCLI::AbstractCommand
+      extend ImportTools::Repository::Extend
+
       command_name 'all'
       desc 'Load ALL data from a specified directory that is in spacewalk-export format.'
 
@@ -33,6 +35,8 @@ module HammerCLIImport
       option ['--into-org-id'], 'ORG_ID', 'Import all organizations into one specified by id'
       option ['--merge-users'], :flag, 'Merge pre-created users (except admin)', :default => false
       option ['--dry-run'], :flag, 'Show what we would have done, if we\'d been allowed', :default => false
+
+      add_repo_options
 
       # An ordered-list of the entities we know how to import
       class << self; attr_accessor :entity_order end
@@ -122,12 +126,18 @@ module HammerCLIImport
       def build_args(key, filename)
         args = ['--csv-file', filename]
         case key
-        when 'organization'
-          args << '--into-org-id' << option_into_org_id unless option_into_org_id.nil?
-          args << '--upload-manifests-from' << option_manifest_directory unless option_manifest_directory.nil?
         when 'content-view'
           args = ['--csv-file', "#{option_directory}/CHANNELS/export.csv"]
           args << '--dir' << "#{option_directory}/CHANNELS"
+        when 'organization'
+          args << '--into-org-id' << option_into_org_id unless option_into_org_id.nil?
+          args << '--upload-manifests-from' << option_manifest_directory unless option_manifest_directory.nil?
+        when 'repository'
+          args << '--synchronize' << option_synchronize?
+          args << '--wait' << option_wait?
+        when 'repository-enable'
+          args << '--synchronize' << option_synchronize?
+          args << '--wait' << option_wait?
         when 'user'
           pwd_filename = "passwords_#{Time.now.utc.iso8601}.csv"
           args << '--new-passwords' << pwd_filename
