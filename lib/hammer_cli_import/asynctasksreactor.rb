@@ -32,8 +32,9 @@ require 'thread'
 module HammerCLIImport
   # Reactor for async tasks
   # Include submodule should be included in class that
-  # implements @filter_finished_tasks@ that takes list
-  # of UUIDS and returns list of finished UUIDS.
+  # implements @annotate_tasks@ that takes list
+  # of UUIDS and returns map, annotating every
+  # given UUID with :finished bool and :progress float.
   module AsyncTasksReactor
     module Include
       # Call from init
@@ -119,7 +120,15 @@ module HammerCLIImport
             next if @task_map.empty?
 
             all_uuids = @task_map.keys.flatten.uniq
-            finished = filter_finished_tasks all_uuids
+            anotated = annotate_tasks all_uuids
+            finished = []
+            progresses = []
+            anotated.each do |uuid, info|
+              finished << uuid if info[:finished]
+              progresses << info[:progress]
+            end
+            avg = progresses.instance_eval { reduce(0, :+) / size.to_f }
+            progress = format '%5.2f', (avg * 100)
 
             @task_map.keys.each do |uuids|
               next unless (uuids - finished).empty?
@@ -140,7 +149,8 @@ module HammerCLIImport
             print = @mutex.synchronize do
               some_tasks_done || @thread_finish
             end
-            puts "Asynchronous tasks: #{@async_tasks_done} of #{@async_tasks_todo + @queue.size} done." if print
+            puts "Asynchronous tasks: #{@async_tasks_done} of #{@async_tasks_todo + @queue.size} done (~#{progress}%)" \
+              if print
 
             sleep 1 unless @task_map.empty?
           end

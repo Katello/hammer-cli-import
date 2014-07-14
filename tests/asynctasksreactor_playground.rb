@@ -14,18 +14,25 @@ class Experiment
     Time.now - @start_time > n
   end
 
+  def progress_task(n)
+    [1, (Time.now - @start_time) / n].min
+  end
+
   def get_statuses(ns)
     puts "Getting statuses at about #{Time.now - @start_time}"
     res = {}
     ns.each do |n|
-      res[n] = { :id => n, :finished => (finished_task n) }
+      res[n] = { :id => n, :finished => (finished_task n), :progress => (progress_task n)}
     end
     res
   end
 
-  def filter_finished_tasks(ns)
-    ret = []
-    get_statuses(ns).each { |key, val| ret << key if val[:finished] }
+  def annotate_tasks(ns)
+    ret = {}
+    get_statuses(ns).each do |key, val|
+      ret[key] = { :finished => val[:finished],
+                   :progress => val[:progress]}
+    end
     ret
   end
 end

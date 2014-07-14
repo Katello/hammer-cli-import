@@ -102,11 +102,12 @@ module ImportTools
 
   module Task
     module Include
-      # [uuid] -> [uuid]
-      def filter_finished_tasks(uuids)
-        ret = []
+      # [uuid] -> {uuid => {:finished => bool, :progress => Float}}
+      def annotate_tasks(uuids)
+        ret = {}
         get_tasks_statuses(uuids).each do |uuid, stat|
-          ret << uuid if stat['state'] == 'stopped'
+          ret[uuid] = { :finished => stat['state'] == 'stopped',
+                        :progress => stat['progress']}
         end
         ret
       end
