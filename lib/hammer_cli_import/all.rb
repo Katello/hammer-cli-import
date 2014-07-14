@@ -24,6 +24,8 @@ module HammerCLIImport
   class ImportCommand
     class AllCommand < HammerCLI::AbstractCommand
       extend ImportTools::Repository::Extend
+      extend ImportTools::ImportLogging::Extend
+      include ImportTools::ImportLogging::Include
 
       command_name 'all'
       desc 'Load ALL data from a specified directory that is in spacewalk-export format.'
@@ -37,6 +39,7 @@ module HammerCLIImport
       option ['--dry-run'], :flag, 'Show what we would have done, if we\'d been allowed', :default => false
 
       add_repo_options
+      add_logging_options
 
       # An ordered-list of the entities we know how to import
       class << self; attr_accessor :entity_order end
@@ -133,11 +136,11 @@ module HammerCLIImport
           args << '--into-org-id' << option_into_org_id unless option_into_org_id.nil?
           args << '--upload-manifests-from' << option_manifest_directory unless option_manifest_directory.nil?
         when 'repository'
-          args << '--synchronize' << option_synchronize?
-          args << '--wait' << option_wait?
+          args << '--synchronize' if option_synchronize?
+          args << '--wait' if option_wait?
         when 'repository-enable'
-          args << '--synchronize' << option_synchronize?
-          args << '--wait' << option_wait?
+          args << '--synchronize' if option_synchronize?
+          args << '--wait' if option_wait?
         when 'user'
           pwd_filename = "passwords_#{Time.now.utc.iso8601}.csv"
           args << '--new-passwords' << pwd_filename
@@ -155,8 +158,8 @@ module HammerCLIImport
             import_file = "#{option_directory}/#{a_map['export-file']}.csv"
             # TODO: catch thrown error and skip with message
             args = build_args(key, import_file)
-            puts format('Import %-20s using %s', key, args.join(' '))
             if File.exist? import_file
+              progress format('Import %-20s with arguments %s', key, args.join(' '))
 
               #############################################################
               # MAGIC! We create a class from the class-name-string here! #
@@ -166,13 +169,14 @@ module HammerCLIImport
                 import_class.new(args).run(args)
               end
             else
-              puts "...SKIPPING, no file #{import_file} available."
+              progress "...SKIPPING, no file #{import_file} available."
             end
           end
         end
       end
 
       def execute
+        setup_logging
         if option_list_entities?
           do_list
         else

@@ -57,11 +57,11 @@ module HammerCLIImport
         @manifests << label
         filename = option_upload_manifests_from + '/' + label + '.zip'
         unless File.exist? filename
-          puts "No manifest #{filename} available."
+          error "No manifest #{filename} available."
           return
         end
 
-        puts "Uploading manifest #{filename} to org-id #{id}"
+        info "Uploading manifest #{filename} to org-id #{id}"
         manifest_file = File.new(filename, 'rb')
         request_headers = {:content_type => 'multipart/form-data', :multipart => true}
 
@@ -71,7 +71,7 @@ module HammerCLIImport
       def import_single_row(data)
         if option_into_org_id
           unless lookup_entity_in_cache(:organizations, {'id' => option_into_org_id})
-            puts "Organization [#{option_into_org_id}] not found. Skipping."
+            warn "Organization [#{option_into_org_id}] not found. Skipping."
             return
           end
           map_entity(:organizations, data['organization_id'].to_i, option_into_org_id)
@@ -85,17 +85,17 @@ module HammerCLIImport
       def delete_single_row(data)
         org_id = data['organization_id'].to_i
         unless @pm[:organizations][org_id]
-          puts "#{to_singular(:organizations).capitalize} with id #{org_id} wasn't imported. Skipping deletion."
+          warn "#{to_singular(:organizations).capitalize} with id #{org_id} wasn't imported. Skipping deletion."
           return
         end
         target_org_id = get_translated_id(:organizations, org_id)
         if last_in_cache?(:organizations, target_org_id)
-          puts "Won't delete last organization [#{target_org_id}]. Unmapping only."
+          warn "Won't delete last organization [#{target_org_id}]. Unmapping only."
           unmap_entity(:organizations, target_org_id)
           return
         end
         if target_org_id == 1
-          puts "Won't delete organization with id [#{target_org_id}]. Unmapping only."
+          warn "Won't delete organization with id [#{target_org_id}]. Unmapping only."
           unmap_entity(:organizations, target_org_id)
           return
         end

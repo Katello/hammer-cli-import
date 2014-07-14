@@ -153,7 +153,7 @@ module PersistentMap
 
         next if extra.empty?
 
-        puts "Removing #{map_sym} from persistent map: #{extra.to_a.join(' ')}"
+        debug "Removing #{map_sym} from persistent map: #{extra.to_a.join(' ')}"
         pm_hash.each do |key, value|
           @pm[map_sym].delete key if extra.include? value
         end

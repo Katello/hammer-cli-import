@@ -19,6 +19,9 @@
 
 # Modules to help with imports. To be used as Extend/Import on classes that inherit
 # from module HammerCLIImport::BaseCommand.
+
+require 'logger'
+
 module ImportTools
   module Repository
     module Extend
@@ -50,7 +53,7 @@ module ImportTools
       def sync_repo(repo)
         return unless option_synchronize?
         task = api_call(:repositories, :sync, {:id => repo['id']})
-        puts 'Sync started!'
+        info 'Sync started!'
         return unless option_wait?
         wait_for_task task['id']
       end
@@ -58,11 +61,11 @@ module ImportTools
       # TODO: This shall replace sync_repo
       def sync_repo2(repo)
         task = api_call(:repositories, :sync, {:id => repo['id']})
-        puts 'Sync started!'
+        info 'Sync started!'
         task['id']
       rescue
         uuid = workaround_1116063 repo['id']
-        puts 'Sync already running!'
+        info 'Sync already running!'
         uuid
       end
 
@@ -158,5 +161,74 @@ module ImportTools
       end
     end
   end
+
+  module ImportLogging
+    module Extend
+      def add_logging_options
+        # Logging options
+        # quiet = go to logfile only
+        # verbose = all output goes to STDOUT as well as log
+        # debug = enable debug-output
+        # default = no debug, only PROGRESS-and-above to STDOUT
+        option ['--quiet'], :flag, 'Be silent - no output to STDOUT', :default => false
+        option ['--debug'], :flag, 'Turn on debugging-information', :default => false
+        option ['--verbose'],
+               :flag,
+               'Be noisy - everything goes to STDOUT and to a logfile',
+               :default => false
+        option ['--logfile'],
+               'LOGFILE',
+               'Where output is logged to',
+               :default => File.expand_path('~/import.log')
+      end
+    end
+
+    module Include
+
+      def setup_logging
+        @curr_lvl = Logger::INFO
+        @curr_lvl = Logger::DEBUG if option_debug?
+
+        @logger = Logger.new(File.new(option_logfile, 'w+'))
+        @logger.level = @curr_lvl
+      end
+
+      def debug(s)
+        log(Logger::DEBUG, s)
+      end
+
+      def info(s)
+        log(Logger::INFO, s)
+      end
+
+      def progress(s)
+        log(Logger::INFO, s, true)
+      end
+
+      def warn(s)
+        log(Logger::WARN, s)
+      end
+
+      def error(s)
+        log(Logger::ERROR, s)
+      end
+
+      def fatal(s)
+        log(Logger::FATAL, s)
+      end
+
+      def log(lvl, s, always = false)
+        @logger.log(lvl, s)
+        return if option_quiet?
+
+        if option_verbose? || always
+          puts s
+        else
+          puts s if lvl > @curr_lvl
+        end
+      end
+    end
+  end
+
 end
 # vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby

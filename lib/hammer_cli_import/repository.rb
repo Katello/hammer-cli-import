@@ -55,7 +55,7 @@ module HammerCLIImport
         begin
           product_name = URI.parse(data['source_url']).host.split('.')[-2, 2].join('.').upcase
         rescue
-          puts 'Skipping ' + data['repo_label'] + ' ' + to_singular(:repositories) + ' import, invalid source_url.'
+          error 'Skipping ' + data['repo_label'] + ' ' + to_singular(:repositories) + ' import, invalid source_url.'
           return
         end
         product_hash = mk_product_hash(data, product_name)
@@ -71,7 +71,7 @@ module HammerCLIImport
       def delete_single_row(data)
         # check just becasue we're calling get_translated_id
         unless @pm[:repositories][data['id'].to_i]
-          puts to_singular(:repositories).capitalize + ' with id ' + data['id'] + " wasn't imported. Skipping deletion."
+          info to_singular(:repositories).capitalize + ' with id ' + data['id'] + " wasn't imported. Skipping deletion."
           return
         end
         # find out product id

@@ -152,13 +152,13 @@ module HammerCLIImport
             parent_cv = get_cache(:content_views)[get_translated_id :content_views, parent_id]
             repo_ids += parent_cv['repositories'].collect { |x| x['id'] }
           rescue HammerCLIImport::MissingObjectError
-            puts "No such content_view: #{parent_id}"
+            error "No such content_view: #{parent_id}"
           end
         end
 
         repo_ids.collect { |id| lookup_entity :repositories, id } .each do |repo|
           unless repo_synced? repo
-            puts "Repository #{repo['label']} is not (fully) synchronized. Retry once synchronization has completed."
+            warn "Repository #{repo['label']} is not (fully) synchronized. Retry once synchronization has completed."
             return
           end
         end

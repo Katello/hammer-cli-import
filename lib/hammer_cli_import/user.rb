@@ -51,7 +51,7 @@ module HammerCLIImport
         if File.exist? option_role_mapping
           @role_map = YAML.load_file(option_role_mapping)
         else
-          puts "Role-mapping file #{option_role_mapping} not found, no roles will be assigned"
+          warn "Role-mapping file #{option_role_mapping} not found, no roles will be assigned"
         end
         super()
       end
@@ -127,7 +127,7 @@ module HammerCLIImport
         login = user[:login]
 
         unless @pm[:users][user_id].nil?
-          puts "User #{login} already imported."
+          info "User #{login} already imported."
           return
         end
 
@@ -135,7 +135,7 @@ module HammerCLIImport
           existing_user = lookup_entity_in_cache :users, 'login' => user[:login]
 
           unless existing_user.nil?
-            puts "User with login #{login} already exists. Associating..."
+            info "User with login #{login} already exists. Associating..."
             @pm[:users][user_id] = existing_user['id']
             new_user = false
           end

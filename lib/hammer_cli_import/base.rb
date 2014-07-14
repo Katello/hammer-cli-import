@@ -33,13 +33,16 @@ module HammerCLIImport
 
   class BaseCommand < HammerCLI::Apipie::Command
     extend PersistentMap::Extend
-    include PersistentMap::Include
+    extend ImportTools::ImportLogging::Extend
 
+    include PersistentMap::Include
+    include ImportTools::ImportLogging::Include
     include ImportTools::Task::Include
     include AsyncTasksReactor::Include
 
     def initialize(*list)
       super(*list)
+
       # wrap API parameters into extra hash
       @wrap_out = {
         :users => :user,
@@ -70,19 +73,24 @@ module HammerCLIImport
       atr_init
     end
 
+
     option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true do |filename|
       raise ArgumentError, "File #{filename} does not exist" unless File.exist? filename
       filename
     end
+
     option ['--delete'], :flag, 'Delete entities from CSV file', :default => false
+
     # TODO: Implement logic for verify
     # option ['--verify'], :flag, 'Verify entities from CSV file'
+
     option ['--recover'], 'RECOVER', 'Recover strategy, can be: rename (default), map, none', :default => :rename \
     do |strategy|
       raise ArgumentError, "Unknown '#{strategy}' strategy argument." \
         unless [:rename, :map, :none].include? strategy.to_sym
       strategy.to_sym
     end
+    add_logging_options
 
     class << self
       # Which columns have to be be present in CSV.
@@ -110,10 +118,10 @@ module HammerCLIImport
 
       # Call API. Ideally accessed via +api_call+ instance method.
       # This is supposed to be the only way to access @api.
-      def api_call(resource, action, params = {}, headers = {}, debug = false)
+      def api_call(resource, action, params = {}, headers = {}, dbg = false)
         @api.resource(resource).call(action, params, headers)
       rescue
-        puts "Error on api.resource(#{resource.inspect}).call(#{action.inspect}, #{params.inspect}):" if debug
+        error("Error on api.resource(#{resource.inspect}).call(#{action.inspect}, #{params.inspect}):") if dbg
         raise
       end
     end
@@ -135,13 +143,13 @@ module HammerCLIImport
     # This method is called to process single CSV line when
     # importing.
     def import_single_row(_row)
-      puts 'Import not implemented.'
+      error 'Import not implemented.'
     end
 
     # This method is called to process single CSV line when
     # deleting
     def delete_single_row(_row)
-      puts 'Delete not implemented.'
+      error 'Delete not implemented.'
     end
 
     def get_cache(entity_type)
@@ -158,7 +166,7 @@ module HammerCLIImport
       if (!get_cache(entity_type)[entity_id] || online_lookup)
         get_cache(entity_type)[entity_id] = mapped_api_call(entity_type, :show, {'id' => entity_id})
       else
-        # puts "#{to_singular(entity_type).capitalize} #{entity_id} taken from cache."
+        debug "#{to_singular(entity_type).capitalize} #{entity_id} taken from cache."
       end
       return get_cache(entity_type)[entity_id]
     end
@@ -222,7 +230,7 @@ module HammerCLIImport
           return key if value == import_id
         end
       else
-        # puts 'Unknown imported ' + to_singular(entity_type) + ' [' + import_id.to_s + '].'
+         debug "Unknown imported #{to_singular(entity_type)} [#{import_id.to_s}]."
       end
       return nil
     end
@@ -264,17 +272,17 @@ module HammerCLIImport
 
     def map_entity(entity_type, original_id, id)
       if @pm[entity_type][original_id]
-        puts "#{to_singular(entity_type).capitalize} [#{original_id}->#{@pm[entity_type][original_id]}] already mapped. " + \
+        info "#{to_singular(entity_type).capitalize} [#{original_id}->#{@pm[entity_type][original_id]}] already mapped. " + \
         'Skipping.'
         return
       end
-      puts "Mapping #{to_singular(entity_type)} [#{original_id}->#{id}]."
+      info "Mapping #{to_singular(entity_type)} [#{original_id}->#{id}]."
       @pm[entity_type][original_id] = id
     end
 
     def unmap_entity(entity_type, target_id)
       deleted = @pm[entity_type].delete_value(target_id)
-      puts " Unmapped #{to_singular(entity_type)} with id #{target_id}: #{deleted}x" if deleted > 1
+      info " Unmapped #{to_singular(entity_type)} with id #{target_id}: #{deleted}x" if deleted > 1
     end
 
     # Create entity, with recovery strategy.
@@ -287,7 +295,7 @@ module HammerCLIImport
       begin
         return _create_entity(entity_type, entity_hash, original_id)
       rescue RestClient::UnprocessableEntity => ue
-        puts " Creation of #{to_singular(entity_type)} failed."
+        error " Creation of #{to_singular(entity_type)} failed."
         errs = JSON.parse(ue.response)['errors']
         uniq = errs.first[0] if errs.first[1].is_a?(Array) && errs.first[1][0] =~ /must be unique/
 
@@ -299,18 +307,19 @@ module HammerCLIImport
       case recover || option_recover.to_sym
       when :rename
         entity_hash[uniq] = original_id.to_s + '-' + entity_hash[uniq]
-        puts " Recovering by renaming to: \"#{uniq}\"=\"#{entity_hash[uniq]}\""
+        info " Recovering by renaming to: \"#{uniq}\"=\"#{entity_hash[uniq]}\""
         return create_entity(entity_type, entity_hash, original_id, recover, retries - 1)
       when :map
         entity = lookup_entity_in_cache(entity_type, {uniq.to_s => entity_hash[uniq]})
         if entity
-          puts " Recovering by remapping to: #{entity['id']}"
+          info " Recovering by remapping to: #{entity['id']}"
           map_entity(entity_type, original_id, entity['id'])
         else
+          warn "Creation of #{entity_type} not recovered by \'#{recover}\' strategy."
           raise ImportRecoveryError, "Creation of #{entity_type} not recovered by \'#{recover}\' strategy."
         end
       else
-        p 'No recover strategy.'
+        fatal 'No recover strategy.'
         raise ue
       end
       nil
@@ -320,24 +329,24 @@ module HammerCLIImport
     def _create_entity(entity_type, entity_hash, original_id)
       type = to_singular(entity_type)
       if @pm[entity_type][original_id]
-        puts type.capitalize + ' [' + original_id.to_s + '->' + @pm[entity_type][original_id].to_s + '] already imported.'
+        info type.capitalize + ' [' + original_id.to_s + '->' + @pm[entity_type][original_id].to_s + '] already imported.'
         return get_cache(entity_type)[@pm[entity_type][original_id]]
       else
-        puts 'Creating new ' + type + ': ' + entity_hash.values_at(:name, :label, :login).compact[0]
+        info 'Creating new ' + type + ': ' + entity_hash.values_at(:name, :label, :login).compact[0]
         entity_hash = {@wrap_out[entity_type] => entity_hash} if @wrap_out[entity_type]
-        # p 'entity_hash:', entity_hash
+        debug "entity_hash: #{entity_hash.inspect}"
         entity = mapped_api_call(entity_type, :create, entity_hash)
-        # p 'created entity:', entity
+        debug "created entity: #{entity.inspect}"
         entity = entity[@wrap_in[entity_type]] if @wrap_in[entity_type]
         @pm[entity_type][original_id] = entity['id']
         get_cache(entity_type)[entity['id']] = entity
-        # p "@pm[entity_type]:", @pm[entity_type]
+        debug "@pm[entity_type]: #{@pm[entity_type].inspect}"
         return entity
       end
     end
 
     def update_entity(entity_type, id, entity_hash)
-      puts "Updating #{to_singular(entity_type)} with id: #{id}"
+      info "Updating #{to_singular(entity_type)} with id: #{id}"
       mapped_api_call(entity_type, :update, {:id => id}.merge!(entity_hash))
     end
 
@@ -345,10 +354,10 @@ module HammerCLIImport
     def delete_entity(entity_type, original_id)
       type = to_singular(entity_type)
       unless @pm[entity_type][original_id]
-        puts 'Unknown ' + type + ' to delete [' + original_id.to_s + '].'
+        error 'Unknown ' + type + ' to delete [' + original_id.to_s + '].'
         return nil
       end
-      puts 'Deleting imported ' + type + ' [' + original_id.to_s + '->' + @pm[entity_type][original_id].to_s + '].'
+      info 'Deleting imported ' + type + ' [' + original_id.to_s + '->' + @pm[entity_type][original_id].to_s + '].'
       mapped_api_call(entity_type, :destroy, {:id => @pm[entity_type][original_id]})
       # delete from cache
       get_cache(entity_type).delete(@pm[entity_type][original_id])
@@ -361,10 +370,10 @@ module HammerCLIImport
       type = to_singular(entity_type)
       original_id = get_original_id(entity_type, import_id)
       if original_id.nil?
-        puts 'Unknown imported ' + type + ' to delete [' + import_id.to_s + '].'
+        error 'Unknown imported ' + type + ' to delete [' + import_id.to_s + '].'
         return nil
       end
-      puts "Deleting imported #{type} [#{original_id}->#{@pm[entity_type][original_id]}]."
+      info "Deleting imported #{type} [#{original_id}->#{@pm[entity_type][original_id]}]."
       mapped_api_call(entity_type, :destroy, {:id => import_id})
       # delete from cache
       get_cache(entity_type).delete(import_id)
@@ -380,15 +389,20 @@ module HammerCLIImport
     # * +max_wait+ - Maximum time to wait between two checks.
     def wait_for_task(uuid, start_wait = 0, delta_wait = 1, max_wait = 10)
       wait_time = start_wait
-      print "Waiting for the task [#{uuid}] "
+      if option_quiet?
+        info "Waiting for the task [#{uuid}] "
+      else
+        print "Waiting for the task [#{uuid}] "
+      end
+
       loop do
         sleep wait_time
         wait_time = [wait_time + delta_wait, max_wait].min
-        print '.'
-        STDOUT.flush
+        print '.' unless option_quiet?
+        STDOUT.flush unless option_quiet?
         task = api_call(:foreman_tasks, :show, {:id => uuid})
         next unless task['state'] == 'stopped'
-        print "\n"
+        print "\n" unless option_quiet?
         return task['return'] == 'success'
       end
     end
@@ -398,9 +412,9 @@ module HammerCLIImport
         begin
           action.call(data)
         rescue => e
-          puts "Caught #{e.class}:#{e.message} while processing following line:"
-          p data
-          puts e.backtrace.join "\n"
+          error "Caught #{e.class}:#{e.message} while processing following line:"
+          error data.inspect
+          error e.backtrace.join "\n"
         end
       end
     end
@@ -418,6 +432,8 @@ module HammerCLIImport
     end
 
     def execute
+      setup_logging
+
       # create a storage directory if not exists yet
       Dir.mkdir data_dir unless File.directory? data_dir
 
@@ -429,19 +445,21 @@ module HammerCLIImport
       # TODO: This big ugly thing might need some cleanup
       begin
         if option_delete?
+          info "Deleting from #{option_csv_file}"
           delete option_csv_file
         else
+          info "Importing from #{option_csv_file}"
           import option_csv_file
           begin
             post_import option_csv_file
           rescue => e
-            puts "Caught #{e.class}:#{e.message} while post_import"
-            puts e.backtrace.join "\n"
+            error "Caught #{e.class}:#{e.message} while post_import"
+            error e.backtrace.join "\n"
           end
         end
         atr_exit
       rescue StandardError, SystemExit, Interrupt => e
-        puts "Exiting: #{e}"
+        error "Exiting: #{e}"
       end
       save_persistent_maps
       HammerCLI::EX_OK

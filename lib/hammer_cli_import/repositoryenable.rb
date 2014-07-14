@@ -62,7 +62,7 @@ module HammerCLIImport
 
       def handle_row(row, enable)
         if row['org_id'] # Not a Red Hat channel
-          puts " Skipping #{row['channel_label']} in organization #{row['org_id']}"
+          info " Skipping #{row['channel_label']} in organization #{row['org_id']}"
           return
         end
 
@@ -73,7 +73,7 @@ module HammerCLIImport
         repo_set_info = @channel_to_repo[channel_label]
 
         if repo_set_info.nil? # not mapped channel (like proxy)
-          puts " Skipping nontransferable #{row['channel_label']}"
+          info " Skipping nontransferable #{row['channel_label']}"
           return
         end
 
@@ -142,10 +142,10 @@ module HammerCLIImport
             'organization' => {'label' => org['label']}
           })
         if repo
-          puts "Repository #{[repo['url'], repo['label']].compact[0]} already enabled as #{repo['id']}"
+          info "Repository #{[repo['url'], repo['label']].compact[0]} already enabled as #{repo['id']}"
           return repo
         end
-        puts "Enabling #{info['url']} for channel #{channel_label} in org #{org['id']}"
+        info "Enabling #{info['url']} for channel #{channel_label} in org #{org['id']}"
         begin
           unless option_dry_run?
             rc = api_call(
@@ -164,9 +164,9 @@ module HammerCLIImport
           end
         rescue RestClient::Exception  => e
           if e.http_code == 409
-            puts '...already enabled.'
+            info '...already enabled.'
           else
-            puts "...unknown error #{e.http_code}, #{e.message} - skipping."
+            error "...unknown error #{e.http_code}, #{e.message} - skipping."
           end
         end
       end
@@ -179,10 +179,10 @@ module HammerCLIImport
             'organization' => {'label' => org['label']}
           })
         unless repo
-          puts "Unknown repository (#{channel_label} equivalent) to disable."
+          error "Unknown repository (#{channel_label} equivalent) to disable."
           return
         end
-        puts "Disabling #{info['url']} for channel #{channel_label} in org #{org['id']}"
+        info "Disabling #{info['url']} for channel #{channel_label} in org #{org['id']}"
         begin
           unless option_dry_run?
             rc = api_call(
@@ -199,9 +199,9 @@ module HammerCLIImport
           end
         rescue RestClient::Exception  => e
           if e.http_code == 404
-            puts '...no such repository to disable.'
+            error '...no such repository to disable.'
           else
-            puts "...unknown error #{e.http_code}, #{e.message} - skipping."
+            error "...unknown error #{e.http_code}, #{e.message} - skipping."
           end
         end
       end

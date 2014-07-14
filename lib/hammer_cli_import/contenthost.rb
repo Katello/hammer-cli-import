@@ -53,15 +53,15 @@ module HammerCLIImport
         # associate virtual guests in post_import to make sure, all the guests
         # are already imported (and known to sat6)
         @vguests[data['server_id'].to_i] = split_multival(data['virtual_guest']) if data['virtual_host'] == data['server_id']
-        # p 'vguests:', @vguests
+        debug "vguests: #{@vguests.inspect}"
       end
 
       def post_import(_file)
         @vguests.each do |system_id, guest_ids|
           uuid = get_translated_id(:systems, system_id)
           vguest_uuids = guest_ids.collect { |id| get_translated_id(:systems, id) } if guest_ids
-          # p 'uuid:', uuid
-          # p 'vguest_ids:', vguest_ids
+          debug "uuid: #{uuid.inspect}"
+          debug "vguest_ids: #{vguest_ids.inspect}"
           update_entity(
             :systems,
             uuid,
@@ -73,7 +73,7 @@ module HammerCLIImport
       def delete_single_row(data)
         profile_id = data['server_id'].to_i
         unless @pm[:systems][profile_id]
-          puts "#{to_singular(:systems).capitalize} with id #{profile_id} wasn't imported. Skipping deletion."
+          info "#{to_singular(:systems).capitalize} with id #{profile_id} wasn't imported. Skipping deletion."
           return
         end
         delete_entity(:systems, profile_id)

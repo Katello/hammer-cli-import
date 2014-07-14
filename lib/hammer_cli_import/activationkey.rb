@@ -35,7 +35,7 @@ module HammerCLIImport
       def mk_ak_hash(data)
         usage_limit = 'unlimited'
         usage_limit = data['usage_limit'].to_i if data['usage_limit']
-        puts "  Activation key usage_limit: #{usage_limit}"
+        debug "  Activation key usage_limit: #{usage_limit}"
         {
           :name => data['token'],
           :organization_id => get_translated_id(:organizations, data['org_id'].to_i),
@@ -47,7 +47,7 @@ module HammerCLIImport
 
       def associate_host_collections(ak_id, server_group_ids)
         translated_ids = server_group_ids.collect { |sg_id| get_translated_id(:host_collections, sg_id) }
-        puts "  Associating activation key [#{ak_id}] with host collections [#{translated_ids.join(', ')}]"
+        info "  Associating activation key [#{ak_id}] with host collections [#{translated_ids.join(', ')}]"
         api_call(
           :activation_keys,
           :add_host_collections,
@@ -97,7 +97,7 @@ module HammerCLIImport
             end
             cv = lookup_entity_in_cache(:ak_content_views, 'label' => cv_label)
             if cv
-              puts "  Content view #{cv_label} already created, reusing."
+              info "  Content view #{cv_label} already created, reusing."
             else
               # create composite content view
               # for activation key purposes
@@ -113,12 +113,12 @@ module HammerCLIImport
                 },
                 cv_label)
               # publish the content view
-              puts "  Publishing content view: #{cv['id']}"
+              info "  Publishing content view: #{cv['id']}"
               mapped_api_call(:ak_content_views, :publish, { :id => cv['id'] })
             end
             ak_cv_hash[:content_view_id] = cv['id']
           end
-          puts "  Associating activation key [#{ak_id}] with content view [#{ak_cv_hash[:content_view_id]}]"
+          info "  Associating activation key [#{ak_id}] with content view [#{ak_cv_hash[:content_view_id]}]"
           # associate the content view with the activation key
           update_entity(:activation_keys, ak_id, ak_cv_hash)
         end
@@ -126,7 +126,7 @@ module HammerCLIImport
 
       def delete_single_row(data)
         unless @pm[:activation_keys][data['token']]
-          puts to_singular(:activation_keys).capitalize + ' with id ' + data['token'] +
+          info to_singular(:activation_keys).capitalize + ' with id ' + data['token'] +
             " wasn't imported. Skipping deletion."
           return
         end
