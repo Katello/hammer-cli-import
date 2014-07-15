@@ -184,7 +184,6 @@ module ImportTools
     end
 
     module Include
-
       def setup_logging
         @curr_lvl = Logger::INFO
         @curr_lvl = Logger::DEBUG if option_debug?
@@ -229,6 +228,5 @@ module ImportTools
       end
     end
   end
-
 end
 # vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby

@@ -135,10 +135,7 @@ module HammerCLIImport
         when 'organization'
           args << '--into-org-id' << option_into_org_id unless option_into_org_id.nil?
           args << '--upload-manifests-from' << option_manifest_directory unless option_manifest_directory.nil?
-        when 'repository'
-          args << '--synchronize' if option_synchronize?
-          args << '--wait' if option_wait?
-        when 'repository-enable'
+        when 'repository', 'repository-enable'
           args << '--synchronize' if option_synchronize?
           args << '--wait' if option_wait?
         when 'user'

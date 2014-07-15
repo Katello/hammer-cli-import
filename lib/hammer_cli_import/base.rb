@@ -73,7 +73,6 @@ module HammerCLIImport
       atr_init
     end
 
-
     option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true do |filename|
       raise ArgumentError, "File #{filename} does not exist" unless File.exist? filename
       filename
@@ -230,7 +229,7 @@ module HammerCLIImport
           return key if value == import_id
         end
       else
-         debug "Unknown imported #{to_singular(entity_type)} [#{import_id.to_s}]."
+        debug "Unknown imported #{to_singular(entity_type)} [#{import_id}]."
       end
       return nil
     end
