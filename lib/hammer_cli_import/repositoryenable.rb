@@ -86,7 +86,7 @@ module HammerCLIImport
             next if repo_set_info['set-url'] != rs_url
 
             product_org = lookup_entity_in_cache(:organizations, {'label' => product['organization']['label']})
-            composite_rhcv_id = [product_org['id'], channel_id]
+            composite_rhcv_id = [get_original_id(:organizations, product_org['id']), channel_id]
             if enable
               # Turn on the specific repository
               rh_repo = enable_repos(product_org, product_id, rs_id, repo_set_info, row)
