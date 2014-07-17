@@ -30,7 +30,8 @@ module HammerCLIImport
 
       csv_columns 'token', 'org_id', 'note', 'usage_limit', 'base_channel_id', 'child_channel_id', 'server_group_id'
 
-      persistent_maps :organizations, :host_collections, :ak_content_views, :content_views, :activation_keys
+      persistent_maps :organizations, :host_collections, :content_views, :redhat_content_views,
+                      :ak_content_views, :activation_keys
 
       def mk_ak_hash(data)
         usage_limit = 'unlimited'
@@ -67,8 +68,11 @@ module HammerCLIImport
         @ak_content_views[ak['id'].to_i] ||= Set.new
         if data['base_channel_id']
           split_multival(data['base_channel_id']).each do |base_channel_id|
-            @ak_content_views[ak['id'].to_i] <<
-            get_translated_id(:content_views, base_channel_id)
+            @ak_content_views[ak['id'].to_i] << begin
+              get_translated_id(:content_views, base_channel_id)
+            rescue HammerCLIImport::MissingObjectError
+              get_translated_id(:redhat_content_views, [data['org_id'].to_i, base_channel_id])
+            end
           end
         else
           # if base channel id is empty,
@@ -79,7 +83,7 @@ module HammerCLIImport
         end
       end
 
-      def post_import(_data)
+      def post_import(_csv_file)
         @ak_content_views.each do |ak_id, cvs|
           ak = lookup_entity(:activation_keys, ak_id)
           ak_cv_hash = {}
