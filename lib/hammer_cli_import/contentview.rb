@@ -31,7 +31,8 @@ module HammerCLIImport
 
       csv_columns 'org_id', 'channel_id', 'channel_label', 'channel_name'
 
-      persistent_maps :organizations, :repositories, :local_repositories, :content_views, :products
+      persistent_maps :organizations, :repositories, :local_repositories, :content_views,
+                      :products, :redhat_repositories, :redhat_content_views
 
       option ['--dir'], 'DIR', 'Export directory'
       option ['--filter'], :flag, 'Filter content-views for package names present in Sat5 channel', :default => false
@@ -142,17 +143,23 @@ module HammerCLIImport
         local_repo = add_local_repo data
         sync_repo local_repo unless repo_synced? local_repo
 
-        repo_ids, clone_parents, packages = load_custom_channel_info data['org_id'].to_i, data['channel_id'].to_i
+        org_id = data['org_id'].to_i
+
+        repo_ids, clone_parents, packages = load_custom_channel_info org_id, data['channel_id'].to_i
 
         repo_ids.map! { |id| get_translated_id :repositories, id.to_i }
         repo_ids.push local_repo['id'].to_i
 
         clone_parents.collect { |x| Integer(x) } .each do |parent_id|
           begin
-            parent_cv = get_cache(:content_views)[get_translated_id :content_views, parent_id]
+            begin
+              parent_cv = get_cache(:content_views)[get_translated_id :content_views, parent_id]
+            rescue
+              parent_cv = get_cache(:redhat_content_views)[get_translated_id :redhat_content_views, [org_id, parent_id]]
+            end
             repo_ids += parent_cv['repositories'].collect { |x| x['id'] }
           rescue HammerCLIImport::MissingObjectError
-            error "No such content_view: #{parent_id}"
+            error "No such {redhat_,}content_view: #{parent_id}"
           end
         end
 
