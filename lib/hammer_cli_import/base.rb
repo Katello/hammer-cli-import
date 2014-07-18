@@ -49,7 +49,8 @@ module HammerCLIImport
         :template_snippets => :config_template
       }
       # APIs return objects encapsulated in extra hash
-      @wrap_in = {:organizations => 'organization'}
+      #@wrap_in = {:organizations => 'organization'}
+      @wrap_in = {}
       # entities that needs organization to be listed
       @prerequisite = {
         :activation_keys => :organizations,
