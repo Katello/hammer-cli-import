@@ -72,6 +72,8 @@ module HammerCLIImport
       end
       # Initialize AsyncTaskReactor
       atr_init
+      # Get set up to do logging as soon as reasonably possible
+      setup_logging
     end
 
     option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true do |filename|
@@ -432,8 +434,6 @@ module HammerCLIImport
     end
 
     def execute
-      setup_logging
-
       # create a storage directory if not exists yet
       Dir.mkdir data_dir unless File.directory? data_dir
 
