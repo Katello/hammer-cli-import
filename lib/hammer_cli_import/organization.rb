@@ -34,7 +34,7 @@ module HammerCLIImport
       #  you have already set up your org
       option ['--upload-manifests-from'],
              'MANIFEST_DIR',
-             'Upload manifests found at MANIFEST_DIR/<org_name>.zip to matching organizations'
+             'Upload manifests found at MANIFEST_DIR. Assumes manifest for "ORG NAME" will be of the form ORG_NAME.zip'
 
       csv_columns 'organization_id', 'organization'
 
