@@ -188,7 +188,7 @@ module ImportTools
         @curr_lvl = Logger::INFO
         @curr_lvl = Logger::DEBUG if option_debug?
 
-        @logger = Logger.new(File.new(option_logfile, 'w+'))
+        @logger = Logger.new(File.new(option_logfile, 'a'))
         @logger.level = @curr_lvl
       end
 
