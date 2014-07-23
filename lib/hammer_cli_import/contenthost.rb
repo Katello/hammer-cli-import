@@ -23,7 +23,8 @@ module HammerCLIImport
   class ImportCommand
     class ContentHostImportCommand < BaseCommand
       command_name 'content-host'
-      desc 'Import Content Hosts.'
+      reportname = 'system-profiles'
+      desc "Import Content Hosts (from spacewalk-report #{reportname})."
 
       csv_columns 'server_id', 'profile_name', 'hostname', 'description',
                   'organization_id', 'architecture', 'release',

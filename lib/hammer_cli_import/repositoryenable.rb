@@ -29,7 +29,8 @@ module HammerCLIImport
       include ImportTools::ContentView::Include
 
       command_name 'repository-enable'
-      desc 'Enable any Red Hat repositories accessible to any Organization.'
+      reportname = 'channels'
+      desc "Enable any Red Hat repositories accessible to any Organization (from spacewalk-report #{reportname})."
 
       option ['--repository-map'],
              'FILE_NAME',

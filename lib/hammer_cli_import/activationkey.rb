@@ -26,7 +26,8 @@ module HammerCLIImport
       include ImportTools::ContentView::Include
 
       command_name 'activation-key'
-      desc 'Import Activation Keys.'
+      reportname = 'activation-keys'
+      desc "Import Activation Keys (from spacewalk-report #{reportname})."
 
       csv_columns 'token', 'org_id', 'note', 'usage_limit', 'base_channel_id', 'child_channel_id', 'server_group_id'
 

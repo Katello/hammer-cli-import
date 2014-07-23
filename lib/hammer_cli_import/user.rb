@@ -24,7 +24,8 @@ module HammerCLIImport
   class ImportCommand
     class UserImportCommand < BaseCommand
       command_name 'user'
-      desc 'Import Users.'
+      reportname = 'users'
+      desc "Import Users (from spacewalk-report #{reportname})."
 
       option ['--new-passwords'], 'FILE_NAME', 'Output for new passwords' do |filename|
         raise ArgumentError, "File #{filename} already exists" if File.exist? filename

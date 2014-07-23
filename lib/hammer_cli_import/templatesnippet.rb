@@ -24,7 +24,8 @@ module HammerCLIImport
   class ImportCommand
     class TemplateSnippetImportCommand < BaseCommand
       command_name 'template-snippet'
-      desc 'Import template snippets.'
+      reportname = 'kickstart-scripts'
+      desc "Import template snippets (from spacewalk-report #{reportname})."
 
       csv_columns \
         'id', 'org_id', 'script_name', 'kickstart_label', 'position',

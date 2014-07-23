@@ -76,7 +76,11 @@ module HammerCLIImport
       setup_logging
     end
 
-    option ['--csv-file'], 'FILE_NAME', 'CSV file', :required => true do |filename|
+    # What spacewalk-report do we expect to use for a given subcommand
+    class << self; attr_accessor :reportname end
+
+    option ['--csv-file'], 'FILE_NAME', 'CSV file with data to be imported', :required => true \
+    do |filename|
       raise ArgumentError, "File #{filename} does not exist" unless File.exist? filename
       filename
     end

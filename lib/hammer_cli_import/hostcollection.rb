@@ -24,7 +24,8 @@ module HammerCLIImport
   class ImportCommand
     class SystemGroupImportCommand < BaseCommand
       command_name 'host-collection'
-      desc 'Import Host Collections.'
+      reportname = 'system-groups'
+      desc "Import Host Collections (from spacewalk-report #{reportname})."
 
       csv_columns 'group_id', 'name', 'org_id'
 

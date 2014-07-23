@@ -27,7 +27,8 @@ module HammerCLIImport
       include ImportTools::Repository::Include
 
       command_name 'repository'
-      desc 'Import repositories.'
+      reportname = 'repositories'
+      desc "Import repositories (from spacewalk-report #{reportname})."
 
       csv_columns 'id', 'org_id', 'repo_label', 'source_url', 'repo_type'
 

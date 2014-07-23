@@ -23,7 +23,8 @@ module HammerCLIImport
   class ImportCommand
     class OrganizationImportCommand < BaseCommand
       command_name 'organization'
-      desc 'Import Organizations.'
+      reportname = 'users'
+      desc "Import Organizations (from spacewalk-report #{reportname})."
 
       option ['--into-org-id'], 'ORG_ID', 'Import all organizations into one specified by id' do |x|
         Integer(x)
