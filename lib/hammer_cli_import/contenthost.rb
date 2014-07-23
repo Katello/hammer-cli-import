@@ -33,40 +33,48 @@ module HammerCLIImport
 
       persistent_maps :organizations, :content_views, :host_collections, :systems
 
+      def _translate_system_id_to_uuid(system_id)
+        return lookup_entity(:systems, get_translated_id(:systems, system_id))['uuid']
+      end
+
       def mk_profile_hash(data)
+        hcollections = split_multival(data['system_group_id']).collect do |sg_id|
+          get_translated_id(:host_collections, sg_id)
+        end
         {
           :name => data['profile_name'],
           :description => "#{data['description']}\nsat5_system_id: #{data['server_id']}",
           :facts => {'release' => data['release'], 'architecture' => data['architecture']},
           :type => 'system',
           # :guest_ids => [],
-          :organization_id => data['organization_id'].to_i,
+          :organization_id => get_translated_id(:organizations, data['organization_id'].to_i),
           # :content_view_id => nil,
-          :host_colletion_id => data['system_group_id']
+          :host_colletion_id => hcollections
         }
       end
 
       def import_single_row(data)
         @vguests ||= {}
         profile = mk_profile_hash data
-        create_entity(:systems, profile, data['server_id'].to_i)
+        c_host = create_entity(:systems, profile, data['server_id'].to_i)
         # associate virtual guests in post_import to make sure, all the guests
         # are already imported (and known to sat6)
         @vguests[data['server_id'].to_i] = split_multival(data['virtual_guest']) if data['virtual_host'] == data['server_id']
-        debug "vguests: #{@vguests.inspect}"
+        debug "vguests: #{@vguests[data['server_id'].to_i].inspect}" if @vguests[data['server_id'].to_i]
       end
 
       def post_import(_file)
         @vguests.each do |system_id, guest_ids|
-          uuid = get_translated_id(:systems, system_id)
-          vguest_uuids = guest_ids.collect { |id| get_translated_id(:systems, id) } if guest_ids
-          debug "uuid: #{uuid.inspect}"
-          debug "vguest_ids: #{vguest_ids.inspect}"
+          uuid = _translate_system_id_to_uuid(system_id)
+          vguest_uuids = guest_ids.collect do |id|
+            _translate_system_id_to_uuid(id)
+          end if guest_ids
+          debug "Setting virtual guests for #{uuid}: #{vguest_uuids.inspect}"
           update_entity(
             :systems,
             uuid,
             {:guest_ids => vguest_uuids}
-            ) if uuid && guest_ids
+            ) if uuid && vguest_uuids
         end
       end
 

@@ -53,7 +53,7 @@ module PersistentMap
                                             :content_views
       @definitions[:redhat_repositories] = [{'org_id' => Fixnum}, {'channel_id' => Fixnum}], ['sat6' => Fixnum],
                                            :repositories
-      @definitions[:systems] = ['sat5' => Fixnum], ['sat6' => String], :systems
+      @definitions[:systems] = ['sat5' => Fixnum], ['sat6' => Fixnum], :systems
       @definitions[:template_snippets] = ['id' => Fixnum], ['sat6' => Fixnum], :config_templates
 
       @definitions.freeze
