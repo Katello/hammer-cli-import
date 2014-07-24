@@ -23,6 +23,14 @@ module CSVHelper
   class CSVHelperError < RuntimeError
   end
 
+  # Returns missing columns
+  def self.csv_missing_columns(filename, headers)
+    reader = CSV.open(filename, 'r')
+    real_header = reader.shift
+    reader.close
+    headers - real_header
+  end
+
   def self.csv_each(filename, headers)
     raise CSVHelperError, 'Expecting block' unless block_given?
     reader = CSV.open(filename, 'r')

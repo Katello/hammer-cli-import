@@ -82,6 +82,8 @@ module HammerCLIImport
     option ['--csv-file'], 'FILE_NAME', 'CSV file with data to be imported', :required => true \
     do |filename|
       raise ArgumentError, "File #{filename} does not exist" unless File.exist? filename
+      missing = CSVHelper.csv_missing_columns filename, self.class.csv_columns
+      raise ArgumentError, "Bad CSV file #{filename}, missing columns: #{missing.inspect}" unless missing.empty?
       filename
     end
 
