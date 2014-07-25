@@ -348,7 +348,7 @@ module HammerCLIImport
         entity = entity[@wrap_in[entity_type]] if @wrap_in[entity_type]
         @pm[entity_type][original_id] = entity['id']
         get_cache(entity_type)[entity['id']] = entity
-        debug "@pm[entity_type]: #{@pm[entity_type].inspect}"
+        debug "@pm[#{entity_type}]: #{@pm[entity_type].inspect}"
         return entity
       end
     end
