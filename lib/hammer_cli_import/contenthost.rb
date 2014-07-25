@@ -84,7 +84,7 @@ module HammerCLIImport
           info "#{to_singular(:systems).capitalize} with id #{profile_id} wasn't imported. Skipping deletion."
           return
         end
-        delete_entity(:systems, profile_id)
+        delete_entity_by_import_id(:systems, get_translated_id(:systems, profile_id), 'uuid')
       end
     end
   end

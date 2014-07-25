@@ -374,7 +374,7 @@ module HammerCLIImport
     end
 
     # Delete entity by target (Sat6) id
-    def delete_entity_by_import_id(entity_type, import_id)
+    def delete_entity_by_import_id(entity_type, import_id, delete_key = 'id')
       type = to_singular(entity_type)
       original_id = get_original_id(entity_type, import_id)
       if original_id.nil?
@@ -382,7 +382,12 @@ module HammerCLIImport
         return nil
       end
       info "Deleting imported #{type} [#{original_id}->#{@pm[entity_type][original_id]}]."
-      mapped_api_call(entity_type, :destroy, {:id => import_id})
+      if delete_key == 'id'
+        delete_id = import_id
+      else
+        delete_id = get_cache(entity_type)[import_id][delete_key]
+      end
+      mapped_api_call(entity_type, :destroy, {:id => delete_id})
       # delete from cache
       get_cache(entity_type).delete(import_id)
       # delete from pm
