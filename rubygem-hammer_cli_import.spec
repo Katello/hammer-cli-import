@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.8.0
+Version:    0.9.0
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -75,6 +75,20 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Jul 28 2014 Grant Gainey 0.9.0-1
+- 1123837 - Allow hosts with no dot (only tld) (mkollar@redhat.com)
+- Check CSV file headers sooner (mkollar@redhat.com)
+- 1121131 - Add reportname attr to commands to describe which sw-report they
+  understand (ggainey@redhat.com)
+- 1122169 - Add someexplanantion to --upload-manifests-from
+  (ggainey@redhat.com)
+- 1121986 - setup logging at init, not at execute (ggainey@redhat.com)
+- Do not discard content of log file (prefer append) (mkollar@redhat.com)
+- Activation keys with contentviews with rh cotent (mkollar@redhat.com)
+- sat6-latest appears to no longer wrap orgs (ggainey@redhat.com)
+- Add support for clones of Red Hat Channels (mkollar@redhat.com)
+- Do not mix translated and untranslated ids (mkollar@redhat.com)
+
 * Tue Jul 15 2014 Grant Gainey 0.8.0-1
 - rubocop, where is thy sting? (ggainey@redhat.com)
 - Sprint-7 demo response: standardize logging * Added calls for
