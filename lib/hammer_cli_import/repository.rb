@@ -54,7 +54,7 @@ module HammerCLIImport
 
       def import_single_row(data)
         begin
-          product_name = URI.parse(data['source_url']).host.split('.')[-2, 2].join('.').upcase
+          product_name = URI.parse(data['source_url']).host.split('.').last(2).join('.').upcase
         rescue
           error 'Skipping ' + data['repo_label'] + ' ' + to_singular(:repositories) + ' import, invalid source_url.'
           return
