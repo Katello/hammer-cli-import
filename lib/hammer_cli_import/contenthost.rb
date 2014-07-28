@@ -18,6 +18,7 @@
 #
 
 require 'hammer_cli'
+require 'set'
 
 module HammerCLIImport
   class ImportCommand
@@ -57,6 +58,12 @@ module HammerCLIImport
         @vguests ||= {}
         profile = mk_profile_hash data
         c_host = create_entity(:systems, profile, data['server_id'].to_i)
+        # store processed system profiles to a set according to the organization
+        @map ||= Set.new
+        @map << {
+          :org_id => data['organization_id'].to_i,
+          :system_id => data['server_id'].to_i,
+          :uuid => c_host['uuid']}
         # associate virtual guests in post_import to make sure, all the guests
         # are already imported (and known to sat6)
         @vguests[data['server_id'].to_i] = split_multival(data['virtual_guest']) if data['virtual_host'] == data['server_id']
@@ -75,6 +82,14 @@ module HammerCLIImport
             uuid,
             {:guest_ids => vguest_uuids}
             ) if uuid && vguest_uuids
+        end
+        # create mapping files
+        org_ids = @map.collect { |dict| dict[:org_id] }.sort.uniq
+        org_ids.each do |org_id|
+          CSVHelper.csv_write_hashes(
+            File.join(dir_name, 'system-id_to_uuid.map'),
+            [:system_id, :uuid],
+            @map.select { |dict| dict[:org_id] == org_id })
         end
       end
 
