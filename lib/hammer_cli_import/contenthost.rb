@@ -19,6 +19,7 @@
 
 require 'hammer_cli'
 require 'set'
+require 'socket'
 
 module HammerCLIImport
   class ImportCommand
@@ -33,6 +34,8 @@ module HammerCLIImport
                   'virtual_host', 'virtual_guest'
 
       persistent_maps :organizations, :content_views, :host_collections, :systems
+
+      option ['--export-directory'], 'DIR_PATH', 'Directory to export rpmbuild structure', :required => true
 
       def _translate_system_id_to_uuid(system_id)
         return lookup_entity(:systems, get_translated_id(:systems, system_id))['uuid']
@@ -83,14 +86,42 @@ module HammerCLIImport
             {:guest_ids => vguest_uuids}
             ) if uuid && vguest_uuids
         end
+        # create rpmbuild directories
+        create_rpmbuild_structure
         # create mapping files
         org_ids = @map.collect { |dict| dict[:org_id] }.sort.uniq
         org_ids.each do |org_id|
+          version = '0.0.1'
+          rpm_name = "system-profile-migrate-#{Socket.gethostname}-org#{org_id}"
+          tar_name = "#{rpm_name}-#{version}"
+          dir_name = File.join(option_export_directory, tar_name)
+          # create SOURCES id_to_uuid.map file
+          FileUtils.rm_rf(dir_name) if File.directory?(dir_name)
+          Dir.mkdir dir_name
           CSVHelper.csv_write_hashes(
             File.join(dir_name, 'system-id_to_uuid.map'),
             [:system_id, :uuid],
             @map.select { |dict| dict[:org_id] == org_id })
+
+          sources_dir = File.join(option_export_directory, 'SOURCES')
+          # debug("tar -C #{option_export_directory} -czf #{sources_dir}/#{tar_name}.tar.gz #{tar_name}")
+          system("tar -C #{option_export_directory} -czf #{sources_dir}/#{tar_name}.tar.gz #{tar_name}")
+          FileUtils.rm_rf(dir_name)
+          # store spec file
+          File.open(
+            File.join(option_export_directory, 'SPECS', "#{tar_name}.spec"), 'w') do |file|
+            file.write(rpm_spec(rpm_name, version, DateTime.now.strftime('%a %b %e %Y')
+))
+          end
         end
+        progress ''
+        progress 'To build the system-profile-migrate rpms, run:'
+        progress ''
+        progress "\tcd #{option_export_directory}/SPECS && for spec in $(ls *.spec)"
+        progress "\t  do rpmbuild -ba --define \"_topdir #{option_export_directory}\" $spec"
+        progress "\tdone"
+        progress ''
+        progress "Then find your rpms in #{File.join(option_export_directory, 'RPMS/noarch/')} directory."
       end
 
       def delete_single_row(data)
@@ -100,6 +131,69 @@ module HammerCLIImport
           return
         end
         delete_entity_by_import_id(:systems, get_translated_id(:systems, profile_id), 'uuid')
+      end
+
+      def _create_dir(dir_name)
+        Dir.mkdir(dir_name) unless File.directory?(dir_name)
+      end
+
+      def create_rpmbuild_structure
+        _create_dir option_export_directory
+        _create_dir File.join(option_export_directory, 'SPECS')
+        _create_dir File.join(option_export_directory, 'SOURCES')
+      end
+
+      def rpm_spec(rpm_name, version, date)
+        "
+Name:       #{rpm_name}
+Version:    #{version}
+Release:    1%{?dist}
+Summary:    System profile migration tool
+
+Group:      Applications/Productivity
+License:    GPLv3
+URL:        https://github.com/Katello/hammer-cli-import
+Source0:    #{rpm_name}-#{version}.tar.gz
+BuildRoot:  %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+BuildArch: noarch
+
+Requires:   subscription-manager-migration
+
+%define  debug_package %{nil}
+
+%description
+This tool registeres system profiles managed by Red Hat Satellite 5 to Red Hat Satellite 6 as part of the migration process.
+
+%prep
+%setup -q
+
+
+%build
+
+
+%install
+#mkdir -p $RPM_BUILD_ROOT/%{_datarootdir}/migrate
+install -m 755 -d $RPM_BUILD_ROOT/%{_datarootdir}/migrate
+install -m 644 system-id_to_uuid.map $RPM_BUILD_ROOT/%{_datarootdir}/migrate/
+
+
+%post
+# run register here
+
+%clean
+rm -rf %{buildroot}
+
+
+%files
+%defattr(-,root,root,-)
+/usr/share/migrate/system-id_to_uuid.map
+%doc
+
+
+%changelog
+* #{date} root <root@localhost> initial package build
+- using system profile mapping data for a single organization
+"
       end
     end
   end
