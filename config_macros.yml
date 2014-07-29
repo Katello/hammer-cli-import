@@ -1,0 +1,16 @@
+# spacewalk-macro-name : puppet-fact
+rhn.system.sid                                        :
+rhn.system.profile_name                               :
+rhn.system.description                                :
+rhn.system.hostname                                   : @fqdn
+rhn.system.ip_address                                 : @ipaddress
+rhn.system.ip6_address                                : @ipaddress6
+rhn.system.custom_info(key_name)                      :
+rhn.system.net_interface.ip_address(eth_device)       : @ipaddress_{NETWORK INTERFACE}
+rhn.system.net_interface.netmask(eth_device)          : @netmask_{NETWORK INTERFACE}
+rhn.system.net_interface.ip6_address(eth_device)      : @ipaddress6_{NETWORK INTERFACE}
+rhn.system.net_interface.ip6_netmask(eth_device)      : @netmask_{NETWORK INTERFACE}
+rhn.system.net_interface.broadcast(eth_device)        :
+rhn.system.net_interface.hardware_address(eth_device) : @macaddress_{NETWORK INTERFACE}
+rhn.system.net_interface.driver_module(eth_device)    :
+

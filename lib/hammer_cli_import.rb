@@ -36,6 +36,7 @@ module HammerCLIImport
 
   require 'hammer_cli_import/all'
   require 'hammer_cli_import/activationkey'
+  require 'hammer_cli_import/configfile'
   require 'hammer_cli_import/contentview'
   require 'hammer_cli_import/contenthost'
   require 'hammer_cli_import/hostcollection'
