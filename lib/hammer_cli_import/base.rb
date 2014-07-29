@@ -70,6 +70,7 @@ module HammerCLIImport
           super
         end
       end
+      @summary = {}
       # Initialize AsyncTaskReactor
       atr_init
       # Get set up to do logging as soon as reasonably possible
@@ -222,6 +223,32 @@ module HammerCLIImport
       return arr
     end
 
+    # Method to call when you have created/deleted/found/mapped... something.
+    # Collected data used for summary reporting.
+    #
+    # :found is used for situation, when you want to create something,
+    # but you found out, it is already created.
+    def report_summary(verb, item)
+      raise "Not summary supported action: #{verb}" unless
+        [:created, :deleted, :found, :mapped, :skipped, :uploaded].include? verb
+      @summary[verb] ||= {}
+      @summary[verb][item] = @summary[verb].fetch(item, 0) + 1
+    end
+
+    def print_summary
+      progress 'Summary'
+      @summary.each do |verb, what|
+        what.each do |entity, count|
+          noun = if count == 1
+                   to_singular entity
+                 else
+                   entity
+                 end
+          progress "  #{verb.to_s.capitalize} #{count} #{noun}."
+        end
+      end
+    end
+
     def get_translated_id(entity_type, entity_id)
       if @pm[entity_type] && @pm[entity_type][entity_id]
         return @pm[entity_type][entity_id]
@@ -282,10 +309,12 @@ module HammerCLIImport
       if @pm[entity_type][original_id]
         info "#{to_singular(entity_type).capitalize} [#{original_id}->#{@pm[entity_type][original_id]}] already mapped. " + \
         'Skipping.'
+        report_summary :found, entity_type
         return
       end
       info "Mapping #{to_singular(entity_type)} [#{original_id}->#{id}]."
       @pm[entity_type][original_id] = id
+      report_summary :mapped, entity_type
     end
 
     def unmap_entity(entity_type, target_id)
@@ -338,6 +367,7 @@ module HammerCLIImport
       type = to_singular(entity_type)
       if @pm[entity_type][original_id]
         info type.capitalize + ' [' + original_id.to_s + '->' + @pm[entity_type][original_id].to_s + '] already imported.'
+        report_summary :found, entity_type
         return get_cache(entity_type)[@pm[entity_type][original_id]]
       else
         info 'Creating new ' + type + ': ' + entity_hash.values_at(:name, :label, :login).compact[0]
@@ -349,6 +379,7 @@ module HammerCLIImport
         @pm[entity_type][original_id] = entity['id']
         get_cache(entity_type)[entity['id']] = entity
         debug "@pm[#{entity_type}]: #{@pm[entity_type].inspect}"
+        report_summary :created, entity_type
         return entity
       end
     end
@@ -363,6 +394,7 @@ module HammerCLIImport
       type = to_singular(entity_type)
       unless @pm[entity_type][original_id]
         error 'Unknown ' + type + ' to delete [' + original_id.to_s + '].'
+        report_summary :found, entity_type
         return nil
       end
       info 'Deleting imported ' + type + ' [' + original_id.to_s + '->' + @pm[entity_type][original_id].to_s + '].'
@@ -371,6 +403,7 @@ module HammerCLIImport
       get_cache(entity_type).delete(@pm[entity_type][original_id])
       # delete from pm
       unmap_entity(entity_type, @pm[entity_type][original_id])
+      report_summary :deleted, entity_type
     end
 
     # Delete entity by target (Sat6) id
@@ -379,6 +412,7 @@ module HammerCLIImport
       original_id = get_original_id(entity_type, import_id)
       if original_id.nil?
         error 'Unknown imported ' + type + ' to delete [' + import_id.to_s + '].'
+        report_summary :found, entity_type
         return nil
       end
       info "Deleting imported #{type} [#{original_id}->#{@pm[entity_type][original_id]}]."
@@ -392,6 +426,7 @@ module HammerCLIImport
       get_cache(entity_type).delete(import_id)
       # delete from pm
       @pm[entity_type].delete original_id
+      report_summary :deleted, entity_type
     end
 
     # Wait for asynchronous task.
@@ -473,6 +508,7 @@ module HammerCLIImport
         error "Exiting: #{e}"
       end
       save_persistent_maps
+      print_summary
       HammerCLI::EX_OK
     end
   end
