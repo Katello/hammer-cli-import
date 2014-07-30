@@ -104,7 +104,7 @@ module HammerCLIImport
         Dir.chdir(option_working_directory)
         gen_cmd = "puppet module --verbose --debug generate #{name}"
         debug "About to issue cmd #{gen_cmd}"
-        Open3.popen3(gen_cmd) { |stdin, stdout, _stderr|
+        Open3.popen3(gen_cmd) do |stdin, stdout, _stderr|
           stdout.sync = true
           puppet_interview_answers(name).each do |a|
             rd = ''
@@ -124,7 +124,7 @@ module HammerCLIImport
           rescue EOFError
             debug 'Done reading'
           end
-        }
+        end
       end
 
       # If we haven't seen this module-name before,
