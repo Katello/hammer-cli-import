@@ -170,11 +170,11 @@ module HammerCLIImport
         @modules[mname] << file_hash
       end
 
-      def delete_single_row(data)
+      def delete_single_row(_data)
         #delete_entity(:host_collections, data['group_id'].to_i)
       end
 
-      def post_import(csv)
+      def post_import(_csv)
         @modules.each do |mname, files|
           debug "MODULE #{mname}"
           module_dir = File.join(option_working_directory, mname)
