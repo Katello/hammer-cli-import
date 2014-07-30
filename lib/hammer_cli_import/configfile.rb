@@ -72,7 +72,7 @@ module HammerCLIImport
       # Return a mapped puppet-fact for a macro, if there is one
       # Otherwise, leave the macro in place
       def map_macro(macro)
-        if @macros.has_key? macro
+        if @macros.key? macro
           return @macros[macro]
         else
           return macro
@@ -129,7 +129,7 @@ module HammerCLIImport
       # If we haven't seen this module-name before,
       # arrange to do 'puppet generate module' for it
       def generate_module(module_name)
-        return if @modules.has_key? module_name
+        return if @modules.key? module_name
         @modules[module_name] = []
         clean_module(module_name)
         generate_module_template_for(module_name)
