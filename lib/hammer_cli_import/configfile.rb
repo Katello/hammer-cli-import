@@ -107,7 +107,7 @@ module HammerCLIImport
           puppet_interview_answers(name).each do |a|
             rd = ''
             while not rd.include? '?'
-              rd = stdout.readline()
+              rd = stdout.readline
               debug "Read #{rd}"
             end
             debug "Answering #{a}"
