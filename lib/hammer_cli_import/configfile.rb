@@ -123,7 +123,6 @@ module HammerCLIImport
             debug 'Done reading'
           end
         }
-
       end
 
       # If we haven't seen this module-name before,
