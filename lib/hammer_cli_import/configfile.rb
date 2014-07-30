@@ -186,11 +186,11 @@ module HammerCLIImport
             debug "...file #{a_file['name']}"
             case a_file['file_type']
             when 'file'
-              File.open( File.join(fdir, a_file['name']), 'w') do |f|
+              File.open(File.join(fdir, a_file['name']), 'w') do |f|
                 f.syswrite(a_file['contents'])
               end
             when 'template'
-              File.open( File.join(tdir, a_file['name']), 'w') do |f|
+              File.open(File.join(tdir, a_file['name']), 'w') do |f|
                 f.syswrite(a_file['contents'])
               end
             when 'directory'
