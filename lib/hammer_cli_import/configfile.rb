@@ -36,7 +36,9 @@ module HammerCLIImport
              'Location for building puppet modules (will be created if it doesn\'t exist',
              :default => File.join(File.expand_path('~'), 'puppet_work_dir')
 
-      csv_columns 'org_id', 'channel', 'channel_type', 'path', 'file_type', 'file_id', 'revision', 'is_binary', 'contents', 'delim_start', 'delim_end', 'username', 'groupname', 'filemode', 'symbolic_link', 'selinux_ctx'
+      csv_columns 'org_id', 'channel', 'channel_type', 'path', 'file_type', 'file_id',
+                  'revision', 'is_binary', 'contents', 'delim_start', 'delim_end', 'username',
+                  'groupname', 'filemode', 'symbolic_link', 'selinux_ctx'
 
       persistent_maps :organizations
 
