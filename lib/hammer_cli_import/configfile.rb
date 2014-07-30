@@ -98,7 +98,7 @@ module HammerCLIImport
       # Create a puppet module-template on the filesystem,
       # inside of working-directory
       def generate_module_template_for(name)
-        debug "In gen-module"
+        debug 'In gen-module'
         Dir.chdir(option_working_directory)
         gen_cmd = "puppet module --verbose --debug generate #{name}"
         debug "About to issue cmd #{gen_cmd}"
@@ -120,7 +120,7 @@ module HammerCLIImport
               debug "Read #{rd}"
             end
           rescue EOFError
-            debug "Done reading"
+            debug 'Done reading'
           end
         }
 
@@ -186,11 +186,11 @@ module HammerCLIImport
             debug "...file #{a_file['name']}"
             case a_file['file_type']
             when 'file'
-              File.open( File.join(fdir, a_file['name']), "w") do |f|
+              File.open( File.join(fdir, a_file['name']), 'w') do |f|
                 f.syswrite(a_file['contents'])
               end
             when 'template'
-              File.open( File.join(tdir, a_file['name']), "w") do |f|
+              File.open( File.join(tdir, a_file['name']), 'w') do |f|
                 f.syswrite(a_file['contents'])
               end
             when 'directory'
