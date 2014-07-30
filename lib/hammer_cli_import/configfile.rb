@@ -147,7 +147,7 @@ module HammerCLIImport
           matched = false
           data['contents'] = cstr.gsub(/(#{Regexp.escape(sdelim)})(.*)(#{Regexp.escape(edelim)})/) do |_match|
             matched = true
-            "<%= #{map_macro $2.strip!} %>"
+            "<%= #{map_macro Regexp.last_match[2].strip!} %>"
           end
           # If we replaced any macros, we're now type='template'
           data['file_type'] = 'template' if matched
