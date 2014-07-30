@@ -106,7 +106,7 @@ module HammerCLIImport
           stdout.sync = true
           puppet_interview_answers(name).each do |a|
             rd = ''
-            while not rd.include? '?' do
+            while not rd.include? '?'
               rd = stdout.readline()
               debug "Read #{rd}"
             end
@@ -115,7 +115,7 @@ module HammerCLIImport
           end
           rd = ''
           begin
-            while rd do
+            while rd
               rd = stdout.readline
               debug "Read #{rd}"
             end
