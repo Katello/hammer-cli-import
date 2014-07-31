@@ -124,6 +124,35 @@ module HammerCLIImport
         end
       end
 
+      def config_file_args
+        return ['--macro-mapping', "#{option_macro_mapping}"] unless option_macro_mapping.nil?
+      end
+
+      def content_view_args
+        args = ['--csv-file', "#{option_directory}/CHANNELS/export.csv"]
+        args << '--dir' << "#{option_directory}/CHANNELS"
+        return args
+      end
+
+      def organization_args
+        args = '--into-org-id' << option_into_org_id unless option_into_org_id.nil?
+        args << '--upload-manifests-from' << option_manifest_directory unless option_manifest_directory.nil?
+        return args
+      end
+
+      def repository_args
+        args = '--synchronize' if option_synchronize?
+        args << '--wait' if option_wait?
+        return args
+      end
+
+      def user_args
+        pwd_filename = "passwords_#{Time.now.utc.iso8601}.csv"
+        args = '--new-passwords' << pwd_filename
+        args << '--merge-users' if option_merge_users?
+        return args
+      end
+
       # Some subcommands have their own special args
       # This is the function that will know them all
       #
@@ -136,20 +165,15 @@ module HammerCLIImport
         args = ['--csv-file', filename]
         case key
         when 'config-file'
-          args << ['--macro-mapping', "#{option_macro_mapping}"] unless option_macro_mapping.nil?
+          args << config_file_args
         when 'content-view'
-          args = ['--csv-file', "#{option_directory}/CHANNELS/export.csv"]
-          args << '--dir' << "#{option_directory}/CHANNELS"
+          args << content_view_args
         when 'organization'
-          args << '--into-org-id' << option_into_org_id unless option_into_org_id.nil?
-          args << '--upload-manifests-from' << option_manifest_directory unless option_manifest_directory.nil?
+          args << organization_args
         when 'repository', 'repository-enable'
-          args << '--synchronize' if option_synchronize?
-          args << '--wait' if option_wait?
+          args << repository_args
         when 'user'
-          pwd_filename = "passwords_#{Time.now.utc.iso8601}.csv"
-          args << '--new-passwords' << pwd_filename
-          args << '--merge-users' if option_merge_users?
+          args << user_args
         end
         return args
       end

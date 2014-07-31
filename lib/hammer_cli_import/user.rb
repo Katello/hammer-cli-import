@@ -82,7 +82,7 @@ module HammerCLIImport
         return role_list if @role_map.nil?
 
         users_roles = split_multival(data['role'], false)
-        fm_roles = api_call(:roles, :index, 'per_page' => 999999)['results'];
+        fm_roles = api_call(:roles, :index, 'per_page' => 999999)['results']
         debug fm_roles.inspect
         users_roles.each do |s5r|
           fm_roles.each do |fr|
