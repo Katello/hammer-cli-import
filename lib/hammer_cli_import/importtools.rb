@@ -134,8 +134,45 @@ module ImportTools
 
   module ContentView
     module Include
-      def publish_content_view(id)
-        api_call :content_views, :publish, {:id => id}
+      def publish_content_view(id, entity_type = :content_views)
+        mapped_api_call entity_type, :publish, {:id => id}
+      end
+
+      def create_composite_content_view(entity_type, org_id, cv_label, cv_description, cvs)
+        if cvs.size == 1
+          return cvs.to_a[0]
+        else
+          # create composite content view
+          cv_versions = []
+          cvs.each do |cv_id|
+            cvvs = list_server_entities(:content_view_versions, {:content_view_id => cv_id})
+            cvvs.each do |c|
+              cv_versions << c['id']
+            end
+          end
+          cv = lookup_entity_in_cache(entity_type, 'label' => cv_label)
+          if cv
+            info "  Content view #{cv_label} already created, reusing."
+          else
+            # create composite content view
+            # for activation key purposes
+            cv = create_entity(
+              entity_type,
+              {
+                :organization_id => org_id,
+                :name => cv_label,
+                :label => cv_label,
+                :composite => true,
+                :description => cv_description,
+                :component_ids => cv_versions
+              },
+              cv_label)
+            # publish the content view
+            info "  Publishing content view: #{cv['id']}"
+            publish_content_view(cv['id'], entity_type)
+          end
+          return cv['id']
+        end
       end
 
       # use entity_type as parameter to be able to re-use the method for

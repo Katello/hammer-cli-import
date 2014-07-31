@@ -99,41 +99,12 @@ module HammerCLIImport
         @ak_content_views.each do |ak_id, cvs|
           ak = lookup_entity(:activation_keys, ak_id)
           ak_cv_hash = {}
-          if cvs.size == 1
-            ak_cv_hash[:content_view_id] = cvs.to_a[0]
-          else
-            # create composite content view
-            cv_label = "ak_#{ak_id}"
-            cv_versions = []
-            cvs.each do |cv_id|
-              cvvs = list_server_entities(:content_view_versions, {:content_view_id => cv_id})
-              cvvs.each do |c|
-                cv_versions << c['id']
-              end
-            end
-            cv = lookup_entity_in_cache(:ak_content_views, 'label' => cv_label)
-            if cv
-              info "  Content view #{cv_label} already created, reusing."
-            else
-              # create composite content view
-              # for activation key purposes
-              cv = create_entity(
-                :ak_content_views,
-                {
-                  :organization_id => lookup_entity_in_cache(:organizations, {'label' => ak['organization']['label']})['id'],
-                  :name => cv_label,
-                  :label => cv_label,
-                  :composite => true,
-                  :descrption => "Composite content view for activation key #{ak['name']}",
-                  :component_ids => cv_versions
-                },
-                cv_label)
-              # publish the content view
-              info "  Publishing content view: #{cv['id']}"
-              mapped_api_call(:ak_content_views, :publish, { :id => cv['id'] })
-            end
-            ak_cv_hash[:content_view_id] = cv['id']
-          end
+          ak_cv_hash[:content_view_id] = create_composite_content_view(
+            :ak_content_views,
+            lookup_entity_in_cache(:organizations, {'label' => ak['organization']['label']})['id'],
+            "ak_#{ak_id}",
+            "Composite content view for activation key #{ak['name']}",
+            cvs)
           info "  Associating activation key [#{ak_id}] with content view [#{ak_cv_hash[:content_view_id]}]"
           # associate the content view with the activation key
           update_entity(:activation_keys, ak_id, ak_cv_hash)
