@@ -31,6 +31,7 @@ module HammerCLIImport
       desc 'Load ALL data from a specified directory that is in spacewalk-export format.'
 
       option ['--directory'], 'DIR_PATH', 'stargate-export directory', :default => '/tmp/exports'
+      option ['--macro_mapping'], 'FILE', 'Mapping of Satellite-5 config-file-macros to puppet facts'
       option ['--manifest-directory'], 'DIR_PATH', 'Directory holding manifests'
       option ['--entities'], 'entity[,entity...]', 'Import specific entities', :default => 'all'
       option ['--list-entities'], :flag, 'List entities we understand', :default => false
@@ -44,7 +45,7 @@ module HammerCLIImport
       # An ordered-list of the entities we know how to import
       class << self; attr_accessor :entity_order end
       @entity_order = %w(organization user host-collection repository-enable repository
-                         content-view activation-key template-snippet)
+                         content-view activation-key template-snippet config-file)
 
       #
       # A list of what we know how to do.
@@ -59,6 +60,11 @@ module HammerCLIImport
                     {'export-file' => 'activation-keys',
                      'import-class' => 'ActivationKeyImportCommand',
                      'depends-on' => 'organization',
+                     'import' => false },
+        'config-file' =>
+                    {'export-file' => 'config-files-latest',
+                     'import-class' => 'ConfigFileImportCommand',
+                     'depends-on' => 'repository',
                      'import' => false },
         'content-view' =>
                     {'export-file' => 'CHANNELS/export',
@@ -129,6 +135,8 @@ module HammerCLIImport
       def build_args(key, filename)
         args = ['--csv-file', filename]
         case key
+        when 'config-file'
+          args << ['--macro-mapping', "#{option_macro_mapping}"] unless option_macro_mapping.nil?
         when 'content-view'
           args = ['--csv-file', "#{option_directory}/CHANNELS/export.csv"]
           args << '--dir' << "#{option_directory}/CHANNELS"
