@@ -220,8 +220,10 @@ module ImportTools
         @logger.log(lvl, s)
         return if option_quiet?
 
-        if option_verbose? || always
+        if always
           puts s
+        elsif option_verbose?
+          puts s if lvl >= @curr_lvl
         else
           puts s if lvl > @curr_lvl
         end
