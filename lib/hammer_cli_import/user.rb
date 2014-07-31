@@ -82,13 +82,8 @@ module HammerCLIImport
         return role_list if @role_map.nil?
 
         users_roles = split_multival(data['role'], false)
-        # Someday, this will work
-        # TODO: Use list_server_entities
-        # fm_roles = api_call(:roles, :index, 'per_page' => 999999);
-        # Until then - here's some fake data to drive the plumbing
-        fm_roles = [{'id' => 1, 'name' => 'foo'},
-                    {'id' => 2, 'name' => 'bar'},
-                    {'id' => 3, 'name' => 'blech'}]
+        fm_roles = api_call(:roles, :index, 'per_page' => 999999)['results'];
+        debug fm_roles.inspect
         users_roles.each do |s5r|
           fm_roles.each do |fr|
             role_list << fr['id'] if @role_map[s5r.gsub(' ', '-')].include? fr['name']
