@@ -44,7 +44,7 @@ import_cmd() {
         let "COUNT2_EXP = $COUNT1 + 1"
      fi
     if [ $COUNT2 -ne $COUNT2_EXP ]; then
-        die "Expecting $COUNT2_EXP $1(s) instead of $COUNT2."
+        echo "Expecting $COUNT2_EXP $1(s) instead of $COUNT2."
     fi
 }
 
