@@ -53,7 +53,7 @@ module ImportTools
       def sync_repo(repo)
         return unless option_synchronize?
         task = api_call(:repositories, :sync, {:id => repo['id']})
-        info 'Sync started!'
+        debug "Sync of repo #{repo['id']} started!"
         return unless option_wait?
         wait_for_task task['id']
       end
@@ -61,7 +61,7 @@ module ImportTools
       # TODO: This shall replace sync_repo
       def sync_repo2(repo)
         task = api_call(:repositories, :sync, {:id => repo['id']})
-        info 'Sync started!'
+        debug "Sync of repo #{repo['id']} started!"
         task['id']
       rescue
         uuid = workaround_1116063 repo['id']
