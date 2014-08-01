@@ -30,23 +30,8 @@ get_org_ids() {
 
 # params: subcommand, csv_file, extra cmd arguments
 import_cmd() {
-    COUNT1=$(count_entities $1)
     echo $HAMMER import $1 --csv-file=$2 $3 $4 --verbose
     $HAMMER import $1 --csv-file=$2 $3 $4 --verbose
-    RET=$?
-    if [ "$RET" -ne 0 ]; then
-        die "'$HAMMER import $1 --csv-file=$2 $3' failed with $RET."
-    fi
-    COUNT2=$(count_entities $1)
-    # echo "$1 COUNT: $COUNT1 -> $COUNT2"
-    if [ "$3" == "--delete" ]; then
-        let "COUNT2_EXP = $COUNT1 - 1"
-    else
-        let "COUNT2_EXP = $COUNT1 + 1"
-     fi
-    if [ $COUNT2 -ne $COUNT2_EXP ]; then
-        echo "Expecting $COUNT2_EXP $1(s) instead of $COUNT2."
-    fi
 }
 
 
