@@ -39,7 +39,7 @@ module HammerCLIImport
       add_repo_options
 
       def directory
-        option_dir || File.dirname(option_csv_file)
+        File.expand_path(option_dir || File.dirname(option_csv_file))
       end
 
       def mk_product_hash(data, product_name)
