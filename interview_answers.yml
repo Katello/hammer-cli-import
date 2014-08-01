@@ -1,0 +1,11 @@
+# interview-question-key : answer
+# special-strings: #{module_name} == the name of the module being generated
+#
+version     : '1.0.0'
+author      : 'Red Hat'
+license     : 'GPL3'
+descr       : "Module created from soeorg-soeconfig_rhel5_dev #{module_name}"
+srcrepo     : ""
+learnmore   : ""
+fileissues  : ""
+
