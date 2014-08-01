@@ -55,6 +55,8 @@ module PersistentMap
                                            :repositories
       @definitions[:systems] = ['sat5' => Fixnum], ['sat6' => Fixnum], :systems
       @definitions[:template_snippets] = ['id' => Fixnum], ['sat6' => Fixnum], :config_templates
+      @definitions[:puppet_repositories] = [{'org_id' => Fixnum}, {'channel_id' => Fixnum}],
+                                           ['sat6' => Fixnum], :repositories
 
       @definitions.freeze
     end

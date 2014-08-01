@@ -48,7 +48,7 @@ module HammerCLIImport
                   'revision', 'is_binary', 'contents', 'delim_start', 'delim_end', 'username',
                   'groupname', 'filemode', 'symbolic_link', 'selinux_ctx'
 
-      persistent_maps :organizations, :products, :repositories
+      persistent_maps :organizations, :products, :puppet_repositories
 
       class << self; attr_accessor :interview_questions end
       @interview_questions = %w(version author license descr srcrepo learnmore fileissues Y)
@@ -140,19 +140,9 @@ module HammerCLIImport
         generate_module_template_for(module_name)
       end
 
-      # We're mapping channels to repositories
-      # Since their Sat5-ids might overlap (since they are from different
-      # tables), push cfg-channel-ids WAY up
-      def convert_channel_to_repo_id(channel_id)
-        return channel_id.to_i + 1000000000
-      end
-
       def file_data(data)
         # Everybody gets a name, which is 'path' with '/' chgd to '_'
         data['name'] = data['path'].gsub('/', '_')
-
-        # everbody gets their channel-id converted
-        data['channel_id'] = convert_channel_to_repo_id data['channel_id']
 
         # If we're not type='file', done - return data
         return data unless data['file_type'] == 'file'
@@ -204,18 +194,18 @@ module HammerCLIImport
       end
 
       def delete_single_row(data)
-        chan_repo_id = convert_channel_to_repo_id data['channel_id']
         # repo maps to channel_id
-        unless @pm[:repositories][chan_repo_id]
-          info "#{to_singular(:repositories).capitalize} with id #{data['channel_id']} wasn't imported. Skipping deletion."
+        composite_id = [data['org_id'].to_i, data['channel_id'].to_i]
+        unless @pm[:puppet_repositories][composite_id]
+          info "#{to_singular(:puppet_repositories).capitalize} with id #{composite_id} wasn't imported. Skipping deletion."
           return
         end
 
         # find out product id
-        repo_id = get_translated_id(:repositories, chan_repo_id)
-        product_id = lookup_entity(:repositories, repo_id)['product']['id']
+        repo_id = get_translated_id(:puppet_repositories, composite_id)
+        product_id = lookup_entity(:puppet_repositories, repo_id)['product']['id']
         # delete repo
-        delete_entity(:repositories, chan_repo_id)
+        delete_entity(:puppet_repositories, composite_id)
         # delete its product, if it's not associated with any other repositories
         product = lookup_entity(:products, product_id, true)
 
@@ -319,7 +309,8 @@ module HammerCLIImport
 
           # Build the repo
           repo_hash = mk_repo_hash data, product_id
-          repo = create_entity(:repositories, repo_hash, data['channel_id'].to_i)
+          repo = create_entity(:puppet_repositories, repo_hash,
+                               [data['org_id'].to_i, data['channel_id'].to_i])
 
           # Find the built-module .tar.gz
           built_module_path = File.join(File.join(module_dir, 'pkg'),
