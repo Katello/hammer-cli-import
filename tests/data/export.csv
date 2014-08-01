@@ -1,2 +1,3 @@
 org_id,channel_id,channel_label,channel_name
 100,133,nightly-client,Spacewalk nightly client
+100,134,nightly-client-rhel,Spacewalk nightly rhel
