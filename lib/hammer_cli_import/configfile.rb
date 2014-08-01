@@ -36,29 +36,43 @@ module HammerCLIImport
              'Location for building puppet modules (will be created if it doesn\'t exist',
              :default => File.join(File.expand_path('~'), 'puppet_work_dir')
 
+      option ['--answers-file'], 'FILE_NAME',
+             'Answers to the puppet-generate-module interview questions',
+             :default => '/etc/hammer/cli.modules.d/interview_answers.yml' \
+             do |answers_file|
+               raise ArgumentError, "File #{answers_file} does not exist" unless !option_delete? && File.exist?(answers_file)
+               answers_file
+             end
+
       csv_columns 'org_id', 'channel', 'channel_id', 'channel_type', 'path', 'file_type', 'file_id',
                   'revision', 'is_binary', 'contents', 'delim_start', 'delim_end', 'username',
                   'groupname', 'filemode', 'symbolic_link', 'selinux_ctx'
 
       persistent_maps :organizations, :products, :repositories
 
+      class << self; attr_accessor :interview_questions end
+      @interview_questions = %w(version author license descr srcrepo learnmore fileissues Y)
+
       # Load the macro-mapping once-per-run
       def execute
-        if File.exist? option_macro_mapping
-          @macros = YAML.load_file(option_macro_mapping)
-        else
-          @macros = {}
-          warn "Macro-mapping file #{option_macro_mapping} not found, no puppet-facts will be assigned"
-        end
-        Dir.mkdir option_working_directory unless File.directory? option_working_directory
-        super()
-      end
+        unless option_delete?
+          # Load interview-answers
+          @interview_answers = YAML.load_file(option_answers_file)
+          @interview_answers['Y'] = 'Y'
 
-      # TODO: this needs to be read in from .yml
-      def puppet_interview_answers(module_name)
-        return ['0.1.0', 'Red Hat', 'GPLv2',
-                "Module created from org-cfgchannel #{module_name}",
-                'sat5_url', 'sat5_url', 'sat5_url', 'Y']
+          # Load macro-mappings
+          if File.exist? option_macro_mapping
+            @macros = YAML.load_file(option_macro_mapping)
+          else
+            @macros = {}
+            warn "Macro-mapping file #{option_macro_mapping} not found, no puppet-facts will be assigned"
+          end
+
+          # Create the puppet-working-directory
+          Dir.mkdir option_working_directory unless File.directory? option_working_directory
+        end
+
+        super()
       end
 
       # puppet-module-names are username-classname
@@ -98,14 +112,14 @@ module HammerCLIImport
         gen_cmd = "puppet module generate #{name}"
         Open3.popen3(gen_cmd) do |stdin, stdout, _stderr|
           stdout.sync = true
-          puppet_interview_answers(name).each do |a|
+          ConfigFileImportCommand.interview_questions.each do |q|
             rd = ''
             until rd.include? '?'
               rd = stdout.readline
               #debug "Read #{rd}"
             end
-            debug "Answering #{a}"
-            stdin.puts(a)
+            debug "Answering #{q}"
+            stdin.puts(@interview_answers[q])
           end
           rd = ''
           begin
@@ -308,7 +322,8 @@ module HammerCLIImport
           repo = create_entity(:repositories, repo_hash, data['channel_id'].to_i)
 
           # Find the built-module .tar.gz
-          built_module_path = File.join(File.join(module_dir, 'pkg'), mname + '-0.1.0.tar.gz')
+          built_module_path = File.join(File.join(module_dir, 'pkg'),
+                                        "#{mname}-#{@interview_answers['version']}.tar.gz")
           info "Uploading #{built_module_path}"
           # Ask hammer repository upload to Do Its Thing
           system "hammer repository upload-content --id #{repo['id']} --path #{built_module_path}"
