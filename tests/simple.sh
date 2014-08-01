@@ -31,7 +31,7 @@ get_org_ids() {
 # params: subcommand, csv_file, extra cmd arguments
 import_cmd() {
     COUNT1=$(count_entities $1)
-    $HAMMER import $1 --csv-file=$2 $3
+    $HAMMER import $1 --csv-file=$2 $3 $4
     RET=$?
     if [ "$RET" -ne 0 ]; then
         die "'$HAMMER import $1 --csv-file=$2 $3' failed with $RET."
@@ -53,7 +53,7 @@ import_cmd() {
 import_cmd organization ${CSV_DIR}/users.csv
 import_cmd user ${CSV_DIR}/users.csv --new-passwords=new-passwords.csv
 import_cmd host-collection ${CSV_DIR}/system-groups.csv
-import_cmd repository ${CSV_DIR}/repositories.csv
+import_cmd repository ${CSV_DIR}/repositories.csv --synchronize --wait
 
 if [ "$1" != "--just-create" ]; then
     # delete entities in reverse order
