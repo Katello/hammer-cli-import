@@ -1,4 +1,4 @@
 id,org_id,repo_label,repo_type,source_url,client_key_descr,client_key_type,client_key,client_cert_descr,client_cert_type,client_cert,ca_descr,ca_type,ca_key
-514,1,Tatooine,yum,http://tatooine.galaxy.com/yum/os/,,,,,,,,,
-520,1,Alderaan,yum,/dev/null,,,,,,,,,
-534,1,Spacewalk Client,yum,http://spacewalk.redhat.com/yum/nightly-client/RHEL/6/x86_64/,,,,,,,,,
+514,100,Tatooine,yum,http://tatooine.galaxy.com/yum/os/,,,,,,,,,
+520,100,Alderaan,yum,/dev/null,,,,,,,,,
+534,100,Spacewalk Client,yum,http://spacewalk.redhat.com/yum/nightly-client/RHEL/6/x86_64/,,,,,,,,,
