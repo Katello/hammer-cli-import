@@ -42,18 +42,6 @@ module HammerCLIImport
 
       persistent_maps :organizations, :products, :repositories
 
-      # Load the macro-mapping once-per-run
-      def execute
-        if File.exist? option_macro_mapping
-          @macros = YAML.load_file(option_macro_mapping)
-        else
-          @macros = {}
-          warn "Macro-mapping file #{option_macro_mapping} not found, no puppet-facts will be assigned"
-        end
-        Dir.mkdir option_working_directory unless File.directory? option_working_directory
-        super()
-      end
-
       # TODO: this needs to be read in from .yml
       def puppet_interview_answers(module_name)
         return ['0.1.0', 'Red Hat', 'GPLv2',
@@ -181,6 +169,16 @@ module HammerCLIImport
 
       # Store all files into a hash keyed by module-name
       def import_single_row(data)
+        @macros ||= do
+          Dir.mkdir option_working_directory unless File.directory? option_working_directory
+          if File.exist? option_macro_mapping
+            YAML.load_file(option_macro_mapping)
+          else
+            warn "Macro-mapping file #{option_macro_mapping} not found, no puppet-facts will be assigned"
+            {}
+          end
+        end
+
         @modules ||= {}
         mname = build_module_name(data)
         generate_module(mname)
