@@ -1,0 +1,6 @@
+org_id,channel_id,channel_label,package_nevra,package_rpm_name,in_repo,in_parent_channel
+100,133,nightly-client,rhnmd-0:5.3.18-1.el6.noarch,rhnmd-5.3.18-1.el6.noarch.rpm,534,
+100,133,nightly-client,rhnsd-0:5.0.14-1.el6.x86_64,rhnsd-5.0.14-1.el6.x86_64.rpm,534,
+100,133,nightly-client,spacewalk-abrt-0:2.1.4-1.el6.noarch,spacewalk-abrt-2.1.4-1.el6.noarch.rpm,534,
+100,133,nightly-client,spacewalk-client-cert-0:2.2.5-1.el6.noarch,spacewalk-client-cert-2.2.5-1.el6.noarch.rpm,534,
+100,133,nightly-client,spacewalk-oscap-0:0.0.23-1.el6.noarch,spacewalk-oscap-0.0.23-1.el6.noarch.rpm,534,
