@@ -57,6 +57,7 @@ module HammerCLIImport
           product_name = URI.parse(data['source_url']).host.split('.').last(2).join('.').upcase
         rescue
           error 'Skipping ' + data['repo_label'] + ' ' + to_singular(:repositories) + ' import, invalid source_url.'
+          report_summary :skipped, :repositories
           return
         end
         product_hash = mk_product_hash(data, product_name)
