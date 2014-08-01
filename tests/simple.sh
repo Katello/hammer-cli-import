@@ -31,7 +31,7 @@ get_org_ids() {
 # params: subcommand, csv_file, extra cmd arguments
 import_cmd() {
     COUNT1=$(count_entities $1)
-    $HAMMER import $1 --csv-file=$2 $3 $4
+    $HAMMER import $1 --csv-file=$2 $3 $4 --verbose
     RET=$?
     if [ "$RET" -ne 0 ]; then
         die "'$HAMMER import $1 --csv-file=$2 $3' failed with $RET."
