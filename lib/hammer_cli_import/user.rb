@@ -48,13 +48,13 @@ module HammerCLIImport
       persistent_maps :organizations, :users
 
       # Override so we can read the role-map *once*, not *once per user*
-      def execute
+      def first_time_only
         if File.exist? option_role_mapping
           @role_map = YAML.load_file(option_role_mapping)
         else
           warn "Role-mapping file #{option_role_mapping} not found, no roles will be assigned"
         end
-        super()
+        return 'loaded'
       end
 
       def genpw(username)
@@ -116,6 +116,7 @@ module HammerCLIImport
       end
 
       def import_single_row(data)
+        @first_time ||= first_time_only
         user = mk_user_hash data
         new_user = true
 

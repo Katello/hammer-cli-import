@@ -53,8 +53,8 @@ module HammerCLIImport
       class << self; attr_accessor :interview_questions end
       @interview_questions = %w(version author license descr srcrepo learnmore fileissues Y)
 
-      # Load the macro-mapping once-per-run
-      def execute
+      # Load the macro-mapping and interview-answers ONLY once-per-run
+      def first_time_only
         unless option_delete?
           # Load interview-answers
           @interview_answers = YAML.load_file(option_answers_file)
@@ -71,8 +71,7 @@ module HammerCLIImport
           # Create the puppet-working-directory
           Dir.mkdir option_working_directory unless File.directory? option_working_directory
         end
-
-        super()
+        return "loaded"
       end
 
       # puppet-module-names are username-classname
@@ -185,7 +184,9 @@ module HammerCLIImport
 
       # Store all files into a hash keyed by module-name
       def import_single_row(data)
+        @first_time ||= first_time_only
         @modules ||= {}
+
         mname = build_module_name(data)
         generate_module(mname)
         file_hash = file_data(data)
