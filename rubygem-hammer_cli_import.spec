@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.9.0
+Version:    0.9.1
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -81,6 +81,62 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Sun Aug 03 2014 Grant Gainey 0.9.1-1
+- Minor comment cleanup (ggainey@redhat.com)
+- Rubocop: Prefer single-quoted strings when you don't need string
+  interpolation or special symbols. (ggainey@redhat.com)
+- Don't override execute just to do something once (ggainey@redhat.com)
+- 1126103 - config-file needs its own persistence-type, :puppet_repositories
+  (ggainey@redhat.com)
+- Add correct missing interview_answers.yml (ggainey@redhat.com)
+- missing interview_answers.yml prevents RPM from building (lpramuk@redhat.com)
+- 1126063 - Teach import config-file to find/use interview_answers.yml
+  (ggainey@redhat.com)
+- Report repository skipping (mkollar@redhat.com)
+- Report manifest uploading (mkollar@redhat.com)
+- Summary reporting (mkollar@redhat.com)
+- add another repo to the test (tlestach@redhat.com)
+- update sync repo message (tlestach@redhat.com)
+- work with absolute path (tlestach@redhat.com)
+- create simple content views within the test (tlestach@redhat.com)
+- do not count the entities in the test (tlestach@redhat.com)
+- print the issued import command (tlestach@redhat.com)
+- run the tests in verbose mode (tlestach@redhat.com)
+- just notify about unexpected entity count instead of dying
+  (tlestach@redhat.com)
+- change tests org_id to 100 (tlestach@redhat.com)
+- enhance test (tlestach@redhat.com)
+- Rubocop: lib/hammer_cli_import/user.rb:85:77: C: Do not use semicolons to
+  terminate expressions. lib/hammer_cli_import/all.rb:135:7: C: Cyclomatic
+  complexity for build_args is too high. [12/11] (ggainey@redhat.com)
+- 1124967 - teach upload-manifest to wait for task to finish
+  (ggainey@redhat.com)
+- 1125034 - teach --verbose to only emit if >= current-log-level
+  (ggainey@redhat.com)
+- 1125266 - Turn on using Sat6-API to get role-list (ggainey@redhat.com)
+- configfile - add macro-mapping to RPM (ggainey@redhat.com)
+- configfile - add to 'all' command (ggainey@redhat.com)
+- configfiles - Everything works now (including --delete) (ggainey@redhat.com)
+- create rpmbuild structure (tlestach@redhat.com)
+- export system-id_to_uuid files (tlestach@redhat.com)
+- enhance debug message (tlestach@redhat.com)
+- fix content host deletion (tlestach@redhat.com)
+- content host change (tlestach@redhat.com)
+- change type (tlestach@redhat.com)
+- Rubocop: Style/Blocks (mkollar@redhat.com)
+- Rubocop: Style/LineLength (mkollar@redhat.com)
+- Rubocop: Style/PerlBackrefs (mkollar@redhat.com)
+- Rubocop: Style/NegatedWhile (mkollar@redhat.com)
+- Rubocop: Style/MethodCallParentheses (mkollar@redhat.com)
+- Rubocop: Style/EmptyLinesAroundBody (mkollar@redhat.com)
+- Rubocop: Style/WhileUntilDo (mkollar@redhat.com)
+- Rubocop: Style/SpaceInsideParens (mkollar@redhat.com)
+- Rubocop: Style/DeprecatedHashMethods (mkollar@redhat.com)
+- Rubocop: Lint/UnusedMethodArgument (mkollar@redhat.com)
+- Rubocop: Lint/UnusedBlockArgument (mkollar@redhat.com)
+- Rubocop: Style/StringLiterals (mkollar@redhat.com)
+- configfiles - DRAFT, main path generally working (ggainey@redhat.com)
+
 * Mon Jul 28 2014 Grant Gainey 0.9.0-1
 - 1123837 - Allow hosts with no dot (only tld) (mkollar@redhat.com)
 - Check CSV file headers sooner (mkollar@redhat.com)
