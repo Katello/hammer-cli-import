@@ -124,28 +124,33 @@ module HammerCLIImport
         end
       end
 
+      # config-file may need --macro-mapping
       def config_file_args
         return ['--macro-mapping', "#{option_macro_mapping}"] unless option_macro_mapping.nil?
       end
 
+      # 'content-view needs --dir, and knows its own --csv-file in that dir
       def content_view_args
         args = ['--csv-file', "#{option_directory}/CHANNELS/export.csv"]
         args << '--dir' << "#{option_directory}/CHANNELS"
         return args
       end
 
+      # 'organization' may need --into-org-id
       def organization_args
         args = '--into-org-id' << option_into_org_id unless option_into_org_id.nil?
         args << '--upload-manifests-from' << option_manifest_directory unless option_manifest_directory.nil?
         return args
       end
 
+      # repository and repo-enable may need --synch and --wait
       def repository_args
         args = '--synchronize' if option_synchronize?
         args << '--wait' if option_wait?
         return args
       end
 
+      # 'user' needs --new-passwords and may need --merge-users
       def user_args
         pwd_filename = "passwords_#{Time.now.utc.iso8601}.csv"
         args = '--new-passwords' << pwd_filename
@@ -155,12 +160,6 @@ module HammerCLIImport
 
       # Some subcommands have their own special args
       # This is the function that will know them all
-      #
-      # 'user' needs --new-passwords and may need --merge-users
-      # 'organization' may need --into-org-id
-      # 'content-view needs --dir, and knows its own --csv-file in that dir
-      #
-      # TODO: add existence-check and throw if file doesn't exist
       def build_args(key, filename)
         args = ['--csv-file', filename]
         case key
@@ -185,7 +184,6 @@ module HammerCLIImport
 
           if a_map['import']
             import_file = "#{option_directory}/#{a_map['export-file']}.csv"
-            # TODO: catch thrown error and skip with message
             args = build_args(key, import_file)
             if File.exist? import_file
               progress format('Import %-20s with arguments %s', key, args.join(' '))
