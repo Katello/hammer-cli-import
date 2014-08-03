@@ -71,7 +71,7 @@ module HammerCLIImport
           # Create the puppet-working-directory
           Dir.mkdir option_working_directory unless File.directory? option_working_directory
         end
-        return "loaded"
+        return 'loaded'
       end
 
       # puppet-module-names are username-classname
