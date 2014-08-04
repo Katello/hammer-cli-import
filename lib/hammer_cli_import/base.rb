@@ -73,8 +73,6 @@ module HammerCLIImport
       @summary = {}
       # Initialize AsyncTaskReactor
       atr_init
-      # Get set up to do logging as soon as reasonably possible
-      setup_logging
     end
 
     # What spacewalk-report do we expect to use for a given subcommand
@@ -481,6 +479,8 @@ module HammerCLIImport
     end
 
     def execute
+      # Get set up to do logging as soon as reasonably possible
+      setup_logging
       # create a storage directory if not exists yet
       Dir.mkdir data_dir unless File.directory? data_dir
 
