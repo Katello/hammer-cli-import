@@ -247,6 +247,7 @@ module HammerCLIImport
           progress "  #{verb.to_s.capitalize} #{count} #{noun}."
         end
       end
+      progress '  No action taken.' if @summary.empty?
     end
 
     def get_translated_id(entity_type, entity_id)
