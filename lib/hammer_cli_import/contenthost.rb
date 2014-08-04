@@ -35,7 +35,11 @@ module HammerCLIImport
 
       persistent_maps :organizations, :content_views, :host_collections, :systems
 
-      option ['--export-directory'], 'DIR_PATH', 'Directory to export rpmbuild structure', :required => true
+      option ['--export-directory'], 'DIR_PATH', 'Directory to export rpmbuild structure'
+
+      validate_options do
+        any(:option_export_directory, :option_delete).required
+      end
 
       def _translate_system_id_to_uuid(system_id)
         return lookup_entity(:systems, get_translated_id(:systems, system_id))['uuid']
