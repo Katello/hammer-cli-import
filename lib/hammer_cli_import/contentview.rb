@@ -89,16 +89,18 @@ module HammerCLIImport
         packages_in_channel = Set[]
         repo_ids = Set[]
         parent_channel_ids = Set[]
+        has_local_packages = false
 
         CSVHelper.csv_each file, headers do |data|
           packages_in_channel << data['package_nevra']
           push_unless_nil parent_channel_ids, data['in_parent_channel']
           push_unless_nil repo_ids, data['in_repo']
+          has_local_packages ||= data['in_repo'].nil? && data['in_parent_channel'].nil?
         end
 
         raise "Multiple parents for channel #{channel_id}?" unless parent_channel_ids.size.between? 0, 1
 
-        [repo_ids.to_a, parent_channel_ids.to_a, packages_in_channel.to_a]
+        [repo_ids.to_a, parent_channel_ids.to_a, packages_in_channel.to_a, has_local_packages]
       end
 
       def add_local_repo(data)
@@ -140,15 +142,17 @@ module HammerCLIImport
       end
 
       def import_single_row(data)
-        local_repo = add_local_repo data
-        sync_repo local_repo unless repo_synced? local_repo
-
         org_id = data['org_id'].to_i
 
-        repo_ids, clone_parents, packages = load_custom_channel_info org_id, data['channel_id'].to_i
+        repo_ids, clone_parents, packages, has_local = load_custom_channel_info org_id, data['channel_id'].to_i
 
         repo_ids.map! { |id| get_translated_id :repositories, id.to_i }
-        repo_ids.push local_repo['id'].to_i
+
+        if has_local
+          local_repo = add_local_repo data
+          sync_repo local_repo unless repo_synced? local_repo
+          repo_ids.push local_repo['id'].to_i
+        end
 
         clone_parents.collect { |x| Integer(x) } .each do |parent_id|
           begin
