@@ -129,6 +129,22 @@ module HammerCLIImport
         end
       end
 
+      def build_puppet_module(module_name)
+        module_dir = File.join(option_working_directory, module_name)
+        Dir.chdir(module_dir)
+        gen_cmd = 'puppet module build'
+        Open3.popen3(gen_cmd) do |_stdin, stdout, _stderr|
+          rd = ''
+          begin
+            rd = stdout.readline while rd
+            debug rd
+          rescue EOFError
+            debug 'Done reading'
+          end
+        end
+        return module_dir
+      end
+
       # If we haven't seen this module-name before,
       # arrange to do 'puppet generate module' for it
       def generate_module(module_name)
@@ -297,10 +313,8 @@ module HammerCLIImport
         @modules.each do |mname, files|
           data = files[0]
 
-          # Build the module
-          module_dir = File.join(option_working_directory, mname)
-          Dir.chdir(module_dir)
-          system 'puppet module build'
+          # Build the puppet-module for upload
+          module_dir = build_puppet_module(mname)
 
           # Build/find the product
           product_hash = mk_product_hash(data, prod_name)
