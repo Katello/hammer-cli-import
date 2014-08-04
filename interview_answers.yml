@@ -1,10 +1,12 @@
 # interview-question-key : answer
-# special-strings: #{module_name} == the name of the module being generated
+# special-strings:
+#   #{module_name} == the name of the module being generated
 #
 version     : '1.0.0'
 author      : 'Red Hat'
 license     : 'GPL3'
-descr       : "Module created from soeorg-soeconfig_rhel5_dev #{module_name}"
+summary     : "#{module_name}"
+description : "Module #{module_name} created from Sat5 config-channel"
 srcrepo     : ""
 learnmore   : ""
 fileissues  : ""

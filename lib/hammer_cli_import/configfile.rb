@@ -51,7 +51,7 @@ module HammerCLIImport
       persistent_maps :organizations, :products, :puppet_repositories
 
       class << self; attr_accessor :interview_questions end
-      @interview_questions = %w(version author license descr srcrepo learnmore fileissues Y)
+      @interview_questions = %w(version author license summary srcrepo learnmore fileissues Y)
 
       # Load the macro-mapping and interview-answers ONLY once-per-run
       def first_time_only
@@ -107,6 +107,7 @@ module HammerCLIImport
       # Create a puppet module-template on the filesystem,
       # inside of working-directory
       def generate_module_template_for(name)
+        module_name = name
         Dir.chdir(option_working_directory)
         gen_cmd = "puppet module generate #{name}"
         Open3.popen3(gen_cmd) do |stdin, stdout, _stderr|
@@ -117,8 +118,8 @@ module HammerCLIImport
               rd = stdout.readline
               #debug "Read #{rd}"
             end
-            debug "Answering #{q}"
-            stdin.puts(@interview_answers[q])
+            answer = @interview_answers[q].gsub('#{module_name}', module_name)
+            stdin.puts(answer)
           end
           rd = ''
           begin
@@ -127,6 +128,14 @@ module HammerCLIImport
             debug 'Done reading'
           end
         end
+
+        # Now that we have generated the module, add a 'description' to the
+        # metadata.json file found at option_working_dir/<name>/metadata.json
+        metadata_path = File.join(File.join(option_working_directory, name), 'metadata.json')
+        answer = @interview_answers['description'].gsub('#{module_name}', module_name)
+        sed_cmd = "sed -i '\/\"summary\":\/a \\ \\ \"description\": \"#{answer}\",' #{metadata_path}"
+        debug "About to issue #{sed_cmd}"
+        system sed_cmd
       end
 
       def build_puppet_module(module_name)
