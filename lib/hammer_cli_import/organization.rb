@@ -68,7 +68,7 @@ module HammerCLIImport
 
         rc = api_call :subscriptions, :upload, {:organization_id => id, :content => manifest_file}, request_headers
         wait_for_task(rc['id'])
-        report_summary :uploaded, :manifest
+        report_summary :uploaded, :manifests
       end
 
       def import_single_row(data)
