@@ -115,7 +115,7 @@ module HammerCLIImport
         to_import = option_entities.split(',')
         AllCommand.known.each_key do |key|
           AllCommand.known[key]['import'] = (to_import.include?(key) || to_import.include?('all'))
-          next if AllCommand.known[key]['depends-on'].nil?
+          next if AllCommand.known[key]['depends-on'].nil? || !AllCommand.known[key]['import']
 
           depends_on = AllCommand.known[key]['depends-on'].split(',')
           depends_on.each do |entity_name|
@@ -125,37 +125,36 @@ module HammerCLIImport
       end
 
       # config-file may need --macro-mapping
-      def config_file_args
-        return ['--macro-mapping', "#{option_macro_mapping}"] unless option_macro_mapping.nil?
+      def config_file_args(args)
+        args << '--macro-mapping' << "#{option_macro_mapping}" unless option_macro_mapping.nil?
+        return args
       end
 
       # 'content-view needs --dir, and knows its own --csv-file in that dir
-      def content_view_args
+      def content_view_args(args)
         args = ['--csv-file', "#{option_directory}/CHANNELS/export.csv"]
         args << '--dir' << "#{option_directory}/CHANNELS"
         return args
       end
 
       # 'organization' may need --into-org-id
-      def organization_args
-        args = []
+      def organization_args(args)
         args << '--into-org-id' << option_into_org_id unless option_into_org_id.nil?
         args << '--upload-manifests-from' << option_manifest_directory unless option_manifest_directory.nil?
         return args
       end
 
       # repository and repo-enable may need --synch and --wait
-      def repository_args
-        args = []
+      def repository_args(args)
         args << '--synchronize' if option_synchronize?
         args << '--wait' if option_wait?
         return args
       end
 
       # 'user' needs --new-passwords and may need --merge-users
-      def user_args
+      def user_args(args)
         pwd_filename = "passwords_#{Time.now.utc.iso8601}.csv"
-        args = '--new-passwords' << pwd_filename
+        args << '--new-passwords' << pwd_filename
         args << '--merge-users' if option_merge_users?
         return args
       end
@@ -163,18 +162,20 @@ module HammerCLIImport
       # Some subcommands have their own special args
       # This is the function that will know them all
       def build_args(key, filename)
-        args = ['--csv-file', filename]
+        csv = ['--csv-file', filename]
         case key
         when 'config-file'
-          args << config_file_args
+          args = config_file_args(csv)
         when 'content-view'
-          args << content_view_args
+          args = content_view_args(csv)
         when 'organization'
-          args << organization_args
+          args = organization_args(csv)
         when 'repository', 'repository-enable'
-          args << repository_args
+          args = repository_args(csv)
         when 'user'
-          args << user_args
+          args = user_args(csv)
+        else
+          args = csv
         end
         return args
       end
@@ -183,7 +184,6 @@ module HammerCLIImport
       def import_from
         AllCommand.entity_order.each do |key|
           a_map = AllCommand.known[key]
-
           if a_map['import']
             import_file = "#{option_directory}/#{a_map['export-file']}.csv"
             args = build_args(key, import_file)
