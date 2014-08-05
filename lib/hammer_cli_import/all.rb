@@ -138,14 +138,16 @@ module HammerCLIImport
 
       # 'organization' may need --into-org-id
       def organization_args
-        args = '--into-org-id' << option_into_org_id unless option_into_org_id.nil?
+        args = []
+        args << '--into-org-id' << option_into_org_id unless option_into_org_id.nil?
         args << '--upload-manifests-from' << option_manifest_directory unless option_manifest_directory.nil?
         return args
       end
 
       # repository and repo-enable may need --synch and --wait
       def repository_args
-        args = '--synchronize' if option_synchronize?
+        args = []
+        args << '--synchronize' if option_synchronize?
         args << '--wait' if option_wait?
         return args
       end
