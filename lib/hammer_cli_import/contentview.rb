@@ -170,6 +170,7 @@ module HammerCLIImport
         repo_ids.collect { |id| lookup_entity :repositories, id } .each do |repo|
           unless repo_synced? repo
             warn "Repository #{repo['label']} is not (fully) synchronized. Retry once synchronization has completed."
+            report_summary :skipped, :content_views
             return
           end
         end
