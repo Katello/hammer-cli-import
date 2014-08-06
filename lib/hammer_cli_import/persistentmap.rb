@@ -47,6 +47,7 @@ module PersistentMap
 
       @definitions[:activation_keys] = ['org_id' => String], ['sat6' => Fixnum], :activation_keys
       @definitions[:ak_content_views] = ['ak_id' => String], ['sat6' => Fixnum], :content_views
+      @definitions[:system_content_views] = ['ch_seq' => String], ['sat6' => Fixnum], :content_views
       @definitions[:local_repositories] = [{'org_id' => Fixnum}, {'channel_id' => Fixnum}], ['sat6' => Fixnum], :repositories
       @definitions[:products] = [{'org_id' => Fixnum}, {'label' => String}], ['sat6' => Fixnum], :products
       @definitions[:puppet_repositories] = [{'org_id' => Fixnum}, {'channel_id' => Fixnum}],
