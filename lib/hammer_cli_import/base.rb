@@ -250,7 +250,7 @@ module HammerCLIImport
           end
         end
       end
-      progress '  No action taken.' if @summary.empty? || @summary.keys == [:found]
+      progress '  No action taken.' if (@summary.keys - [:found]).empty?
     end
 
     def get_translated_id(entity_type, entity_id)
