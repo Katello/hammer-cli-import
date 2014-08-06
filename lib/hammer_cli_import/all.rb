@@ -45,7 +45,7 @@ module HammerCLIImport
       # An ordered-list of the entities we know how to import
       class << self; attr_accessor :entity_order end
       @entity_order = %w(organization user host-collection repository-enable repository
-                         content-view activation-key template-snippet config-file)
+                         content-view activation-key template-snippet config-file content-host)
 
       #
       # A list of what we know how to do.
@@ -64,12 +64,17 @@ module HammerCLIImport
         'config-file' =>
                     {'export-file' => 'config-files-latest',
                      'import-class' => 'ConfigFileImportCommand',
-                     'depends-on' => 'repository',
+                     'depends-on' => 'organization',
+                     'import' => false },
+        'content-host' =>
+                    {'export-file' => 'system-profiles',
+                     'import-class' => 'ContentHostImportCommand',
+                     'depends-on' => 'content-view,host-collection,repository,organization',
                      'import' => false },
         'content-view' =>
                     {'export-file' => 'CHANNELS/export',
                      'import-class' => 'LocalRepositoryImportCommand',
-                     'depends-on' => 'repository',
+                     'depends-on' => 'repository,organization',
                      'import' => false },
         'repository' =>
                     {'export-file' => 'repositories',
@@ -130,6 +135,12 @@ module HammerCLIImport
         return args
       end
 
+      # 'content-host needs --export-directory
+      def content_host_args(args)
+        args << '--export-directory' << File.join(File.expand_path('~'), 'rpm-working-dir')
+        return args
+      end
+
       # 'content-view needs --dir, and knows its own --csv-file in that dir
       def content_view_args(args)
         args = ['--csv-file', "#{option_directory}/CHANNELS/export.csv"]
@@ -166,6 +177,8 @@ module HammerCLIImport
         case key
         when 'config-file'
           args = config_file_args(csv)
+        when 'content-host'
+          args = content_host_args(csv)
         when 'content-view'
           args = content_view_args(csv)
         when 'organization'
