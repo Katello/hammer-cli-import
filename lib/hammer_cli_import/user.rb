@@ -133,7 +133,7 @@ module HammerCLIImport
 
           unless existing_user.nil?
             info "User with login #{login} already exists. Associating..."
-            @pm[:users][user_id] = existing_user['id']
+            map_entity :users, user_id, existing_user['id']
             new_user = false
           end
         end
