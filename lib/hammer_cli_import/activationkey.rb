@@ -91,7 +91,11 @@ module HammerCLIImport
           # of this function.
         end
         split_multival(data['child_channel_id']).each do |child_ch|
-          @ak_content_views[ak['id'].to_i] << get_translated_id(:content_views, child_ch)
+          @ak_content_views[ak['id'].to_i] << begin
+            get_translated_id(:content_views, child_ch)
+          rescue HammerCLIImport::MissingObjectError
+            get_translated_id(:redhat_content_views, [data['org_id'].to_i, child_ch])
+          end
         end
       end
 
