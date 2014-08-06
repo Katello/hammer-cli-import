@@ -242,10 +242,15 @@ module HammerCLIImport
                  else
                    entity
                  end
-          progress "  #{verb.to_s.capitalize} #{count} #{noun}."
+          report = "  #{verb.to_s.capitalize} #{count} #{noun}."
+          if verb == :found
+            info report
+          else
+            progress report
+          end
         end
       end
-      progress '  No action taken.' if @summary.empty?
+      progress '  No action taken.' if @summary.empty? || @summary.keys == [:found]
     end
 
     def get_translated_id(entity_type, entity_id)
