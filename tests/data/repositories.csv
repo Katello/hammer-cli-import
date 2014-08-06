@@ -2,3 +2,4 @@ id,org_id,repo_label,repo_type,source_url,client_key_descr,client_key_type,clien
 514,100,Tatooine,yum,http://tatooine.galaxy.com/yum/os/,,,,,,,,,
 520,100,Alderaan,yum,/dev/null,,,,,,,,,
 534,100,Spacewalk Client,yum,http://spacewalk.redhat.com/yum/nightly-client/RHEL/6/x86_64/,,,,,,,,,
+535,100,Spacewalk 2.2 Client,yum,http://spacewalk.redhat.com/yum/2.2-client/RHEL/6/x86_64/,,,,,,,,,

@@ -1,6 +1,6 @@
 org_id,channel_id,channel_label,package_nevra,package_rpm_name,in_repo,in_parent_channel
-100,134,nightly-client-rhel,rhn-check-0:2.2.7-1.el6.noarch,rhn-check-2.2.7-1.el6.noarch.rpm,534,
-100,134,nightly-client-rhel,rhn-client-tools-0:2.2.7-1.el6.noarch,rhn-client-tools-2.2.7-1.el6.noarch.rpm,534,
-100,134,nightly-client-rhel,rhn-setup-0:2.2.7-1.el6.noarch,rhn-setup-2.2.7-1.el6.noarch.rpm,534,
-100,134,nightly-client-rhel,rhn-setup-gnome-0:2.2.7-1.el6.noarch,rhn-setup-gnome-2.2.7-1.el6.noarch.rpm,534,
-100,134,nightly-client-rhel,yum-rhn-plugin-0:2.2.7-1.el6.noarch,yum-rhn-plugin-2.2.7-1.el6.noarch.rpm,534,
+100,134,2.2-client,rhn-check-0:2.2.7-1.el6.noarch,rhn-check-2.2.7-1.el6.noarch.rpm,535,
+100,134,2.2-client,rhn-client-tools-0:2.2.7-1.el6.noarch,rhn-client-tools-2.2.7-1.el6.noarch.rpm,535,
+100,134,2.2-client,rhn-setup-0:2.2.7-1.el6.noarch,rhn-setup-2.2.7-1.el6.noarch.rpm,535,
+100,134,2.2-client,rhn-setup-gnome-0:2.2.7-1.el6.noarchm,rhn-setup-gnome-2.2.7-1.el6.noarch.rpm,535,
+100,134,2.2-client,yum-rhn-plugin-0:2.2.7-1.el6.noarch,yum-rhn-plugin-2.2.7-1.el6.noarch.rpm,535,
