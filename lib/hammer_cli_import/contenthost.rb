@@ -33,7 +33,8 @@ module HammerCLIImport
       csv_columns 'server_id', 'profile_name', 'hostname', 'description',
                   'organization_id', 'architecture', 'release',
                   'base_channel_id', 'child_channel_id', 'system_group_id',
-                  'virtual_host', 'virtual_guest'
+                  'virtual_host', 'virtual_guest',
+                  'base_channel_label'
 
       persistent_maps :organizations, :content_views, :host_collections, :systems
 
@@ -47,7 +48,14 @@ module HammerCLIImport
         return lookup_entity(:systems, get_translated_id(:systems, system_id))['uuid']
       end
 
-      def mk_profile_hash(data)
+      def _build_composite_cv_label(data, cvs)
+        label = ''
+        label += data['base_channel_label'] + '_' if data['base_channel_label']
+        label += cvs.sort.join('_')
+        return label
+      end
+
+      def mk_profile_hash(data, cv_id)
         hcollections = split_multival(data['system_group_id']).collect do |sg_id|
           get_translated_id(:host_collections, sg_id)
         end
@@ -58,20 +66,28 @@ module HammerCLIImport
           :type => 'system',
           # :guest_ids => [],
           :organization_id => get_translated_id(:organizations, data['organization_id'].to_i),
-          # :content_view_id => nil,
+          :content_view_id => cv_id,
           :host_colletion_id => hcollections
         }
       end
 
       def import_single_row(data)
         @vguests ||= {}
-        cv = create_composite_content_view(
-            :ch_content_views,
+        cvs = (split_multival(data['base_channel_id']) + split_multival(data['child_channel_id'])).select do
+          |channel_id|
+          begin
+            get_translated_id(:content_views, channel_id)
+          rescue HammerCLIImport::MissingObjectError
+            get_translated_id(:redhat_content_views, [data['organization_id'].to_i, channel_id])
+          end
+        end
+        cv_id = create_composite_content_view(
+            :system_content_views,
             get_translated_id(:organizations, data['organization_id'].to_i),
-            "cv_#{profile_name}",
-            "Composite content view for activation key #{ak['name']}",
+            _build_composite_cv_label(data, cvs),
+            'Composite content view for content hosts',
             cvs)
-        profile = mk_profile_hash data
+        profile = mk_profile_hash data, cv_id
         c_host = create_entity(:systems, profile, data['server_id'].to_i)
         # store processed system profiles to a set according to the organization
         @map ||= Set.new
