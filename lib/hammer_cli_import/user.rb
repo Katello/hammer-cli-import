@@ -36,7 +36,7 @@ module HammerCLIImport
 
       option ['--role-mapping'], 'FILE_NAME',
              'Mapping of Satellite-5 role names to Satellite-6 defined roles',
-             :default => '/etc/hammer/cli.modules.d/role_map.yml'
+             :default => '/etc/hammer/cli.modules.d/import/role_map.yml'
 
       validate_options do
         any(:option_new_passwords, :option_delete).required

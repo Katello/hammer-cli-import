@@ -58,11 +58,11 @@ gem install --local --install-dir .%{gem_dir} \
             --force %{SOURCE0}
 
 %install
-mkdir -p %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d
+mkdir -p %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import
 install -m 755 %{SOURCE1} %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import.yml
-install -m 644 %{SOURCE2} %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/role_map.yml
-install -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/config_macros.yml
-install -m 644 %{SOURCE4} %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/interview_answers.yml
+install -m 644 %{SOURCE2} %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import/role_map.yml
+install -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import/config_macros.yml
+install -m 644 %{SOURCE4} %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import/interview_answers.yml
 mkdir -p %{buildroot}%{gem_dir}
 cp -pa .%{gem_dir}/* \
         %{buildroot}%{gem_dir}/
@@ -71,9 +71,9 @@ cp -pa .%{gem_dir}/* \
 %dir %{geminstdir}
 %{geminstdir}/
 %config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/import.yml
-%config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/role_map.yml
-%config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/config_macros.yml
-%config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/interview_answers.yml
+%config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/import/role_map.yml
+%config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/import/config_macros.yml
+%config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/import/interview_answers.yml
 %exclude %{gem_dir}/cache/%{gemname}-%{version}.gem
 %{gem_dir}/specifications/%{gemname}-%{version}.gemspec
 

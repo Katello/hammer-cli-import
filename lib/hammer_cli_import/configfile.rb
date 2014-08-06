@@ -34,7 +34,7 @@ module HammerCLIImport
 
       option ['--macro-mapping'], 'FILE_NAME',
              'Mapping of Satellite-5 config-file-macros to puppet facts',
-             :default => '/etc/hammer/cli.modules.d/config_macros.yml'
+             :default => '/etc/hammer/cli.modules.d/import/config_macros.yml'
 
       option ['--working-directory'], 'FILE_NAME',
              'Location for building puppet modules (will be created if it doesn\'t exist',
@@ -42,7 +42,7 @@ module HammerCLIImport
 
       option ['--answers-file'], 'FILE_NAME',
              'Answers to the puppet-generate-module interview questions',
-             :default => '/etc/hammer/cli.modules.d/interview_answers.yml' \
+             :default => '/etc/hammer/cli.modules.d/import/interview_answers.yml' \
              do |answers_file|
                raise ArgumentError, "File #{answers_file} does not exist" unless !option_delete? && File.exist?(answers_file)
                answers_file
