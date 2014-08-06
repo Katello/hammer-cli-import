@@ -50,7 +50,7 @@ if [ "$1" != "--just-create" ]; then
     # delete entities in reverse order
     import_cmd activation-key ${CSV_DIR}/activation-keys.csv --delete
     import_cmd content-view ${CSV_DIR}/export.csv --delete
-    rm -rf ${{TMP}
+    rm -rf ${TMP}
     import_cmd repository ${CSV_DIR}/repositories.csv --delete
     import_cmd host-collection ${CSV_DIR}/system-groups.csv --delete
     import_cmd user ${CSV_DIR}/users.csv --delete
