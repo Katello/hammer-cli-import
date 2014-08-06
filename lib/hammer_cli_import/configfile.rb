@@ -30,7 +30,7 @@ module HammerCLIImport
 
       option ['--generate-only'], :flag,
              'Create and fill puppet-modules, but DO NOT upload anything',
-             :default => :false
+             :default => false
 
       option ['--macro-mapping'], 'FILE_NAME',
              'Mapping of Satellite-5 config-file-macros to puppet facts',
