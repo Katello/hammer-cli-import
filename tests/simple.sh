@@ -44,9 +44,11 @@ TMP=$(mktemp -d)
 chmod o+rx ${TMP}
 cp -r ${CSV_DIR}/export.csv $(ls ${CSV_DIR}/*/ -d) ${TMP}
 import_cmd content-view ${TMP}/export.csv --synchronize --wait
+import_cmd activation-key ${CSV_DIR}/activation-keys.csv
 
 if [ "$1" != "--just-create" ]; then
     # delete entities in reverse order
+    import_cmd activation-key ${CSV_DIR}/activation-keys.csv --delete
     import_cmd content-view ${CSV_DIR}/export.csv --delete
     rm -rf ${{TMP}
     import_cmd repository ${CSV_DIR}/repositories.csv --delete
