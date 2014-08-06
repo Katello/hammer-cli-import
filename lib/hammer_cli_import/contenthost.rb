@@ -24,6 +24,8 @@ require 'socket'
 module HammerCLIImport
   class ImportCommand
     class ContentHostImportCommand < BaseCommand
+      include ImportTools::ContentView::Include
+
       command_name 'content-host'
       reportname = 'system-profiles'
       desc "Import Content Hosts (from spacewalk-report #{reportname})."
@@ -63,6 +65,12 @@ module HammerCLIImport
 
       def import_single_row(data)
         @vguests ||= {}
+        cv = create_composite_content_view(
+            :ch_content_views,
+            get_translated_id(:organizations, data['organization_id'].to_i),
+            "cv_#{profile_name}",
+            "Composite content view for activation key #{ak['name']}",
+            cvs)
         profile = mk_profile_hash data
         c_host = create_entity(:systems, profile, data['server_id'].to_i)
         # store processed system profiles to a set according to the organization
