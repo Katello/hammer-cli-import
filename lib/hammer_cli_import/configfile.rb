@@ -140,6 +140,7 @@ module HammerCLIImport
         sed_cmd = "sed -i '\/\"summary\":\/a \\ \\ \"description\": \"#{answer}\",' #{metadata_path}"
         debug "About to issue #{sed_cmd}"
         system sed_cmd
+        report_summary :created, :puppet_modules
       end
 
       def build_puppet_module(module_name)
@@ -298,6 +299,7 @@ module HammerCLIImport
               dsl += "}\n\n"
             else
             end
+            report_summary :created, :puppet_files
           end
           export_manifest(mname, class_name, dsl)
         end
@@ -346,6 +348,7 @@ module HammerCLIImport
           info "Uploading #{built_module_path}"
           # Ask hammer repository upload to Do Its Thing
           system "hammer repository upload-content --id #{repo['id']} --path #{built_module_path}"
+          report_summary :uploaded, :puppet_modules
         end
       end
 
