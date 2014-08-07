@@ -154,12 +154,22 @@ module HammerCLIImport
       end
 
       def delete_single_row(data)
+        @composite_cvs ||= []
         profile_id = data['server_id'].to_i
         unless @pm[:systems][profile_id]
           info "#{to_singular(:systems).capitalize} with id #{profile_id} wasn't imported. Skipping deletion."
           return
         end
+        profile = get_cache(:systems)[@pm[:systems][profile_id]]
+        cv = get_cache(:content_views)[profile['content_view_id']]
+        @composite_cvs << cv['id'] if cv['composite']
         delete_entity_by_import_id(:systems, get_translated_id(:systems, profile_id), 'uuid')
+      end
+
+      def post_delete(_file)
+        @composite_cvs.each do |cv_id|
+          delete_content_view(cv_id, :system_content_views)
+        end
       end
 
       def _create_dir(dir_name)

@@ -479,6 +479,10 @@ module HammerCLIImport
       # empty by default
     end
 
+    def post_delete(_csv_file)
+      # empty by default
+    end
+
     def delete(filename)
       cvs_iterate(filename, (method :delete_single_row))
     end
@@ -499,6 +503,12 @@ module HammerCLIImport
         if option_delete?
           info "Deleting from #{option_csv_file}"
           delete option_csv_file
+          begin
+            post_delete option_csv_file
+          rescue => e
+            error "Caught #{e.class}:#{e.message} while post_delete"
+            error e.backtrace.join "\n"
+          end
         else
           info "Importing from #{option_csv_file}"
           import option_csv_file
