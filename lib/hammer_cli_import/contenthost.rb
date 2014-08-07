@@ -73,7 +73,7 @@ module HammerCLIImport
 
       def import_single_row(data)
         @vguests ||= {}
-        cvs = (split_multival(data['base_channel_id']) + split_multival(data['child_channel_id'])).select do
+        cvs = (split_multival(data['base_channel_id']) + split_multival(data['child_channel_id'])).collect do
           |channel_id|
           begin
             get_translated_id(:content_views, channel_id)

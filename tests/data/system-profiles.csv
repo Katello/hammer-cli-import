@@ -1,0 +1,9 @@
+server_id,profile_name,hostname,description,organization_id,organization_name,base_channel_id,base_channel_label,child_channel_id,child_channel_label,system_group_id,system_group,release,architecture,virtual_host,virtual_guest,is_virtualized,virt_type
+1000020001,vmware180.englab.brq.redhat.com,vmware180.englab.brq.redhat.com,"Initial Registration Parameters:
+OS: redhat-release-server
+Release: 6Server
+CPU Arch: x86_64",100,Galactic Empire,133,nightly-client,,,9,Rebel-Alliance,6Server,x86_64,,,Yes,VMware
+1000020002,vmware194.englab.brq.redhat.com,vmware194.englab.brq.redhat.com,"Initial Registration Parameters:
+OS: redhat-release
+Release: 5Server
+CPU Arch: x86_64-redhat-linux",100,Galactic Empire,133,nightly-client,134,2.2-client,9,Rebel-Alliance,5Server,x86_64,,,Yes,VMware
