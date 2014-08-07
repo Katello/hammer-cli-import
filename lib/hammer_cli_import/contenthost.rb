@@ -36,7 +36,8 @@ module HammerCLIImport
                   'virtual_host', 'virtual_guest',
                   'base_channel_label'
 
-      persistent_maps :organizations, :content_views, :host_collections, :systems
+      persistent_maps :organizations, :content_views, :redhat_content_views, :system_content_views,
+                      :host_collections, :systems
 
       option ['--export-directory'], 'DIR_PATH', 'Directory to export rpmbuild structure'
 
