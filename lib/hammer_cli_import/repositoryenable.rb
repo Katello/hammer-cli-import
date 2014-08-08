@@ -108,17 +108,15 @@ module HammerCLIImport
                 begin
                   publish_content_view(cv['id'], :redhat_content_views)
                 rescue RestClient::Exception => e
-                  resp_hash = JSON.parse(e.response)
-                  error "Error #{e.http_code} trying to publish content-view #{row['channel_name']} :\n #{resp_hash['displayMessage']}\n"
+                  msg = JSON.parse(e.response)['displayMessage']
+                  error "#{e.http_code} trying to publish content-view #{row['channel_name']} :\n #{msg}\n"
                   next
                 end
 
               end
             else
               if @pm[:redhat_content_views][composite_rhcv_id]
-                delete_content_view(
-                  get_translated_id(:redhat_content_views, composite_rhcv_id),
-                  :redhat_content_views)
+                delete_content_view(get_translated_id(:redhat_content_views, composite_rhcv_id), :redhat_content_views)
               end
               disable_repos(product_org, product_id, rs_id, repo_set_info, channel_label)
             end
