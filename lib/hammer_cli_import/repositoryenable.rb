@@ -105,7 +105,14 @@ module HammerCLIImport
                     :repository_ids  => [rh_repo['id']]
                   },
                   composite_rhcv_id)
-                publish_content_view(cv['id'])
+                begin
+                  publish_content_view(cv['id'], :redhat_content_views)
+                rescue RestClient::Exception => e
+                  resp_hash = JSON.parse(e.response)
+                  error "Error #{e.http_code} trying to publish content-view #{row['channel_name']} :\n #{resp_hash['displayMessage']}\n"
+                  next
+                end
+
               end
             else
               if @pm[:redhat_content_views][composite_rhcv_id]
