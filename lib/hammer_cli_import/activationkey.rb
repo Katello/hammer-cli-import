@@ -60,6 +60,14 @@ module HammerCLIImport
       end
 
       def import_single_row(data)
+        if data['base_channel_id'].nil?
+          # if base channel id is empty,
+          # 'Spacewalk Default' was used on Sat5
+          info "Skipping activation-key #{data['token']}: Migrating activation-keys with " \
+            "'Red Hat Satellite Default' as base channel is not supported."
+          report_summary :skipped, :activation_keys
+          return
+        end
         ak_hash = mk_ak_hash data
         ak = create_entity(:activation_keys, ak_hash, data['token'])
         if (data['server_group_id'])
@@ -78,6 +86,9 @@ module HammerCLIImport
         else
           # if base channel id is empty,
           # 'Spacewalk Default' was used on Sat5
+          # Since we can not migrate them due to
+          # bug 1126924, we skip it right at the beggining
+          # of this function.
         end
         split_multival(data['child_channel_id']).each do |child_ch|
           @ak_content_views[ak['id'].to_i] << get_translated_id(:content_views, child_ch)
