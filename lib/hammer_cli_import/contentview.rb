@@ -32,7 +32,7 @@ module HammerCLIImport
       csv_columns 'org_id', 'channel_id', 'channel_label', 'channel_name'
 
       persistent_maps :organizations, :repositories, :local_repositories, :content_views,
-                      :products, :redhat_repositories, :redhat_content_views
+                      :products, :redhat_repositories, :redhat_content_views, :system_content_views
 
       option ['--dir'], 'DIR', 'Export directory'
       option ['--filter'], :flag, 'Filter content-views for package names present in Sat5 channel', :default => false
@@ -183,6 +183,10 @@ module HammerCLIImport
 
       def delete_single_row(data)
         cv_id = data['channel_id'].to_i
+        unless @pm[:content_views][cv_id] || @pm[:redhat_content_views][cv_id] || @pm[:system_content_views][cv_id]
+          info "#{to_singular(:systems).capitalize} with id #{cv_id} wasn't imported. Skipping deletion."
+          return
+        end
         translated = get_translated_id :content_views, cv_id
 
         # delete_entity :content_views, cv_id
