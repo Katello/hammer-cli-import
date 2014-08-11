@@ -74,6 +74,7 @@ module HammerCLIImport
 
       def import_single_row(data)
         @vguests ||= {}
+        @map ||= Set.new
         cvs = (split_multival(data['base_channel_id']) + split_multival(data['child_channel_id'])).collect do
           |channel_id|
           begin
@@ -91,7 +92,6 @@ module HammerCLIImport
         profile = mk_profile_hash data, cv_id
         c_host = create_entity(:systems, profile, data['server_id'].to_i)
         # store processed system profiles to a set according to the organization
-        @map ||= Set.new
         @map << {
           :org_id => data['organization_id'].to_i,
           :system_id => data['server_id'].to_i,
