@@ -35,19 +35,21 @@ import_cmd() {
 }
 
 
+if [ "$1" != "--delete" ]; then
 # create entities
-import_cmd organization ${CSV_DIR}/users.csv
-import_cmd user ${CSV_DIR}/users.csv --new-passwords=new-passwords.csv
-import_cmd host-collection ${CSV_DIR}/system-groups.csv
-import_cmd repository ${CSV_DIR}/repositories.csv --synchronize --wait
-TMP=$(mktemp -d)
-chmod o+rx ${TMP}
-cp -r ${CSV_DIR}/export.csv $(ls ${CSV_DIR}/*/ -d) ${TMP}
-import_cmd content-view ${TMP}/export.csv --synchronize --wait
-import_cmd activation-key ${CSV_DIR}/activation-keys.csv
-import_cmd content-host ${CSV_DIR}/system-profiles.csv --export-directory=${TMP}
+    import_cmd organization ${CSV_DIR}/users.csv
+    import_cmd user ${CSV_DIR}/users.csv --new-passwords=new-passwords.csv
+    import_cmd host-collection ${CSV_DIR}/system-groups.csv
+    import_cmd repository ${CSV_DIR}/repositories.csv --synchronize --wait
+    TMP=$(mktemp -d)
+    chmod o+rx ${TMP}
+    cp -r ${CSV_DIR}/export.csv $(ls ${CSV_DIR}/*/ -d) ${TMP}
+    import_cmd content-view ${TMP}/export.csv --synchronize --wait
+    import_cmd activation-key ${CSV_DIR}/activation-keys.csv
+    import_cmd content-host ${CSV_DIR}/system-profiles.csv --export-directory=${TMP}
+fi
 
-if [ "$1" != "--just-create" ]; then
+if [ "$1" != "--create" ]; then
     # delete entities in reverse order
     import_cmd content-host ${CSV_DIR}/system-profiles.csv --delete
     import_cmd activation-key ${CSV_DIR}/activation-keys.csv --delete
