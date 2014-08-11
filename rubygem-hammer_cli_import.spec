@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.9.1
+Version:    0.10.0
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -81,6 +81,57 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Aug 11 2014 Grant Gainey 0.10.0-1
+- allow content view --delete to be executed multiple times
+  (tlestach@redhat.com)
+- move initialization of @map earlier (tlestach@redhat.com)
+- introduce --delete option for simple test (tlestach@redhat.com)
+- Rubocop doesn't like some of out more-complicated things.
+  (ggainey@redhat.com)
+- Fix our attempt to publish RH-content-view. Spit out a useful error when it
+  fails (ggainey@redhat.com)
+- do not delete orgs, since it's disabled (tlestach@redhat.com)
+- introduce post_delete (tlestach@redhat.com)
+- include persistent map (tlestach@redhat.com)
+- add content-host import to the simple test (tlestach@redhat.com)
+- system_content_views persistant map (tlestach@redhat.com)
+- sort persistent maps alphabetically (tlestach@redhat.com)
+- associate content views with content hosts (tlestach@redhat.com)
+- check among redhat content view, if id not found among the custom content
+  views (tlestach@redhat.com)
+- start creating composite content views for content hosts
+  (tlestach@redhat.com)
+- let's use Spacewalk 2.2 client as 2nd repository (tlestach@redhat.com)
+- fix bracket for better substitution (tlestach@redhat.com)
+- add activation keys to simple test (tlestach@redhat.com)
+- move composite content view creation to importtools (tlestach@redhat.com)
+- Skip activation-keys with 'Satellite default' (mkollar@redhat.com)
+- 1126239 - Add content-host to Things Import-All Knows (ggainey@redhat.com)
+- 1126882 - move default-cfgs to cli.modules.d/import (ggainey@redhat.com)
+- 1127263 - Add info about files and puppet-modules to summary
+  (ggainey@redhat.com)
+- 1126618 - false != :false, was causing upload to *always* be skipped
+  (ggainey@redhat.com)
+- Use preferred way to map existing entities (mkollar@redhat.com)
+- 1126155 - slightly better (mkollar@redhat.com)
+- 1126155 - hide potentially confusing messages (mkollar@redhat.com)
+- --export-directory option not required with combination of --delete option
+  (tlestach@redhat.com)
+- No really, fixing args for import-all for *sure* this time
+  (ggainey@redhat.com)
+- Fix arg-breakage in import-all (ggainey@redhat.com)
+- Be consistent in plural for report_summary (mkollar@redhat.com)
+- 1126618 - Add --generate-only to config-file (ggainey@redhat.com)
+- Report sipping of content-view (mkollar@redhat.com)
+- 1126842 - Need to quote the values in config_macros.yml (ggainey@redhat.com)
+- Fix logging so that --debug actually works (ggainey@redhat.com)
+- 1126493 - Set 'description' for cfg-chan puppet module. Fix it so
+  #{module_name} actually works as well (ggainey@redhat.com)
+- 1126027 - create product/repo for local stuff only when needed
+  (mkollar@redhat.com)
+- Handle empty summary nicely (mkollar@redhat.com)
+- configfile - hide unsilence-able puppet output (ggainey@redhat.com)
+
 * Sun Aug 03 2014 Grant Gainey 0.9.1-1
 - Minor comment cleanup (ggainey@redhat.com)
 - Rubocop: Prefer single-quoted strings when you don't need string
