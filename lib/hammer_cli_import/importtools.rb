@@ -103,6 +103,20 @@ module ImportTools
     end
   end
 
+  module LifecycleEnvironment
+    module Include
+      def get_env(org_id, name = 'Library')
+        @lc_environments ||= {}
+        @lc_environments[org_id] ||= {}
+        unless @lc_environments[org_id][name]
+          res = api_call :lifecycle_environments, :index, {:organization_id => org_id, :name => name}
+          @lc_environments[org_id][name] = res['results'].find { |x| x['name'] == name }
+        end
+        @lc_environments[org_id][name]
+      end
+    end
+  end
+
   module Task
     module Include
       # [uuid] -> {uuid => {:finished => bool, :progress => Float}}

@@ -24,6 +24,7 @@ module HammerCLIImport
   class ImportCommand
     class ActivationKeyImportCommand < BaseCommand
       include ImportTools::ContentView::Include
+      include ImportTools::LifecycleEnvironment::Include
 
       command_name 'activation-key'
       reportname = 'activation-keys'
@@ -103,12 +104,14 @@ module HammerCLIImport
         @ak_content_views.each do |ak_id, cvs|
           ak = lookup_entity(:activation_keys, ak_id)
           ak_cv_hash = {}
+          org_id = lookup_entity_in_cache(:organizations, {'label' => ak['organization']['label']})['id']
           ak_cv_hash[:content_view_id] = create_composite_content_view(
             :ak_content_views,
-            lookup_entity_in_cache(:organizations, {'label' => ak['organization']['label']})['id'],
+            org_id,
             "ak_#{ak_id}",
             "Composite content view for activation key #{ak['name']}",
             cvs)
+          ak_cv_hash[:environment_id] = get_env(org_id, 'Library')['id']
           info "  Associating activation key [#{ak_id}] with content view [#{ak_cv_hash[:content_view_id]}]"
           # associate the content view with the activation key
           update_entity(:activation_keys, ak_id, ak_cv_hash)
