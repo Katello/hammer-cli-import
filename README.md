@@ -75,5 +75,25 @@ You can play with apipie-bindings on command line. For that you need bundler. Ex
     }
     api.resource(:users).call(:create, user_hash)
 
+or create `reproducer.rb` and then run it via `bundle exec ruby reproducer.rb`.
+
+    require 'apipie-bindings'
+    
+    api = ApipieBindings::API.new({:uri => 'http://localhost/', :username => 'admin',
+                                   :password => 'changeme', :api_version => '2',
+                                   :aggressive_cache_checking => true})
+    user_hash = {
+      :login => 'newuser',
+      :firstname => 'user',
+      :lastname => 'new',
+      :mail => 'root@localhost',
+      :auth_source_id => 1,
+      :password => 'password',
+      :organization_ids => [13],
+      :default_organization_id => 13,
+      :location_ids => [],
+      :role_ids => []
+    }
+    api.resource(:users).call(:create, user_hash)
 
 [rubocop]: http://batsov.com/rubocop/ "Ruby code analyzer"
