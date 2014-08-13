@@ -463,10 +463,12 @@ module HammerCLIImport
       CSVHelper.csv_each filename, self.class.csv_columns do |data|
         begin
           action.call(data)
+        rescue MissingObjectError => moe
+          error moe.message
         rescue => e
           error "Caught #{e.class}:#{e.message} while processing following line:"
           error data.inspect
-          error e.backtrace.join "\n"
+          debug e.backtrace.join "\n"
         end
       end
     end
@@ -505,18 +507,22 @@ module HammerCLIImport
           delete option_csv_file
           begin
             post_delete option_csv_file
+          rescue MissingObjectError => moe
+            error moe.message
           rescue => e
             error "Caught #{e.class}:#{e.message} while post_delete"
-            error e.backtrace.join "\n"
+            debug e.backtrace.join "\n"
           end
         else
           info "Importing from #{option_csv_file}"
           import option_csv_file
           begin
             post_import option_csv_file
+          rescue MissingObjectError => moe
+            error moe.message
           rescue => e
             error "Caught #{e.class}:#{e.message} while post_import"
-            error e.backtrace.join "\n"
+            debug e.backtrace.join "\n"
           end
         end
         atr_exit
