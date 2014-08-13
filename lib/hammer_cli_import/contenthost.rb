@@ -53,6 +53,7 @@ module HammerCLIImport
         label = ''
         label += data['base_channel_label'] + '_' if data['base_channel_label']
         label += cvs.sort.join('_')
+        label.gsub!(/[^0-9a-z_-]/i, '_')
         return label
       end
 
