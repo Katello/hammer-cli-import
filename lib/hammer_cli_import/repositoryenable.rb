@@ -137,7 +137,6 @@ module HammerCLIImport
 
       # Given a repository-set and a channel-to-repo info for that channel,
       # enable the correct repository
-      # TODO: persist the resulting repo-id so we don't have to look it up later
       def enable_repos(org, prod_id, repo_set_id, info, row)
         channel_label = row['channel_label']
         channel_id = row ['channel_id'].to_i
