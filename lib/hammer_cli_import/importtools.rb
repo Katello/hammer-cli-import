@@ -49,7 +49,6 @@ module ImportTools
         end
       end
 
-      # TODO: Shall be removed and in its place will come sync_repo2
       def sync_repo(repo)
         return unless option_synchronize?
         task = api_call(:repositories, :sync, {:id => repo['id']})
@@ -58,7 +57,6 @@ module ImportTools
         wait_for_task task['id']
       end
 
-      # TODO: This shall replace sync_repo
       def sync_repo2(repo)
         task = api_call(:repositories, :sync, {:id => repo['id']})
         debug "Sync of repo #{repo['id']} started!"
