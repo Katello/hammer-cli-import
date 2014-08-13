@@ -7,3 +7,7 @@ CPU Arch: x86_64",100,Galactic Empire,133,nightly-client,,,9,Rebel-Alliance,6Ser
 OS: redhat-release
 Release: 5Server
 CPU Arch: x86_64-redhat-linux",100,Galactic Empire,133,nightly-client,134,2.2-client,9,Rebel-Alliance,5Server,x86_64,,,Yes,VMware
+1000020003,vmware200.englab.brq.redhat.com,vmware200.englab.brq.redhat.com,"Initial Registration Parameters:
+OS: redhat-release
+Release: 5Server
+CPU Arch: x86_64-redhat-linux",100,Galactic Empire,133,nightly-client,134,2.2-client,9,Rebel-Alliance,5Server,x86_64,,,Yes,VMware
