@@ -468,7 +468,7 @@ module HammerCLIImport
         rescue => e
           error "Caught #{e.class}:#{e.message} while processing following line:"
           error data.inspect
-          debug e.backtrace.join "\n"
+          info e.backtrace.join "\n"
         end
       end
     end
@@ -511,7 +511,7 @@ module HammerCLIImport
             error moe.message
           rescue => e
             error "Caught #{e.class}:#{e.message} while post_delete"
-            debug e.backtrace.join "\n"
+            info e.backtrace.join "\n"
           end
         else
           info "Importing from #{option_csv_file}"
@@ -522,7 +522,7 @@ module HammerCLIImport
             error moe.message
           rescue => e
             error "Caught #{e.class}:#{e.message} while post_import"
-            debug e.backtrace.join "\n"
+            info e.backtrace.join "\n"
           end
         end
         atr_exit
