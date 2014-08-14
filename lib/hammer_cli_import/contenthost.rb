@@ -45,10 +45,6 @@ module HammerCLIImport
         any(:option_export_directory, :option_delete).required
       end
 
-      def _translate_system_id_to_uuid(system_id)
-        return lookup_entity(:systems, get_translated_id(:systems, system_id))['uuid']
-      end
-
       def _build_composite_cv_label(data, cvs)
         label = ''
         label += data['base_channel_label'] + '_' if data['base_channel_label']
@@ -105,9 +101,9 @@ module HammerCLIImport
 
       def post_import(_file)
         @vguests.each do |system_id, guest_ids|
-          uuid = _translate_system_id_to_uuid(system_id)
+          uuid = get_translated_id(:systems, system_id)
           vguest_uuids = guest_ids.collect do |id|
-            _translate_system_id_to_uuid(id)
+            get_translated_id(:systems, id)
           end if guest_ids
           debug "Setting virtual guests for #{uuid}: #{vguest_uuids.inspect}"
           update_entity(

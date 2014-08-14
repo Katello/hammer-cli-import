@@ -305,6 +305,7 @@ module HammerCLIImport
       end
 
       results.each do |entity|
+        entity['id'] = entity['uuid'] if entity_type == :systems
         @cache[entity_type][entity['id']] = entity
       end
     end
@@ -380,6 +381,8 @@ module HammerCLIImport
         entity = mapped_api_call(entity_type, :create, entity_hash)
         debug "created entity: #{entity.inspect}"
         entity = entity[@wrap_in[entity_type]] if @wrap_in[entity_type]
+        # workaround for Bug
+        entity['id'] = entity['uuid'] if entity_type == :systems
         @pm[entity_type][original_id] = entity['id']
         get_cache(entity_type)[entity['id']] = entity
         debug "@pm[#{entity_type}]: #{@pm[entity_type].inspect}"
