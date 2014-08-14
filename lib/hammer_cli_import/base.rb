@@ -212,7 +212,7 @@ module HammerCLIImport
     #     > to_singular(:repositories)
     #     "repository"
     def to_singular(plural)
-      return plural.to_s.sub(/_/, ' ').sub(/s$/, '').sub(/ie$/, 'y')
+      return plural.to_s.gsub(/_/, ' ').sub(/s$/, '').sub(/ie$/, 'y')
     end
 
     def split_multival(multival, convert_to_int = true, separator = ';')
