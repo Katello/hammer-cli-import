@@ -36,6 +36,12 @@ module HammerCLIImport
   # of UUIDS and returns map, annotating every
   # given UUID with :finished bool and :progress float.
   module AsyncTasksReactor
+    module Extend
+      def add_async_tasks_reactor_options
+        option ['--no-async'], :flag, 'Wait for async tasks in foreground', :default => false
+      end
+    end
+
     module Include
       # Call from init
       def atr_init
@@ -53,6 +59,10 @@ module HammerCLIImport
       # Call to pospone execution of @block@ till all tasks are finished
       # Never ever use @return@ inside provided do block.
       def postpone_till(uuids, &block)
+        if option_no_async?
+          wait_for uuids, &block
+          return
+        end
         if uuids.empty?
           puts 'Nothing to wait for, running in main thread.'
           block.call
@@ -63,6 +73,19 @@ module HammerCLIImport
         @queue.enq([uuids, block])
         start_async_task_thread
         nil
+      end
+
+      # Variant for case when we do not want run thing in async
+      def wait_for(uuids, &block)
+        puts "Waiting for uuids (non async): #{uuids.inspect}."
+        n = 1
+        loop do
+          annotated = annotate_tasks uuids
+          break if annotated.all? { |_, v| v[:finished] }
+          sleep n
+          n = [n + 1, 10].min
+        end
+        block.call
       end
 
       # Has to be called before main thread ends.

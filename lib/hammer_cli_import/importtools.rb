@@ -29,6 +29,8 @@ module ImportTools
         option ['--synchronize'], :flag, 'Synchronize imported repositories', :default => false
         option ['--wait'], :flag, 'Wait for repository synchronization to finish', :default => false
 
+        add_async_tasks_reactor_options
+
         validate_options do
           option(:option_synchronize).required if option(:option_wait).exist?
         end

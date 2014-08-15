@@ -14,6 +14,10 @@ class Experiment
     Time.now - @start_time > n
   end
 
+  def option_no_async?
+    false
+  end
+
   def progress_task(n)
     [1, (Time.now - @start_time) / n].min
   end
