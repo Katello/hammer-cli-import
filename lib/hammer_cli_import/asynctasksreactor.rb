@@ -64,11 +64,11 @@ module HammerCLIImport
           return
         end
         if uuids.empty?
-          puts 'Nothing to wait for, running in main thread.'
+          info 'Nothing to wait for, running in main thread.'
           block.call
           return
         end
-        puts "Registering tasks for uuids: #{uuids.inspect}."
+        info "Registering tasks for uuids: #{uuids.inspect}."
         uuids.sort!
         @queue.enq([uuids, block])
         start_async_task_thread
@@ -77,7 +77,7 @@ module HammerCLIImport
 
       # Variant for case when we do not want run thing in async
       def wait_for(uuids, &block)
-        puts "Waiting for uuids (non async): #{uuids.inspect}."
+        info "Waiting for uuids (non async): #{uuids.inspect}."
         n = 1
         loop do
           annotated = annotate_tasks uuids
@@ -90,7 +90,7 @@ module HammerCLIImport
 
       # Has to be called before main thread ends.
       def atr_exit
-        puts 'Waiting for async tasks to finish' unless @task_map.empty?
+        info 'Waiting for async tasks to finish' unless @task_map.empty?
         @mutex.synchronize do
           @thread_finish = true
           @thread.run
@@ -112,7 +112,7 @@ module HammerCLIImport
         Thread.stop if @mutex.synchronize do
           if @task_map.empty? && @queue.empty?
             if @thread_finish
-              puts 'Exiting thread (exit requested, all tasks done).'
+              info 'Exiting thread (exit requested, all tasks done).'
               Thread.exit
             else
               true
@@ -155,13 +155,13 @@ module HammerCLIImport
 
             @task_map.keys.each do |uuids|
               next unless (uuids - finished).empty?
-              puts "Condition #{uuids.inspect} met"
+              info "Condition #{uuids.inspect} met"
               @task_map[uuids].each do |task|
                 begin
                   task.call
                 rescue => e
-                  puts "Exception caught while executing post-#{uuids.inspect}:"
-                  puts e.inspect
+                  info "Exception caught while executing post-#{uuids.inspect}:"
+                  info e.inspect
                 end
                 @async_tasks_done += 1
                 some_tasks_done = true
@@ -172,7 +172,8 @@ module HammerCLIImport
             print = @mutex.synchronize do
               some_tasks_done || @thread_finish
             end
-            puts "Asynchronous tasks: #{@async_tasks_done} of #{@async_tasks_todo + @queue.size} done (~#{progress}%)" \
+            self.progress "Asynchronous tasks: #{@async_tasks_done} " \
+              "of #{@async_tasks_todo + @queue.size} done (~#{progress}%)" \
               if print
 
             sleep 1 unless @task_map.empty?

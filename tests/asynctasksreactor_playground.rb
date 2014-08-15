@@ -22,6 +22,15 @@ class Experiment
     [1, (Time.now - @start_time) / n].min
   end
 
+  # We have this in our main stuff for printing stuff...
+  def progress(message)
+    puts message
+  end
+
+  def info(message)
+    puts "info: #{message}"
+  end
+
   def get_statuses(ns)
     puts "Getting statuses at about #{Time.now - @start_time}"
     res = {}
