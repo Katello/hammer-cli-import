@@ -31,7 +31,7 @@ module HammerCLIImport
       desc 'Load ALL data from a specified directory that is in spacewalk-export format.'
 
       option ['--directory'], 'DIR_PATH', 'stargate-export directory', :default => '/tmp/exports'
-      option ['--macro_mapping'], 'FILE', 'Mapping of Satellite-5 config-file-macros to puppet facts'
+      option ['--delete'], :flag, 'Delete entities instead of importing them', :default => false
       option ['--manifest-directory'], 'DIR_PATH', 'Directory holding manifests'
       option ['--entities'], 'entity[,entity...]', 'Import specific entities', :default => 'all'
       option ['--list-entities'], :flag, 'List entities we understand', :default => false
@@ -143,7 +143,6 @@ module HammerCLIImport
 
       # 'content-view needs --dir, and knows its own --csv-file in that dir
       def content_view_args(args)
-        args = ['--csv-file', "#{option_directory}/CHANNELS/export.csv"]
         args << '--dir' << "#{option_directory}/CHANNELS"
         return args
       end
@@ -173,7 +172,13 @@ module HammerCLIImport
       # Some subcommands have their own special args
       # This is the function that will know them all
       def build_args(key, filename)
-        csv = ['--csv-file', filename]
+        if key == 'content-view'
+          csv = ['--csv-file', "#{option_directory}/CHANNELS/export.csv"]
+        else
+          csv = ['--csv-file', filename]
+        end
+        return csv << '--delete' if option_delete?
+
         case key
         when 'config-file'
           args = config_file_args(csv)
@@ -193,9 +198,18 @@ module HammerCLIImport
         return args
       end
 
+      # Get entities-to-be-processed, in the right order (reversed if deleting)
+      def entities
+        if option_delete?
+          return AllCommand.entity_order.reverse
+        else
+          return AllCommand.entity_order
+        end
+      end
+
       # Do the import(s)
       def import_from
-        AllCommand.entity_order.each do |key|
+        entities.each do |key|
           a_map = AllCommand.known[key]
           if a_map['import']
             import_file = "#{option_directory}/#{a_map['export-file']}.csv"
