@@ -115,39 +115,36 @@ module HammerCLIImport
         # create rpmbuild directories
         create_rpmbuild_structure
         # create mapping files
-        org_ids = @map.collect { |dict| dict[:org_id] }.sort.uniq
-        org_ids.each do |org_id|
-          version = '0.0.1'
-          rpm_name = "system-profile-migrate-#{Socket.gethostname}-org#{org_id}"
-          tar_name = "#{rpm_name}-#{version}"
-          dir_name = File.join(option_export_directory, tar_name)
-          # create SOURCES id_to_uuid.map file
-          FileUtils.rm_rf(dir_name) if File.directory?(dir_name)
-          Dir.mkdir dir_name
-          CSVHelper.csv_write_hashes(
-            File.join(dir_name, 'system-id_to_uuid.map'),
-            [:system_id, :uuid],
-            @map.select { |dict| dict[:org_id] == org_id })
+        version = '0.0.1'
+        now = Time.now
+        rpm_name = "system-profile-transition-#{Socket.gethostname}-#{now.to_i}"
+        tar_name = "#{rpm_name}-#{version}"
+        dir_name = File.join(option_export_directory, tar_name)
+        # create SOURCES id_to_uuid.map file
+        FileUtils.rm_rf(dir_name) if File.directory?(dir_name)
+        Dir.mkdir dir_name
+        CSVHelper.csv_write_hashes(
+          File.join(dir_name, "system-id_to_uuid-#{now.to_i}.map"),
+          [:system_id, :uuid, :org_id],
+          @map.sort_by { |x| [x[:org_id], x[:system_id], x[:uuid]] })
 
-          sources_dir = File.join(option_export_directory, 'SOURCES')
-          # debug("tar -C #{option_export_directory} -czf #{sources_dir}/#{tar_name}.tar.gz #{tar_name}")
-          system("tar -C #{option_export_directory} -czf #{sources_dir}/#{tar_name}.tar.gz #{tar_name}")
-          FileUtils.rm_rf(dir_name)
-          # store spec file
-          File.open(
-            File.join(option_export_directory, 'SPECS', "#{tar_name}.spec"), 'w') do |file|
-            file.write(rpm_spec(rpm_name, version, DateTime.now.strftime('%a %b %e %Y')
-))
-          end
+        sources_dir = File.join(option_export_directory, 'SOURCES')
+        # debug("tar -C #{option_export_directory} -czf #{sources_dir}/#{tar_name}.tar.gz #{tar_name}")
+        system("tar -C #{option_export_directory} -czf #{sources_dir}/#{tar_name}.tar.gz #{tar_name}")
+        FileUtils.rm_rf(dir_name)
+        # store spec file
+        File.open(
+          File.join(option_export_directory, 'SPECS', "#{tar_name}.spec"), 'w') do |file|
+          file.write(rpm_spec(rpm_name, version, now))
         end
         progress ''
-        progress 'To build the system-profile-migrate rpms, run:'
+        progress 'To build the system-profile-transition rpm, run:'
         progress ''
-        progress "\tcd #{option_export_directory}/SPECS && for spec in $(ls *.spec)"
-        progress "\t  do rpmbuild -ba --define \"_topdir #{option_export_directory}\" $spec"
-        progress "\tdone"
+        progress "\tcd #{option_export_directory}/SPECS && "
+        progress "\t  rpmbuild -ba --define \"_topdir #{option_export_directory}\" #{tar_name}.spec"
         progress ''
-        progress "Then find your rpms in #{File.join(option_export_directory, 'RPMS/noarch/')} directory."
+        progress "Then find your #{rpm_name} package"
+        progress "\tin #{File.join(option_export_directory, 'RPMS/noarch/')} directory."
       end
 
       def delete_single_row(data)
@@ -184,7 +181,7 @@ module HammerCLIImport
 Name:       #{rpm_name}
 Version:    #{version}
 Release:    1%{?dist}
-Summary:    System profile migration tool
+Summary:    System profile transition data
 
 Group:      Applications/Productivity
 License:    GPLv3
@@ -193,12 +190,12 @@ Source0:    #{rpm_name}-#{version}.tar.gz
 BuildRoot:  %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
 
-Requires:   subscription-manager-migration
 
 %define  debug_package %{nil}
 
 %description
-This tool registeres system profiles managed by Red Hat Satellite 5 to Red Hat Satellite 6 as part of the migration process.
+This package contains mapping information, how system profiles managed by Red Hat Satellite 5
+get translated to content hosts on Red Hat Satellite 6
 
 %prep
 %setup -q
@@ -208,9 +205,8 @@ This tool registeres system profiles managed by Red Hat Satellite 5 to Red Hat S
 
 
 %install
-#mkdir -p $RPM_BUILD_ROOT/%{_datarootdir}/migrate
-install -m 755 -d $RPM_BUILD_ROOT/%{_datarootdir}/migrate
-install -m 644 system-id_to_uuid.map $RPM_BUILD_ROOT/%{_datarootdir}/migrate/
+install -m 755 -d $RPM_BUILD_ROOT/%{_datarootdir}/rhn/transition
+install -m 644 system-id_to_uuid-#{date.to_i}.map $RPM_BUILD_ROOT/%{_datarootdir}/rhn/transition/
 
 
 %post
@@ -222,13 +218,14 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-/usr/share/migrate/system-id_to_uuid.map
+/usr/share/rhn/transition/
+/usr/share/rhn/transition/system-id_to_uuid-#{date.to_i}.map
 %doc
 
 
 %changelog
-* #{date} root <root@localhost> initial package build
-- using system profile mapping data for a single organization
+* #{date.strftime('%a %b %e %Y')} root <root@localhost> initial package build
+- using system profile to content host mapping data
 "
       end
     end
