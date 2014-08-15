@@ -120,10 +120,10 @@ module HammerCLIImport
             next if @task_map.empty?
 
             all_uuids = @task_map.keys.flatten.uniq
-            anotated = annotate_tasks all_uuids
+            annotated = annotate_tasks all_uuids
             finished = []
             progresses = []
-            anotated.each do |uuid, info|
+            annotated.each do |uuid, info|
               finished << uuid if info[:finished]
               progresses << info[:progress]
             end
