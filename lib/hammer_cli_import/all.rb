@@ -25,6 +25,7 @@ module HammerCLIImport
     class AllCommand < HammerCLI::AbstractCommand
       extend ImportTools::Repository::Extend
       extend ImportTools::ImportLogging::Extend
+      extend AsyncTasksReactor::Extend
       include ImportTools::ImportLogging::Include
 
       command_name 'all'

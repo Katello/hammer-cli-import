@@ -34,6 +34,7 @@ module HammerCLIImport
   class BaseCommand < HammerCLI::Apipie::Command
     extend PersistentMap::Extend
     extend ImportTools::ImportLogging::Extend
+    extend AsyncTasksReactor::Extend
 
     include PersistentMap::Include
     include ImportTools::ImportLogging::Include
