@@ -148,7 +148,7 @@ module HammerCLIImport
       end
 
       def delete_single_row(data)
-        @composite_cvs ||= []
+        @composite_cvs ||= Set.new
         profile_id = data['server_id'].to_i
         unless @pm[:systems][profile_id]
           info "#{to_singular(:systems).capitalize} with id #{profile_id} wasn't imported. Skipping deletion."
