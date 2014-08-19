@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.10.0
+Version:    0.10.1
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -81,6 +81,33 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Tue Aug 19 2014 Tomas Lestach <tlestach@redhat.com> 0.10.1-1
+- fix content host and host collection association (tlestach@redhat.com)
+- enhance exception message (tlestach@redhat.com)
+- use set instead of an array (tlestach@redhat.com)
+- generate 1 server rpm instead of client rpm per org (tlestach@redhat.com)
+- 1130183 - Use extends (so needed methods will be added) (mkollar@redhat.com)
+- Use existing logging capabilities (mkollar@redhat.com)
+- 1130183 - Add possibility to things in one thread (mkollar@redhat.com)
+- Typo (mkollar@redhat.com)
+- 1130508 - add --delete to 'all' (ggainey@redhat.com)
+- 1127800 - let's work with uuid as content host id (tlestach@redhat.com)
+- 1120839 - Backtrace log level finetuning (mkollar@redhat.com)
+- replace all underscore characters with spaces (tlestach@redhat.com)
+- Handle MissingObjectError in appropriate way (mkollar@redhat.com)
+- allow deleting content views without any versions published
+  (tlestach@redhat.com)
+- enhance to_singular method (tlestach@redhat.com)
+- replace all unallowed characters from content view names
+  (tlestach@redhat.com)
+- add one more sytem profile to simple test (tlestach@redhat.com)
+- 1125035 - Removed some more no-longer-relevant TODO comments
+  (ggainey@redhat.com)
+- 1125035 - Remove ancient TODO comment, because it was to-did
+  (ggainey@redhat.com)
+- Associate ak with environment (mkollar@redhat.com)
+- Enhance readme (mkollar@redhat.com)
+
 * Mon Aug 11 2014 Grant Gainey 0.10.0-1
 - allow content view --delete to be executed multiple times
   (tlestach@redhat.com)
