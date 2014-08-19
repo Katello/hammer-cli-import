@@ -258,7 +258,7 @@ module HammerCLIImport
       if @pm[entity_type] && @pm[entity_type][entity_id]
         return @pm[entity_type][entity_id]
       end
-      raise MissingObjectError, 'Need to import ' + to_singular(entity_type) + ' with id ' + entity_id.to_s
+      raise MissingObjectError, 'Need to import ' + to_singular(entity_type) + ' with id ' + entity_id.inspect
     end
 
     # this method returns a *first* found original_id
