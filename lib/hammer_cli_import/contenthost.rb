@@ -65,7 +65,7 @@ module HammerCLIImport
           # :guest_ids => [],
           :organization_id => get_translated_id(:organizations, data['organization_id'].to_i),
           :content_view_id => cv_id,
-          :host_colletion_id => hcollections
+          :host_collection_ids => hcollections
         }
       end
 
