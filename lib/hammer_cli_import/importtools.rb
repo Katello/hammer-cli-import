@@ -44,11 +44,14 @@ module ImportTools
         info = lookup_entity(:repositories, repo['id'], true)
         return false unless info['sync_state'] == 'finished'
 
-        begin
-          Time.parse(info['last_sync']) > Time.parse(info['updated_at'])
-        rescue
-          false
-        end
+        ## (Temporary) workaround for 1131954
+        ## updated_at is updated after sync for some reason...
+        # begin
+        #   Time.parse(info['last_sync']) > Time.parse(info['updated_at'])
+        # rescue
+        #   false
+        # end
+        true
       end
 
       def sync_repo(repo)
