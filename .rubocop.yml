@@ -47,5 +47,8 @@ SignalException:
 SpaceInsideHashLiteralBraces:
   Enabled: false # we allow spaces inside hash brackets
 
-Style/CyclomaticComplexity:
+Metrics/CyclomaticComplexity:
+  Max: 11
+
+Metrics/PerceivedComplexity:
   Max: 11
