@@ -143,9 +143,10 @@ module HammerCLIImport
         return args
       end
 
-      # 'content-view needs --dir, and knows its own --csv-file in that dir
+      # 'content-view needs --dir, knows its own --csv-file in that dir, and may need --no-async
       def content_view_args(args)
         args << '--dir' << "#{option_directory}/CHANNELS"
+        args << '--no-async' if option_no_async?
         return args
       end
 
@@ -156,10 +157,11 @@ module HammerCLIImport
         return args
       end
 
-      # repository and repo-enable may need --synch and --wait
+      # repository and repo-enable may need --synch, --wait, and --no-async
       def repository_args(args)
         args << '--synchronize' if option_synchronize?
         args << '--wait' if option_wait?
+        args << '--no-async' if option_no_async?
         return args
       end
 
