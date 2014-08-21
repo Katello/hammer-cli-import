@@ -33,6 +33,7 @@ module HammerCLIImport
 
       option ['--directory'], 'DIR_PATH', 'stargate-export directory', :default => '/tmp/exports'
       option ['--delete'], :flag, 'Delete entities instead of importing them', :default => false
+      option ['--macro_mapping'], 'FILE', 'Mapping of Satellite-5 config-file-macros to puppet facts'
       option ['--manifest-directory'], 'DIR_PATH', 'Directory holding manifests'
       option ['--entities'], 'entity[,entity...]', 'Import specific entities', :default => 'all'
       option ['--list-entities'], :flag, 'List entities we understand', :default => false
