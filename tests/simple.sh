@@ -30,7 +30,7 @@ get_org_ids() {
 
 # params: subcommand, csv_file, extra cmd arguments
 import_cmd() {
-    echo $HAMMER import $1 --csv-file=$2 $3 $4 --verbose
+    echo -e "\e[31m$HAMMER import $1 --csv-file=$2 $3 $4 --verbose\e[m"
     $HAMMER import $1 --csv-file=$2 $3 $4 --verbose
 }
 
