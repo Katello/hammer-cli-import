@@ -26,7 +26,7 @@ module HammerCLIImport
     class ConfigFileImportCommand < BaseCommand
       command_name 'config-file'
       reportname = 'config-files-latest'
-      desc "Import Host Collections (from spacewalk-report #{reportname})."
+      desc "Create puppet-modules from Configuration Channel content (from spacewalk-report #{reportname})."
 
       option ['--generate-only'], :flag,
              'Create and fill puppet-modules, but DO NOT upload anything',
