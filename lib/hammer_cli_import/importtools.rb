@@ -288,5 +288,18 @@ module ImportTools
       end
     end
   end
+
+  module Exceptional
+    module Include
+      def handle_missing_and_supress(what, &block)
+        block.call
+      rescue MissingObjectError => moe
+        error moe.message
+      rescue => e
+        error "Caught #{e.class}:#{e.message} while #{what}"
+        info e.backtrace.join "\n"
+      end
+    end
+  end
 end
 # vim: autoindent tabstop=2 shiftwidth=2 expandtab softtabstop=2 filetype=ruby
