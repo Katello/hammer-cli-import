@@ -13,7 +13,10 @@ tito=0.4.12
 
 
 [koji]
-autobuild_tags = katello-nightly-rhel6
+autobuild_tags = katello-nightly-rhel6 katello-nightly-rhel7
 
 [katello-nightly-rhel6]
 disttag = .el6
+
+[katello-nightly-rhel7]
+disttag = .el7
