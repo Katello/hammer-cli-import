@@ -101,16 +101,18 @@ module HammerCLIImport
 
       def post_import(_file)
         @vguests.each do |system_id, guest_ids|
-          uuid = get_translated_id(:systems, system_id)
-          vguest_uuids = guest_ids.collect do |id|
-            get_translated_id(:systems, id)
-          end if guest_ids
-          debug "Setting virtual guests for #{uuid}: #{vguest_uuids.inspect}"
-          update_entity(
-            :systems,
-            uuid,
-            {:guest_ids => vguest_uuids}
-            ) if uuid && vguest_uuids
+          handle_missing_and_supress "setting guests for #{system_id}" do
+            uuid = get_translated_id(:systems, system_id)
+            vguest_uuids = guest_ids.collect do |id|
+              get_translated_id(:systems, id)
+            end if guest_ids
+            debug "Setting virtual guests for #{uuid}: #{vguest_uuids.inspect}"
+            update_entity(
+              :systems,
+              uuid,
+              {:guest_ids => vguest_uuids}
+              ) if uuid && vguest_uuids
+          end
         end
         # create rpmbuild directories
         create_rpmbuild_structure

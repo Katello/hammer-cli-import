@@ -102,7 +102,7 @@ module HammerCLIImport
 
       def post_import(_csv_file)
         @ak_content_views.each do |ak_id, cvs|
-          begin
+          handle_missing_and_supress "processing ak #{ak_id}" do
             ak = lookup_entity(:activation_keys, ak_id)
             ak_cv_hash = {}
             org_id = lookup_entity_in_cache(:organizations, {'label' => ak['organization']['label']})['id']
@@ -116,11 +116,6 @@ module HammerCLIImport
             info "  Associating activation key [#{ak_id}] with content view [#{ak_cv_hash[:content_view_id]}]"
             # associate the content view with the activation key
             update_entity(:activation_keys, ak_id, ak_cv_hash)
-          rescue MissingObjectError => moe
-            error moe.message
-          rescue
-            error "Caught #{e.class}:#{e.message} while processing ak #{ak_id}"
-            info e.backtrace.join "\n"
           end
         end
       end

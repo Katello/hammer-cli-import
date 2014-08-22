@@ -39,6 +39,7 @@ module HammerCLIImport
     include PersistentMap::Include
     include ImportTools::ImportLogging::Include
     include ImportTools::Task::Include
+    include ImportTools::Exceptional::Include
     include AsyncTasksReactor::Include
 
     def initialize(*list)
@@ -465,14 +466,8 @@ module HammerCLIImport
 
     def cvs_iterate(filename, action)
       CSVHelper.csv_each filename, self.class.csv_columns do |data|
-        begin
+        handle_missing_and_supress "processing CSV line:\n#{data.inspect}" do
           action.call(data)
-        rescue MissingObjectError => moe
-          error moe.message
-        rescue => e
-          error "Caught #{e.class}:#{e.message} while processing following line:"
-          error data.inspect
-          info e.backtrace.join "\n"
         end
       end
     end
@@ -509,24 +504,14 @@ module HammerCLIImport
         if option_delete?
           info "Deleting from #{option_csv_file}"
           delete option_csv_file
-          begin
+          handle_missing_and_supress 'post_delete' do
             post_delete option_csv_file
-          rescue MissingObjectError => moe
-            error moe.message
-          rescue => e
-            error "Caught #{e.class}:#{e.message} while post_delete"
-            info e.backtrace.join "\n"
           end
         else
           info "Importing from #{option_csv_file}"
           import option_csv_file
-          begin
+          handle_missing_and_supress 'post_import' do
             post_import option_csv_file
-          rescue MissingObjectError => moe
-            error moe.message
-          rescue => e
-            error "Caught #{e.class}:#{e.message} while post_import"
-            info e.backtrace.join "\n"
           end
         end
         atr_exit
