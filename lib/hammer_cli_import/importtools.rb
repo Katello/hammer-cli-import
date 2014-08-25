@@ -293,7 +293,7 @@ module ImportTools
     module Include
       def handle_missing_and_supress(what, &block)
         block.call
-      rescue MissingObjectError => moe
+      rescue HammerCLIImport::MissingObjectError => moe
         error moe.message
       rescue => e
         error "Caught #{e.class}:#{e.message} while #{what}"
