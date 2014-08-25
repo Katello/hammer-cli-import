@@ -146,7 +146,7 @@ module HammerCLIImport
     end
 
     def data_dir
-      File.join(File.expand_path('~'), 'data')
+      File.join(File.expand_path('~'), '.transition_data')
     end
 
     # This method is called to process single CSV line when
