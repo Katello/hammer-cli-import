@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.10.1
+Version:    0.10.2
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -81,6 +81,21 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Aug 25 2014 Tomas Lestach <tlestach@redhat.com> 0.10.2-1
+- adding el7 tito support (jsherril@redhat.com)
+- This actually can be useful (mkollar@redhat.com)
+- 1132481 - rename ~/data directory to ~/.transition_data (tlestach@redhat.com)
+- replace ak with "activation key" (tlestach@redhat.com)
+- Apply abstracted code for suppressing exceptions (mkollar@redhat.com)
+- Abstract often used exception handling (mkollar@redhat.com)
+- 1132644 - Pass along --no-async if specified (ggainey@redhat.com)
+- 1132642 - put back --macro-mapping to 'all' (ggainey@redhat.com)
+- 1132553 - Fix config-files descr (ggainey@redhat.com)
+- Handle exceptions in post import (mkollar@redhat.com)
+- Colors for simple test (mkollar@redhat.com)
+- New rubocop: rubocop-0.25.0 (mkollar@redhat.com)
+- 1130558 - do not check 'updated_at', it is unreliable (mkollar@redhat.com)
+
 * Tue Aug 19 2014 Tomas Lestach <tlestach@redhat.com> 0.10.1-1
 - fix content host and host collection association (tlestach@redhat.com)
 - enhance exception message (tlestach@redhat.com)
