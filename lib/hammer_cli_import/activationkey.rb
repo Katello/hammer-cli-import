@@ -102,7 +102,7 @@ module HammerCLIImport
 
       def post_import(_csv_file)
         @ak_content_views.each do |ak_id, cvs|
-          handle_missing_and_supress "processing ak #{ak_id}" do
+          handle_missing_and_supress "processing activation key #{ak_id}" do
             ak = lookup_entity(:activation_keys, ak_id)
             ak_cv_hash = {}
             org_id = lookup_entity_in_cache(:organizations, {'label' => ak['organization']['label']})['id']
