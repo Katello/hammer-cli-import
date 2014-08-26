@@ -341,13 +341,21 @@ module HammerCLIImport
         return _create_entity(entity_type, entity_hash, original_id)
       rescue RestClient::UnprocessableEntity => ue
         error " Creation of #{to_singular(entity_type)} failed."
-        errs = JSON.parse(ue.response)['errors']
-        uniq = errs.first[0] if errs.first[1].is_a?(Array) && errs.first[1][0] =~ /must be unique/
+        err = JSON.parse(ue.response)['error']
+        uniq = nil
+        if err && err['errors'] && err['errors'].respond_to?(:each)
+          err['errors'].each do |arr|
+            next unless arr.is_a?(Array) && arr.size >= 2
+            uniq = arr[0] if arr[1].is_a?(Array) && arr[1][0] =~ /has already been taken/
+            break if uniq && entity_hash.key?(uniq.to_sym)
+            uniq = nil # otherwise uniq is not usable
+          end
+        end
 
         raise ue unless uniq
       end
 
-      uniq = uniq.to_sym unless entity_hash[uniq]
+      uniq = uniq.to_sym
 
       case recover || option_recover.to_sym
       when :rename
