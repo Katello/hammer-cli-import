@@ -59,6 +59,6 @@ if [ "$1" != "--create" ]; then
     import_cmd host-collection ${CSV_DIR}/system-groups.csv --delete
     import_cmd user ${CSV_DIR}/users.csv --delete
     rm -f new-passwords.csv
-    # import_cmd organization ${CSV_DIR}/users.csv --delete
+    import_cmd organization ${CSV_DIR}/users.csv --delete
 fi
 
