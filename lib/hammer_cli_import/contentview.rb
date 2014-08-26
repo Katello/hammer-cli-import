@@ -157,9 +157,9 @@ module HammerCLIImport
         clone_parents.collect { |x| Integer(x) } .each do |parent_id|
           begin
             begin
-              parent_cv = get_cache(:content_views)[get_translated_id :content_views, parent_id]
-            rescue
               parent_cv = get_cache(:redhat_content_views)[get_translated_id :redhat_content_views, [org_id, parent_id]]
+            rescue
+              parent_cv = get_cache(:content_views)[get_translated_id :content_views, parent_id]
             end
             repo_ids += parent_cv['repositories'].collect { |x| x['id'] }
           rescue HammerCLIImport::MissingObjectError

@@ -75,9 +75,9 @@ module HammerCLIImport
         cvs = (split_multival(data['base_channel_id']) + split_multival(data['child_channel_id'])).collect do
           |channel_id|
           begin
-            get_translated_id(:content_views, channel_id)
-          rescue HammerCLIImport::MissingObjectError
             get_translated_id(:redhat_content_views, [data['organization_id'].to_i, channel_id])
+          rescue HammerCLIImport::MissingObjectError
+            get_translated_id(:content_views, channel_id)
           end
         end
         cv_id = create_composite_content_view(
