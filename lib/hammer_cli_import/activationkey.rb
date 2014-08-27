@@ -101,6 +101,7 @@ module HammerCLIImport
       end
 
       def post_import(_csv_file)
+        return unless @ak_content_views
         @ak_content_views.each do |ak_id, cvs|
           handle_missing_and_supress "processing activation key #{ak_id}" do
             ak = lookup_entity(:activation_keys, ak_id)
