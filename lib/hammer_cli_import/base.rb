@@ -114,14 +114,7 @@ module HammerCLIImport
       # Initialize API. Needed to be called before any +api_call+ calls.
       # If used in shell, it may be called multiple times
       def api_init
-        @api ||= ApipieBindings::API.new(
-        {
-          :uri => HammerCLI::Settings.get(:foreman, :host),
-          :username => HammerCLI::Settings.get(:foreman, :username),
-          :password => HammerCLI::Settings.get(:foreman, :password),
-          :api_version => 2,
-          :logger => Logger.new('/dev/null')
-        })
+        @api = HammerCLIForeman.foreman_api_connection.api
         nil
       end
 

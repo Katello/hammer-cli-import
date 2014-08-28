@@ -18,4 +18,5 @@ Gem::Specification.new do |spec|
   spec.test_files = []
 
   spec.add_dependency('hammer_cli')
+  spec.add_dependency('hammer_cli_foreman', '~> 0.1.1')
 end
