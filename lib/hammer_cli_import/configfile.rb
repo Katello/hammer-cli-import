@@ -353,6 +353,7 @@ module HammerCLIImport
       end
 
       def post_import(_csv)
+        return unless @modules
         export_files
         build_and_upload unless option_generate_only?
       end
