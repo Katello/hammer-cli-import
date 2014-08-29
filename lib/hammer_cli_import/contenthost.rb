@@ -163,8 +163,17 @@ module HammerCLIImport
       end
 
       def post_delete(_file)
+        # let's 'try' to delete the system content views
+        # there's no chance to find out, whether some other content hosts are associated with them
         @composite_cvs.each do |cv_id|
-          delete_content_view(cv_id, :system_content_views)
+          begin
+            delete_content_view(cv_id, :system_content_views)
+          rescue
+            {
+              # well rescue ... but we're getting ISE 500 :(
+              # nothing we can do here
+            }
+          end
         end
       end
 
