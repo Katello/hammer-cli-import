@@ -236,7 +236,7 @@ module HammerCLIImport
     # but you found out, it is already created.
     def report_summary(verb, item)
       raise "Not summary supported action: #{verb}" unless
-        [:created, :deleted, :found, :mapped, :skipped, :uploaded].include? verb
+        [:created, :deleted, :found, :mapped, :skipped, :uploaded, :wrote, :failed].include? verb
       @summary[verb] ||= {}
       @summary[verb][item] = @summary[verb].fetch(item, 0) + 1
     end
@@ -354,7 +354,8 @@ module HammerCLIImport
       return arr.is_a?(Array) && arr.size >= 2
     end
 
-    def process_error(err)
+    def process_error(err, entity_hash)
+      uniq = nil
       err['errors'].each do |arr|
         next unless recognizable_error(arr)
         uniq = find_uniq(arr)
@@ -370,6 +371,7 @@ module HammerCLIImport
     # * +nil+ - Fail
     def create_entity(entity_type, entity_hash, original_id, recover = nil, retries = 2)
       raise ImportRecoveryError, "Creation of #{entity_type} not recovered by \'#{recover}\' strategy." if retries < 0
+      uniq = nil
       begin
         return _create_entity(entity_type, entity_hash, original_id)
       rescue RestClient::UnprocessableEntity => ue
@@ -378,7 +380,7 @@ module HammerCLIImport
         err = JSON.parse(ue.response)
         err = err['error'] if err.key?('error')
         if found_errors(err)
-          uniq = process_error(err)
+          uniq = process_error(err, entity_hash)
         end
         raise ue unless uniq
       end

@@ -140,7 +140,7 @@ module HammerCLIImport
         sed_cmd = "sed -i '\/\"summary\":\/a \\ \\ \"description\": \"#{answer}\",' #{metadata_path}"
         debug "About to issue #{sed_cmd}"
         system sed_cmd
-        report_summary :created, :puppet_modules
+        report_summary :wrote, :puppet_modules
       end
 
       def build_puppet_module(module_name)
@@ -299,7 +299,7 @@ module HammerCLIImport
               dsl += "}\n\n"
             else
             end
-            report_summary :created, :puppet_files
+            report_summary :wrote, :puppet_files
           end
           export_manifest(mname, class_name, dsl)
         end
@@ -335,10 +335,10 @@ module HammerCLIImport
           product_hash = mk_product_hash(data, prod_name)
           composite_id = [data['org_id'].to_i, prod_name]
           product_id = create_entity(:products, product_hash, composite_id)['id']
-          debug product_id
 
           # Build the repo
           repo_hash = mk_repo_hash data, product_id
+          # Try creating a repo in the product, skip if it fails
           repo = create_entity(:puppet_repositories, repo_hash,
                                [data['org_id'].to_i, data['channel_id'].to_i])
 
@@ -347,9 +347,15 @@ module HammerCLIImport
                                         "#{mname}-#{@interview_answers['version']}.tar.gz")
           info "Uploading #{built_module_path}"
           # Ask hammer repository upload to Do Its Thing
-          system "hammer --username #{api_usr} --password #{api_pwd} " \
-                 "repository upload-content --id #{repo['id']} --path #{built_module_path}"
-          report_summary :uploaded, :puppet_modules
+          rc = system "hammer --username #{api_usr} --password #{api_pwd} " \
+                      "repository upload-content --id #{repo['id']} --path #{built_module_path}"
+
+          # If hammer fails us, record it and move on
+          if rc
+            report_summary :uploaded, :puppet_modules
+          else
+            report_summary :failed, :puppet_modules
+          end
         end
       end
 
