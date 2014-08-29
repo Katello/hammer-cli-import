@@ -316,6 +316,7 @@ module HammerCLIImport
       info "Mapping #{to_singular(entity_type)} [#{original_id}->#{id}]."
       @pm[entity_type][original_id] = id
       report_summary :mapped, entity_type
+      return get_cache(entity_type)[id]
     end
 
     def unmap_entity(entity_type, target_id)
@@ -359,7 +360,7 @@ module HammerCLIImport
         entity = lookup_entity_in_cache(entity_type, {uniq.to_s => entity_hash[uniq]})
         if entity
           info " Recovering by remapping to: #{entity['id']}"
-          map_entity(entity_type, original_id, entity['id'])
+          return map_entity(entity_type, original_id, entity['id'])
         else
           warn "Creation of #{entity_type} not recovered by \'#{recover}\' strategy."
           raise ImportRecoveryError, "Creation of #{entity_type} not recovered by \'#{recover}\' strategy."
