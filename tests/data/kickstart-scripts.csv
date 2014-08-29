@@ -1,0 +1,7 @@
+id,org_id,script_name,kickstart_id,kickstart_label,position,script_type,chroot,interpreter,data
+12,100,update,12,rhel6-x86_64,1,post,Y,,"# update everything
+yum update -y"
+15,100,python_print,12,rhel6-x86_64,2,post,Y,/usr/bin/python,"import sys
+
+print ""This is a python kickstart post script""
+print sys.path"
