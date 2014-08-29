@@ -347,7 +347,8 @@ module HammerCLIImport
                                         "#{mname}-#{@interview_answers['version']}.tar.gz")
           info "Uploading #{built_module_path}"
           # Ask hammer repository upload to Do Its Thing
-          system "hammer repository upload-content --id #{repo['id']} --path #{built_module_path}"
+          system "hammer --username #{api_usr} --password #{api_pwd} " \
+                 "repository upload-content --id #{repo['id']} --path #{built_module_path}"
           report_summary :uploaded, :puppet_modules
         end
       end

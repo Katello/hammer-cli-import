@@ -115,6 +115,8 @@ module HammerCLIImport
       # If used in shell, it may be called multiple times
       def api_init
         @api = HammerCLIForeman.foreman_api_connection.api
+        @api_usr = @api.instance_variable_get('@client').instance_variable_get('@options')[:user]
+        @api_pwd = @api.instance_variable_get('@client').instance_variable_get('@options')[:password]
         nil
       end
 
@@ -126,6 +128,9 @@ module HammerCLIImport
         error("Error on api.resource(#{resource.inspect}).call(#{action.inspect}, #{params.inspect}):") if dbg
         raise
       end
+
+      attr_reader :api_usr
+      attr_reader :api_pwd
     end
 
     # Call API. Convenience method for calling +api_call+ class method.
@@ -136,6 +141,14 @@ module HammerCLIImport
     # Call API on corresponding resource (defined by +map_target_entity+).
     def mapped_api_call(entity_type, *list)
       api_call(map_target_entity[entity_type], *list)
+    end
+
+    def api_usr
+      return self.class.api_usr
+    end
+
+    def api_pwd
+      return self.class.api_pwd
     end
 
     def data_dir
