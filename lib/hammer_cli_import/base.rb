@@ -360,6 +360,7 @@ module HammerCLIImport
         next unless recognizable_error(arr)
         uniq = find_uniq(arr)
         break if uniq && entity_hash.key?(uniq.to_sym)
+        uniq = nil # otherwise uniq is not usable
       end
       return uniq
     end
