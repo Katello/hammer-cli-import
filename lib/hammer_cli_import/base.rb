@@ -443,7 +443,6 @@ module HammerCLIImport
       type = to_singular(entity_type)
       unless @pm[entity_type][original_id]
         error 'Unknown ' + type + ' to delete [' + original_id.to_s + '].'
-        report_summary :found, entity_type
         return nil
       end
       info 'Deleting imported ' + type + ' [' + original_id.to_s + '->' + @pm[entity_type][original_id].to_s + '].'
@@ -461,7 +460,6 @@ module HammerCLIImport
       original_id = get_original_id(entity_type, import_id)
       if original_id.nil?
         error 'Unknown imported ' + type + ' to delete [' + import_id.to_s + '].'
-        report_summary :found, entity_type
         return nil
       end
       info "Deleting imported #{type} [#{original_id}->#{@pm[entity_type][original_id]}]."
