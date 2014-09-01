@@ -446,12 +446,17 @@ module HammerCLIImport
         return nil
       end
       info 'Deleting imported ' + type + ' [' + original_id.to_s + '->' + @pm[entity_type][original_id].to_s + '].'
-      mapped_api_call(entity_type, :destroy, {:id => @pm[entity_type][original_id]})
-      # delete from cache
-      get_cache(entity_type).delete(@pm[entity_type][original_id])
-      # delete from pm
-      unmap_entity(entity_type, @pm[entity_type][original_id])
-      report_summary :deleted, entity_type
+      begin
+        mapped_api_call(entity_type, :destroy, {:id => @pm[entity_type][original_id]})
+        # delete from cache
+        get_cache(entity_type).delete(@pm[entity_type][original_id])
+        # delete from pm
+        unmap_entity(entity_type, @pm[entity_type][original_id])
+        report_summary :deleted, entity_type
+      rescue => e
+        warn "Delete of #{to_singular(entity_type)} [#{original_id}] failed with #{e.class}: #{e.message}"
+        report_summary :failed, entity_type
+      end
     end
 
     # Delete entity by target (Sat6) id
@@ -468,12 +473,17 @@ module HammerCLIImport
       else
         delete_id = get_cache(entity_type)[import_id][delete_key]
       end
-      mapped_api_call(entity_type, :destroy, {:id => delete_id})
-      # delete from cache
-      get_cache(entity_type).delete(import_id)
-      # delete from pm
-      @pm[entity_type].delete original_id
-      report_summary :deleted, entity_type
+      begin
+        mapped_api_call(entity_type, :destroy, {:id => delete_id})
+        # delete from cache
+        get_cache(entity_type).delete(import_id)
+        # delete from pm
+        @pm[entity_type].delete original_id
+        report_summary :deleted, entity_type
+      rescue => e
+        warn "Delete of #{to_singular(entity_type)} [#{delete_id}] failed with #{e.class}: #{e.message}"
+        report_summary :failed, entity_type
+      end
     end
 
     # Wait for asynchronous task.
