@@ -48,6 +48,7 @@ if [ "$1" != "--delete" ]; then
     import_cmd content-view ${TMP}/export.csv --synchronize --wait
     import_cmd activation-key ${CSV_DIR}/activation-keys.csv
     import_cmd content-host ${CSV_DIR}/system-profiles.csv --export-directory=${TMP}
+    import_cmd config-file ${CSV_DIR}/config-files-latest.csv
 fi
 
 if [ "$1" != "--create" ]; then
@@ -62,5 +63,6 @@ if [ "$1" != "--create" ]; then
     import_cmd user ${CSV_DIR}/users.csv --delete
     rm -f new-passwords.csv
     import_cmd organization ${CSV_DIR}/users.csv --delete
+    import_cmd config-file ${CSV_DIR}/config-files-latest.csv --delete
 fi
 
