@@ -31,6 +31,7 @@ Requires: ruby(abi)
 %endif
 Requires: ruby(rubygems)
 Requires: rubygem(hammer_cli)
+Requires: rubygem(hammer_cli_foreman)
 BuildRequires: ruby(rubygems)
 %if 0%{?fedora}
 BuildRequires: rubygems-devel
