@@ -40,7 +40,7 @@ if [ "$1" != "--delete" ]; then
     import_cmd organization ${CSV_DIR}/users.csv
     import_cmd user ${CSV_DIR}/users.csv --new-passwords=new-passwords.csv
     import_cmd host-collection ${CSV_DIR}/system-groups.csv
-    import_cmd template-snippet ${CSV_DIR}/kikcstart-scripts.csv
+    import_cmd template-snippet ${CSV_DIR}/kickstart-scripts.csv
     import_cmd repository ${CSV_DIR}/repositories.csv --synchronize --wait
     TMP=$(mktemp -d)
     chmod o+rx ${TMP}
@@ -58,7 +58,7 @@ if [ "$1" != "--create" ]; then
     rm -rf ${TMP}
     import_cmd repository ${CSV_DIR}/repositories.csv --delete
     import_cmd host-collection ${CSV_DIR}/system-groups.csv --delete
-    import_cmd template-snippet ${CSV_DIR}/kikcstart-scripts.csv --delete
+    import_cmd template-snippet ${CSV_DIR}/kickstart-scripts.csv --delete
     import_cmd user ${CSV_DIR}/users.csv --delete
     rm -f new-passwords.csv
     import_cmd organization ${CSV_DIR}/users.csv --delete
