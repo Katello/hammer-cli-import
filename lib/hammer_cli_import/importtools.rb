@@ -303,6 +303,21 @@ module ImportTools
         error "Caught #{e.class}:#{e.message} while #{what}"
         info e.backtrace.join "\n"
       end
+
+      # this method catches everything sent to stdout and stderr
+      # and disallows any summary changes
+      #
+      # this is a bad hack, but we need it, as sat6 cannot tell,
+      # whether there're still content hosts associated with a content view
+      # so we try to delete system content views silently
+      def silently(&block)
+        summary_backup = @summary.clone
+        $stdout, $stderr = StringIO.new, StringIO.new
+        block.call
+        ensure
+          $stdout, $stderr = STDOUT, STDERR
+          @summary = summary_backup
+      end
     end
   end
 end
