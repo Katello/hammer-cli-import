@@ -202,15 +202,19 @@ module ImportTools
         if content_view['versions'] && !content_view['versions'].empty?
           cv_version_ids = content_view['versions'].collect { |v| v['id'] }
 
-          task = mapped_api_call(
-            entity_type,
-            :remove,
-            {
-              :id => content_view['id'],
-              :content_view_version_ids => cv_version_ids
-            })
+          begin
+            task = mapped_api_call(
+              entity_type,
+              :remove,
+              {
+                :id => content_view['id'],
+                :content_view_version_ids => cv_version_ids
+              })
 
-          wait_for_task(task['id'], 1, 0)
+            wait_for_task(task['id'], 1, 0)
+          rescue => e
+            warn "Failed to remove versions of content view [#{cv_id}] with #{e.class}: #{e.message}"
+          end
         else
           debug "No versions found for #{to_singular(entity_type)} #{cv_id}"
         end
