@@ -74,7 +74,7 @@ module HammerCLIImport
         return true unless last
         last = Time.parse(last)
         cw['repositories'].any? do |repo|
-          last < Time.parse(repo['last_sync'])
+          repo['last_sync'].nil? || last < Time.parse(repo['last_sync'])
         end
       end
 
