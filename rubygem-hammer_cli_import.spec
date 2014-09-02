@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.10.2
+Version:    0.10.3
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -82,6 +82,51 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Tue Sep 02 2014 Tomas Lestach <tlestach@redhat.com> 0.10.3-1
+- fix exception message (tlestach@redhat.com)
+- import the test config-file into the 100 org as all the other entities
+  (tlestach@redhat.com)
+- Fix tests (mkollar@redhat.com)
+- catch exception when publishing of content view fails (tlestach@redhat.com)
+- Simple test enriched for configuration thingies... (mkollar@redhat.com)
+- Field last_sync id not always set (mkollar@redhat.com)
+- 1136011 - require rubygem(hammer_cli_foreman) (tlestach@redhat.com)
+- as delete_content_view does not throw exception at failure
+  (tlestach@redhat.com)
+- catch sat6 delete excetion for content view versions removal
+  (tlestach@redhat.com)
+- fix typo in the test (tlestach@redhat.com)
+- catch sat6 delete exception and count them into summary (tlestach@redhat.com)
+- do not count unavailable entities as :found when deleting
+  (tlestach@redhat.com)
+- add the innocent line lost by refactoring (tlestach@redhat.com)
+- 1133846 - Teach config-file the diff between 'created' and 'wrote'   -
+  Summary now recognizes :wrote and :failed   - configfile summarizes
+  filesystem ops as :wrote   - configfile.rb checks for hammer-invocation-
+  failure   - tripped over/fixed a bug in rcop fix from prev commit
+  (ggainey@redhat.com)
+- rubocop: lib/hammer_cli_import/base.rb:345:5: C: Cyclomatic complexity for
+  create_entity is too high. [20/11]  - Broke out the error-checking in
+  create_entity into bite-sized pieces (ggainey@redhat.com)
+- 1135588 - Teach config-file to reuse credentials from @api
+  (ggainey@redhat.com)
+- add template snippet import to simple test (tlestach@redhat.com)
+- catch exceptions when deleting system content views (tlestach@redhat.com)
+- extent recognizing of already existing objects (tlestach@redhat.com)
+- return object if mapped as create_entity does (tlestach@redhat.com)
+- 1134576 - do not call methods on nil, ruby does not like it
+  (tlestach@redhat.com)
+- do not export_files in case @modules weren't even initialized
+  (tlestach@redhat.com)
+- Change the way of obtaining @api (mkollar@redhat.com)
+- 1133972 - adapt code to actual sat6 exception (tlestach@redhat.com)
+- Address state without initialized var (mkollar@redhat.com)
+- delete orgs as it should work now (tlestach@redhat.com)
+- Rewording (mkollar@redhat.com)
+- when searching for a content view, first check redhat cvs
+  (tlestach@redhat.com)
+- 1133547 - Fix missing module name... (mkollar@redhat.com)
+
 * Mon Aug 25 2014 Tomas Lestach <tlestach@redhat.com> 0.10.2-1
 - adding el7 tito support (jsherril@redhat.com)
 - This actually can be useful (mkollar@redhat.com)
