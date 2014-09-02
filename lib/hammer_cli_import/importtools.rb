@@ -153,6 +153,8 @@ module ImportTools
     module Include
       def publish_content_view(id, entity_type = :content_views)
         mapped_api_call entity_type, :publish, {:id => id}
+        rescue => e
+          warn "Publishing of #{to_singular(entity_type)} [#{id}] failed with #{e.class}: #{e.message}"
       end
 
       def create_composite_content_view(entity_type, org_id, cv_label, cv_description, cvs)
