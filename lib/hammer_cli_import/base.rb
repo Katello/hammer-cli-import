@@ -371,7 +371,8 @@ module HammerCLIImport
     # * +:rename+ - Change name
     # * +nil+ - Fail
     def create_entity(entity_type, entity_hash, original_id, recover = nil, retries = 2)
-      raise ImportRecoveryError, "Creation of #{entity_type} not recovered by \'#{recover}\' strategy." if retries < 0
+      raise ImportRecoveryError, "Creation of #{entity_type} not recovered by " \
+        "'#{recover || option_recover.to_sym}' strategy" if retries < 0
       uniq = nil
       begin
         return _create_entity(entity_type, entity_hash, original_id)
