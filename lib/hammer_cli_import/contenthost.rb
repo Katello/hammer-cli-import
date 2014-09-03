@@ -114,6 +114,7 @@ module HammerCLIImport
               ) if uuid && vguest_uuids
           end
         end
+        return if @map.empty?
         # create rpmbuild directories
         create_rpmbuild_structure
         # create mapping files
