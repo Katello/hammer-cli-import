@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.10.3
+Version:    0.10.4
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -82,6 +82,14 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Wed Sep 03 2014 Tomas Lestach <tlestach@redhat.com> 0.10.4-1
+- 1136530 - remove dist tag from release in the rpmbuild instructions
+  (tlestach@redhat.com)
+- 1136463 - do not create composite content view, if no there're no associated
+  channels (tlestach@redhat.com)
+- do not print the rpmbuild instructions if no system profiles were
+  transitioned (tlestach@redhat.com)
+
 * Tue Sep 02 2014 Tomas Lestach <tlestach@redhat.com> 0.10.3-1
 - fix exception message (tlestach@redhat.com)
 - import the test config-file into the 100 org as all the other entities
