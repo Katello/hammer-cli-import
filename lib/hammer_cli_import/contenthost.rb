@@ -187,7 +187,7 @@ module HammerCLIImport
         "
 Name:       #{rpm_name}
 Version:    #{version}
-Release:    1%{?dist}
+Release:    1
 Summary:    System profile transition data
 
 Group:      Applications/Productivity
