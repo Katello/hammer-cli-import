@@ -158,6 +158,7 @@ module ImportTools
       end
 
       def create_composite_content_view(entity_type, org_id, cv_label, cv_description, cvs)
+        return nil if cvs.empty?
         if cvs.size == 1
           return cvs.to_a[0]
         else
