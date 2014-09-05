@@ -147,6 +147,8 @@ module HammerCLIImport
       def content_view_args(args)
         args << '--dir' << "#{option_directory}/CHANNELS"
         args << '--no-async' if option_no_async?
+        args << '--synchronize' if option_synchronize?
+        args << '--wait' if option_wait?
         return args
       end
 
