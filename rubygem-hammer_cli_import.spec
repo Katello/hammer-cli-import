@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.10.4
+Version:    0.10.5
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -82,6 +82,12 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Thu Oct 09 2014 Grant Gainey 0.10.5-1
+- 1140256 - system-profile-transition rpm should avoid using advanced rpmlib
+  capabilities (lpramuk+github@redhat.com)
+- 1138696 - propagate --synchronize and --wait options to the import content-
+  view sub-command (tlestach@redhat.com)
+
 * Wed Sep 03 2014 Tomas Lestach <tlestach@redhat.com> 0.10.4-1
 - 1136530 - remove dist tag from release in the rpmbuild instructions
   (tlestach@redhat.com)
