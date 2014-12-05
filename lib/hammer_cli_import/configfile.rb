@@ -91,9 +91,29 @@ module HammerCLIImport
 
       # Return a mapped puppet-fact for a macro, if there is one
       # Otherwise, leave the macro in place
+      #
+      # NOTE: rhn.system.net_interface* macros are special - they have the form
+      # rhn.system.net_interface.THING(INTERFACE) (eg, rhn.system.net_interface.netmask(eth0))
+      # We need to look them up from config_macros.yml as rhn.system.net_interface.THING(eth_device),
+      #  and in the matching value (if there is one), replace "{NETWORK_INTERFACE}" with the
+      #  specified INTERFACE.
+      # Ew.
+      # TODO: Make this less hard-coded, then beg for forgiveness.
       def map_macro(macro)
+        debug ">>> macro #{macro}"
         if @macros.key? macro
           return @macros[macro]
+        elsif /^rhn\.system\.net_interface\.(.*)\((.*)\)/.match(macro)
+          # Magic net_interface assumptions - hold onto your hats...
+          net_interface_key = "rhn.system.net_interface.#{Regexp.last_match[1]}(eth_device)"
+          # If the constructed key can't be found, shrug and move along
+          return macro unless @macros.key? net_interface_key
+          # We found a key we can use
+          puppet_value = @macros[net_interface_key]
+          # Bolt if we don't have a value
+          return puppet_value if puppet_value.nil?
+          # Return the value with the Magic String replaced with what the user specified
+          return puppet_value.sub('{NETWORK INTERFACE}', Regexp.last_match[2])
         else
           return macro
         end
