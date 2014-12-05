@@ -26,7 +26,7 @@ module PersistentMap
 
   class << Fixnum
     def from_s(x)
-      Integer(x)
+      Integer(x) rescue 0
     end
   end
 
