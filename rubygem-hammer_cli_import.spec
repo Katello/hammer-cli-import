@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.10.5
+Version:    0.10.6
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -82,6 +82,11 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Fri Dec 05 2014 Grant Gainey 0.10.6-1
+- 1160847 - interface-macros are special. (ggainey@redhat.com)
+- 1165151 - Integer(nil) behavior chgd between 1.8.7 and 2.0
+  (ggainey@redhat.com)
+
 * Thu Oct 09 2014 Grant Gainey 0.10.5-1
 - 1140256 - system-profile-transition rpm should avoid using advanced rpmlib
   capabilities (lpramuk+github@redhat.com)
