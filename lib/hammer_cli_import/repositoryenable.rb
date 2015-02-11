@@ -171,7 +171,7 @@ module HammerCLIImport
           if e.http_code == 409
             info '...already enabled.'
           else
-            error "...unknown error #{e.http_code}, #{e.message} - skipping."
+            error "...repository enablement failed with error '#{e.http_code}, #{e.message}' - skipping."
           end
         end
       end
@@ -206,7 +206,7 @@ module HammerCLIImport
           if e.http_code == 404
             error '...no such repository to disable.'
           else
-            error "...unknown error #{e.http_code}, #{e.message} - skipping."
+            error "...repository disable failed with error '#{e.http_code}, #{e.message}' - skipping."
           end
         end
       end
