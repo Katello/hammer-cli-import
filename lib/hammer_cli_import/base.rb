@@ -558,7 +558,7 @@ module HammerCLIImport
         atr_exit
       rescue StandardError, SystemExit, Interrupt => e
         error "Exiting: #{e}"
-        info e.backtrace.join "\n"
+        logtrace e
       end
       save_persistent_maps
       print_summary

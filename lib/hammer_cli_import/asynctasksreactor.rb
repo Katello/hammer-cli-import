@@ -162,6 +162,7 @@ module HammerCLIImport
                 rescue => e
                   info "Exception caught while executing post-#{uuids.inspect}:"
                   info e.inspect
+                  logtrace e
                 end
                 @async_tasks_done += 1
                 some_tasks_done = true
