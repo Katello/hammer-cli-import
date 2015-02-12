@@ -281,6 +281,10 @@ module ImportTools
         log(Logger::FATAL, s)
       end
 
+      def logtrace(e)
+        @logger.log(Logger::ERROR, (e.backtrace.join "\n"))
+      end
+
       def log(lvl, s, always = false)
         @logger.log(lvl, s)
         return if option_quiet?
@@ -304,7 +308,7 @@ module ImportTools
         error moe.message
       rescue => e
         error "Caught #{e.class}:#{e.message} while #{what}"
-        info e.backtrace.join "\n"
+        logtrace e
       end
 
       # this method catches everything sent to stdout and stderr
