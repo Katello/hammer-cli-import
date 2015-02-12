@@ -94,7 +94,6 @@ module HammerCLIImport
               next if rh_repo.nil? || option_dry_run?
 
               # Finally, if requested, kick off a sync
-              next unless option_synchronize?
               with_synced_repo rh_repo do
                 cv = create_entity(
                   :redhat_content_views,
