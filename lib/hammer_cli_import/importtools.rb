@@ -80,9 +80,12 @@ module ImportTools
           action = proc {}
         end
 
+        # Already synchronized?  Do the Thing
+        # ElsIf asked to sync, sync-and-then-wait to Do the Thing
+        # Otherwise, shrug and Skip The Thing
         if repo_synced?(repo)
           action.call
-        else
+        elsif option_synchronize?
           uuid = sync_repo2 repo
           postpone_till([uuid], &action) if option_wait?
         end

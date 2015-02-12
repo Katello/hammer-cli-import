@@ -66,7 +66,6 @@ module HammerCLIImport
         repo_hash = mk_repo_hash data, product_id
 
         repo = create_entity(:repositories, repo_hash, data['id'].to_i)
-        return unless option_synchronize?
         with_synced_repo(repo)
       end
 
