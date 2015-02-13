@@ -115,8 +115,16 @@ module HammerCLIImport
       # If used in shell, it may be called multiple times
       def api_init
         @api = HammerCLIForeman.foreman_api_connection.api
-        @api_usr = @api.instance_variable_get('@client').instance_variable_get('@options')[:user]
-        @api_pwd = @api.instance_variable_get('@client').instance_variable_get('@options')[:password]
+        # Handle Sat6.0.x and Sat6.1 apipie-bindings
+        if @api.instance_variable_get('@client') # 6.0.x Way
+          cfg = @api.instance_variable_get('@client').instance_variable_get('@options')
+          @api_usr = cfg[:user]
+          @api_pwd = cfg[:password]
+        else # 6.1 Way
+          cfg = @api.instance_variable_get('@resource_config')
+          @api_usr = cfg[:username]
+          @api_pwd = cfg[:password]
+        end
         nil
       end
 
