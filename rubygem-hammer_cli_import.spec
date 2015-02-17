@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.10.6
+Version:    0.10.7
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -82,6 +82,13 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Tue Feb 17 2015 Grant Gainey 0.10.7-1
+- 1192556 - Remove need to dig out auth-credentials * Remove api_usr and
+  api_pwd * Teach config-file to call Repository::UploadContentCommand directly
+  (ggainey@redhat.com)
+- 1192556 - The way to dig out apipie-binding auth changed in 0.11
+  (ggainey@redhat.com)
+
 * Fri Dec 05 2014 Grant Gainey 0.10.6-1
 - 1160847 - interface-macros are special. (ggainey@redhat.com)
 - 1165151 - Integer(nil) behavior chgd between 1.8.7 and 2.0
