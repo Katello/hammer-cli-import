@@ -115,16 +115,6 @@ module HammerCLIImport
       # If used in shell, it may be called multiple times
       def api_init
         @api = HammerCLIForeman.foreman_api_connection.api
-        # Handle Sat6.0.x and Sat6.1 apipie-bindings
-        if @api.instance_variable_get('@client') # 6.0.x Way
-          cfg = @api.instance_variable_get('@client').instance_variable_get('@options')
-          @api_usr = cfg[:user]
-          @api_pwd = cfg[:password]
-        else # 6.1 Way
-          cfg = @api.instance_variable_get('@resource_config')
-          @api_usr = cfg[:username]
-          @api_pwd = cfg[:password]
-        end
         nil
       end
 
@@ -137,8 +127,6 @@ module HammerCLIImport
         raise
       end
 
-      attr_reader :api_usr
-      attr_reader :api_pwd
     end
 
     # Call API. Convenience method for calling +api_call+ class method.
@@ -149,14 +137,6 @@ module HammerCLIImport
     # Call API on corresponding resource (defined by +map_target_entity+).
     def mapped_api_call(entity_type, *list)
       api_call(map_target_entity[entity_type], *list)
-    end
-
-    def api_usr
-      return self.class.api_usr
-    end
-
-    def api_pwd
-      return self.class.api_pwd
     end
 
     def data_dir

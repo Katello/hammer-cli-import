@@ -18,6 +18,7 @@
 #
 
 require 'hammer_cli'
+#require 'hammer_cli_katello'
 require 'apipie-bindings'
 require 'open3'
 
@@ -366,12 +367,14 @@ module HammerCLIImport
           built_module_path = File.join(File.join(module_dir, 'pkg'),
                                         "#{mname}-#{@interview_answers['version']}.tar.gz")
           info "Uploading #{built_module_path}"
+
           # Ask hammer repository upload to Do Its Thing
-          rc = system "hammer --username #{api_usr} --password #{api_pwd} " \
-                      "repository upload-content --id #{repo['id']} --path #{built_module_path}"
+          require 'hammer_cli_katello/repository'
+          ucc = HammerCLIKatello::Repository::UploadContentCommand.new("", context)
+          rc = ucc.run(%W(--id #{repo['id']} --path #{built_module_path}))
 
           # If hammer fails us, record it and move on
-          if rc
+          if rc == 0
             report_summary :uploaded, :puppet_modules
           else
             report_summary :failed, :puppet_modules
