@@ -122,7 +122,8 @@ module HammerCLIImport
       # This is supposed to be the only way to access @api.
       def api_call(resource, action, params = {}, headers = {}, dbg = false)
         if resource == :organizations and action == :create
-          params[:organization] = {:name => params[:name]}
+          params[:organization] ||= {}
+          params[:organization][:name] = params[:name]
         end
         @api.resource(resource).call(action, params, headers)
       rescue
