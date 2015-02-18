@@ -121,6 +121,9 @@ module HammerCLIImport
       # Call API. Ideally accessed via +api_call+ instance method.
       # This is supposed to be the only way to access @api.
       def api_call(resource, action, params = {}, headers = {}, dbg = false)
+        if resource == :organizations and action == :create
+          params[:organization] = {:name => params[:name]}
+        end
         @api.resource(resource).call(action, params, headers)
       rescue
         error("Error on api.resource(#{resource.inspect}).call(#{action.inspect}, #{params.inspect}):") if dbg
