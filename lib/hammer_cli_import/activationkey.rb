@@ -81,7 +81,11 @@ module HammerCLIImport
             @ak_content_views[ak['id'].to_i] << begin
               get_translated_id(:redhat_content_views, [data['org_id'].to_i, base_channel_id])
             rescue HammerCLIImport::MissingObjectError
-              get_translated_id(:content_views, base_channel_id)
+              begin
+                get_translated_id(:content_views, base_channel_id)
+              rescue HammerCLIImport::MissingObjectError
+                error "Can't find content view for channel ID [#{base_channel_id}] for key [#{data['token']}]"
+              end
             end
           end
         else
@@ -95,7 +99,11 @@ module HammerCLIImport
           @ak_content_views[ak['id'].to_i] << begin
             get_translated_id(:redhat_content_views, [data['org_id'].to_i, child_ch])
           rescue HammerCLIImport::MissingObjectError
-            get_translated_id(:content_views, child_ch)
+            begin
+              get_translated_id(:content_views, child_ch)
+            rescue HammerCLIImport::MissingObjectError
+              error "Can't find content view ifor channel ID [#{child_ch}] for key [#{data['token']}]"
+            end
           end
         end
       end
@@ -114,9 +122,14 @@ module HammerCLIImport
               "Composite content view for activation key #{ak['name']}",
               cvs)
             ak_cv_hash[:environment_id] = get_env(org_id, 'Library')['id']
-            info "  Associating activation key [#{ak_id}] with content view [#{ak_cv_hash[:content_view_id]}]"
-            # associate the content view with the activation key
-            update_entity(:activation_keys, ak_id, ak_cv_hash)
+            ak_cv_hash[:organization_id] = org_id
+            if ak_cv_hash[:content_view_id]
+              info "  Associating activation key [#{ak_id}] with content view [#{ak_cv_hash[:content_view_id]}]"
+              # associate the content view with the activation key
+              update_entity(:activation_keys, ak_id, ak_cv_hash)
+            else
+              info "  Skipping content-view associations."
+            end
           end
         end
       end
