@@ -38,7 +38,7 @@ module HammerCLIImport
         template += ' --nochroot' if data['chroot'] == 'N'
         template += " --interpreter #{data['interpreter']}" if data['interpreter']
         template += "\n"
-        template += data['data']
+        template += data['data'] if data['data']
         template += "\n" unless template.end_with? "\n"
         template += "%end\n"
         {
