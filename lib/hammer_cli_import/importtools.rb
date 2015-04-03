@@ -42,7 +42,9 @@ module ImportTools
         raise ArgumentError, 'nil is not a valid repository' if repo.nil?
 
         info = lookup_entity(:repositories, repo['id'], true)
-        return false unless info['sync_state'] == 'finished'
+        last_sync_result = info['last_sync']['result'] if info['last_sync']
+        return false unless (info['sync_state'] == 'finished' || last_sync_result == 'success')
+
 
         ## (Temporary) workaround for 1131954
         ## updated_at is updated after sync for some reason...
