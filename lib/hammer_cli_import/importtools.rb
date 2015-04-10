@@ -171,9 +171,7 @@ module ImportTools
           cv_versions = []
           cvs.each do |cv_id|
             cvvs = list_server_entities(:content_view_versions, {:content_view_id => cv_id})
-            cvvs.each do |c|
-              cv_versions << c['id']
-            end
+            cv_versions << cvvs.collect {|cv| cv["id"]}.max
           end
           cv = lookup_entity_in_cache(entity_type, 'label' => cv_label)
           if cv
