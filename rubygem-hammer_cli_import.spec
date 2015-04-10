@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.10.10
+Version:    0.10.11
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -82,6 +82,28 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Fri Apr 10 2015 Tomas Lestach <tlestach@redhat.com> 0.10.11-1
+- 1165825 - use only the latest content view version (tlestach@redhat.com)
+- detect a synced repository (tlestach@redhat.com)
+- prevent nil exception addressing: Caught TypeError:no implicit conversion of
+  nil into String while processing CSV line: ... /usr/share/gems/gems/hammer_cl
+  i_import-0.10.6.3/lib/hammer_cli_import/templatesnippet.rb:41:in `+' /usr/sha
+  re/gems/gems/hammer_cli_import-0.10.6.3/lib/hammer_cli_import/templatesnippet
+  .rb:41:in `mk_snippet_hash' /usr/share/gems/gems/hammer_cli_import-0.10.6.3/l
+  ib/hammer_cli_import/templatesnippet.rb:57:in `import_single_row' /usr/share/
+  gems/gems/hammer_cli_import-0.10.6.3/lib/hammer_cli_import/base.rb:511:in
+  `call' /usr/share/gems/gems/hammer_cli_import-0.10.6.3/lib/hammer_cli_import/
+  base.rb:511:in `block (2 levels) in cvs_iterate' /usr/share/gems/gems/hammer_
+  cli_import-0.10.6.3/lib/hammer_cli_import/importtools.rb:302:in `call' /usr/s
+  hare/gems/gems/hammer_cli_import-0.10.6.3/lib/hammer_cli_import/importtools.r
+  b:302:in `handle_missing_and_supress' /usr/share/gems/gems/hammer_cli_import-
+  0.10.6.3/lib/hammer_cli_import/base.rb:510:in `block in cvs_iterate' ...
+  (tlestach@redhat.com)
+- 1136361 - add 'logtrace <exception>' logging-method (ggainey@redhat.com)
+- 1136899 - with_synced_repo will always issue action if repo is already sync'd
+  (ggainey@redhat.com)
+- 1136841 - give a better error-msg when repo-enable fails (ggainey@redhat.com)
+
 * Tue Feb 24 2015 Grant Gainey 0.10.10-1
 - 1195329 - Fix AK-update call and some warning-verbiage (ggainey@redhat.com)
 
