@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.10.11
+Version:    0.10.12
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -82,6 +82,10 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Apr 13 2015 Tomas Lestach <tlestach@redhat.com> 0.10.12-1
+- use absolute export directory path for the rpmbuild instructions
+  (tlestach@redhat.com)
+
 * Fri Apr 10 2015 Tomas Lestach <tlestach@redhat.com> 0.10.11-1
 - 1165825 - use only the latest content view version (tlestach@redhat.com)
 - detect a synced repository (tlestach@redhat.com)
