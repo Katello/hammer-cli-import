@@ -140,14 +140,15 @@ module HammerCLIImport
           File.join(option_export_directory, 'SPECS', "#{tar_name}.spec"), 'w') do |file|
           file.write(rpm_spec(rpm_name, version, now))
         end
+        abs_export_directory = File.absolute_path(option_export_directory)
         progress ''
         progress 'To build the system-profile-transition rpm, run:'
         progress ''
-        progress "\tcd #{option_export_directory}/SPECS && "
-        progress "\t  rpmbuild -ba --define \"_topdir #{option_export_directory}\" #{tar_name}.spec"
+        progress "\tcd #{abs_export_directory}/SPECS && "
+        progress "\t  rpmbuild -ba --define \"_topdir #{abs_export_directory}\" #{tar_name}.spec"
         progress ''
         progress "Then find your #{rpm_name} package"
-        progress "\tin #{File.join(option_export_directory, 'RPMS/noarch/')} directory."
+        progress "\tin #{File.join(abs_export_directory, 'RPMS/noarch/')} directory."
       end
 
       def delete_single_row(data)
