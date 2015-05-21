@@ -36,11 +36,14 @@ module CSVHelper
     reader = CSV.open(filename, 'r')
     real_header = reader.shift
     raise CSVHelperError, "No header in #{filename}" if real_header.nil?
+    real_header_length = real_header.length
     to_discard = real_header - headers
     headers.each do |col|
       raise CSVHelperError, "Column #{col} expected in #{filename}" unless real_header.include? col
     end
     reader.each do |row|
+      raise CSVHelperError, "Broken CSV in #{filename}: #{real_header_length} columns expected but found #{row.length}" \
+        unless row.length == real_header_length
       data = Hash[real_header.zip row]
       to_discard.each { |key| data.delete key }
       class << data
