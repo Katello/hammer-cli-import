@@ -128,7 +128,7 @@ module HammerCLIImport
               # associate the content view with the activation key
               update_entity(:activation_keys, ak_id, ak_cv_hash)
             else
-              info "  Skipping content-view associations."
+              info '  Skipping content-view associations.'
             end
           end
         end

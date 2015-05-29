@@ -121,7 +121,7 @@ module HammerCLIImport
       # Call API. Ideally accessed via +api_call+ instance method.
       # This is supposed to be the only way to access @api.
       def api_call(resource, action, params = {}, headers = {}, dbg = false)
-        if resource == :organizations and action == :create
+        if resource == :organizations && action == :create
           params[:organization] ||= {}
           params[:organization][:name] = params[:name]
         end
@@ -130,7 +130,6 @@ module HammerCLIImport
         error("Error on api.resource(#{resource.inspect}).call(#{action.inspect}, #{params.inspect}):") if dbg
         raise
       end
-
     end
 
     # Call API. Convenience method for calling +api_call+ class method.
@@ -257,8 +256,8 @@ module HammerCLIImport
       if @pm[entity_type] && @pm[entity_type][entity_id]
         return @pm[entity_type][entity_id]
       end
-      raise MissingObjectError, 'Unable to import, first import ' + to_singular(entity_type) \
-        + ' with id ' + entity_id.inspect
+      raise MissingObjectError, 'Unable to import, first import ' + to_singular(entity_type) + \
+        ' with id ' + entity_id.inspect
     end
 
     # this method returns a *first* found original_id
@@ -313,8 +312,8 @@ module HammerCLIImport
 
     def map_entity(entity_type, original_id, id)
       if @pm[entity_type][original_id]
-        info "#{to_singular(entity_type).capitalize} [#{original_id}->#{@pm[entity_type][original_id]}] already mapped. " + \
-        'Skipping.'
+        info "#{to_singular(entity_type).capitalize} [#{original_id}->#{@pm[entity_type][original_id]}] already mapped. " \
+          'Skipping.'
         report_summary :found, entity_type
         return
       end
@@ -332,9 +331,9 @@ module HammerCLIImport
     def find_uniq(arr)
       uniq = nil
       uniq = arr[0] if arr[1].is_a?(Array) &&
-        (arr[1][0] =~ /has already been taken/ ||
-         arr[1][0] =~ /already exists/ ||
-         arr[1][0] =~ /must be unique within one organization/)
+                       (arr[1][0] =~ /has already been taken/ ||
+                        arr[1][0] =~ /already exists/ ||
+                        arr[1][0] =~ /must be unique within one organization/)
       return uniq
     end
 

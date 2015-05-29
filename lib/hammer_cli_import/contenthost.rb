@@ -72,8 +72,7 @@ module HammerCLIImport
       def import_single_row(data)
         @vguests ||= {}
         @map ||= Set.new
-        cvs = (split_multival(data['base_channel_id']) + split_multival(data['child_channel_id'])).collect do
-          |channel_id|
+        cvs = (split_multival(data['base_channel_id']) + split_multival(data['child_channel_id'])).collect do |channel_id|
           begin
             get_translated_id(:redhat_content_views, [data['organization_id'].to_i, channel_id])
           rescue HammerCLIImport::MissingObjectError
@@ -81,11 +80,11 @@ module HammerCLIImport
           end
         end
         cv_id = create_composite_content_view(
-            :system_content_views,
-            get_translated_id(:organizations, data['organization_id'].to_i),
-            _build_composite_cv_label(data, cvs),
-            'Composite content view for content hosts',
-            cvs)
+          :system_content_views,
+          get_translated_id(:organizations, data['organization_id'].to_i),
+          _build_composite_cv_label(data, cvs),
+          'Composite content view for content hosts',
+          cvs)
         profile = mk_profile_hash data, cv_id
         c_host = create_entity(:systems, profile, data['server_id'].to_i)
         # store processed system profiles to a set according to the organization
@@ -111,7 +110,7 @@ module HammerCLIImport
               :systems,
               uuid,
               {:guest_ids => vguest_uuids}
-              ) if uuid && vguest_uuids
+            ) if uuid && vguest_uuids
           end
         end
         return if @map.empty?

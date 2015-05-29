@@ -177,7 +177,8 @@ module PersistentMap
       end
       class << hash
         def []=(ks, vs)
-          key, val = ks, vs
+          key = ks
+          val = vs
           key = [key] unless key.is_a? Array
           val = [val] unless val.is_a? Array
           raise "Bad key for persistent map #{@map_sym}: (#{key.inspect} - #{@key_desc.inspect})" \
