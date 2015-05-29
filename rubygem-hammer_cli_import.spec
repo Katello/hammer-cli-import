@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.10.13
+Version:    0.10.14
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -82,6 +82,14 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Fri May 29 2015 Tomas Lestach <tlestach@redhat.com> 0.10.14-1
+- addressing the rest of rubocop 0.31.0 issues (tlestach@redhat.com)
+- rubocop: addressing various offenses (lpramuk@redhat.com)
+- 1224268 - adapt repository enablement for Sat 6.1 API changes
+  (tlestach@redhat.com)
+- since rubocop 0.27 a new cop got hired (lpramuk@redhat.com)
+- Detect broken CSV (mkollar@redhat.com)
+
 * Mon May 11 2015 Justin Sherrill <jsherril@redhat.com> 0.10.13-1
 - Update hammer_cli_import.gemspec (zleite@gmail.com)
 
