@@ -80,17 +80,16 @@ module HammerCLIImport
 
         # rely on we see only products in imported organizations
         get_cache(:products).each do |product_id, product|
-          product['product_content'].each do |rs|
-            rs_id = rs['content']['id']
-            rs_url = rs['content']['contentUrl']
+          rsets = list_server_entities(:repository_sets, {:product_id => product_id})
 
-            next if repo_set_info['set-url'] != rs_url
+          rsets.each do |rs|
+            next if repo_set_info['set-url'] != rs['contentUrl']
 
             product_org = lookup_entity_in_cache(:organizations, {'label' => product['organization']['label']})
             composite_rhcv_id = [get_original_id(:organizations, product_org['id']), channel_id]
             if enable
               # Turn on the specific repository
-              rh_repo = enable_repos(product_org, product_id, rs_id, repo_set_info, row)
+              rh_repo = enable_repos(product_org, product_id, rs['id'], repo_set_info, row)
               next if rh_repo.nil? || option_dry_run?
 
               # Finally, if requested, kick off a sync
@@ -117,7 +116,7 @@ module HammerCLIImport
               if @pm[:redhat_content_views][composite_rhcv_id]
                 delete_content_view(get_translated_id(:redhat_content_views, composite_rhcv_id), :redhat_content_views)
               end
-              disable_repos(product_org, product_id, rs_id, repo_set_info, channel_label)
+              disable_repos(product_org, product_id, rs['id'], repo_set_info, channel_label)
             end
           end
         end
