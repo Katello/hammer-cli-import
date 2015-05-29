@@ -318,7 +318,6 @@ module HammerCLIImport
               dsl += "  target => '#{a_file['symbolic_link']}',\n"
               dsl += "  ensure => 'link',\n"
               dsl += "}\n\n"
-            else
             end
             report_summary :wrote, :puppet_files
           end

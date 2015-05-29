@@ -216,7 +216,7 @@ module HammerCLIImport
 
     def split_multival(multival, convert_to_int = true, separator = ';')
       arr = (multival || '').split(separator).delete_if { |v| v == 'None' }
-      arr.map! { |x| x.to_i } if convert_to_int
+      arr.map!(&:to_i) if convert_to_int
       return arr
     end
 

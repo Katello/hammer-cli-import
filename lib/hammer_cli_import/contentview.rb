@@ -171,7 +171,7 @@ module HammerCLIImport
           unless repo_synced? repo
             warn "Repository #{repo['label']} is not (fully) synchronized. Retry once synchronization has completed."
             report_summary :skipped, :content_views
-            return
+            return nil
           end
         end
         content_view = mk_content_view_hash data, repo_ids

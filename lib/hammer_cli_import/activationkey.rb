@@ -94,6 +94,7 @@ module HammerCLIImport
           # Since we can not migrate them due to
           # bug 1126924, we skip it right at the beggining
           # of this function.
+          debug ' Red Hat Satellite Default activation keys are not supported.'
         end
         split_multival(data['child_channel_id']).each do |child_ch|
           @ak_content_views[ak['id'].to_i] << begin

@@ -171,8 +171,8 @@ module PersistentMap
     def add_checks(hash, kv_desc, map_sym)
       hash.instance_eval do
         ks, vs = kv_desc
-        @key_desc = ks.collect { |x| x.values } .flatten
-        @val_desc = vs.collect { |x| x.values } .flatten
+        @key_desc = ks.collect(&:values) .flatten
+        @val_desc = vs.collect(&:values) .flatten
         @map_sym = map_sym
       end
       class << hash
