@@ -110,7 +110,6 @@ module HammerCLIImport
                   error "#{e.http_code} trying to publish content-view #{row['channel_name']} :\n #{msg}\n"
                   next
                 end
-
               end
             else
               if @pm[:redhat_content_views][composite_rhcv_id]

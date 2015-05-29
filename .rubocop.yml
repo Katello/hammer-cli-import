@@ -29,6 +29,9 @@ LineLength:
 MethodLength:
   Max: 50
 
+ModuleLength:
+  Enabled: false
+
 Next:
   Enabled: false
 

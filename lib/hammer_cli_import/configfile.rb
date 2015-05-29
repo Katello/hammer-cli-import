@@ -370,7 +370,7 @@ module HammerCLIImport
 
           # Ask hammer repository upload to Do Its Thing
           require 'hammer_cli_katello/repository'
-          ucc = HammerCLIKatello::Repository::UploadContentCommand.new("", context)
+          ucc = HammerCLIKatello::Repository::UploadContentCommand.new('', context)
           rc = ucc.run(%W(--id #{repo['id']} --path #{built_module_path}))
 
           # If hammer fails us, record it and move on

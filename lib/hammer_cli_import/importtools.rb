@@ -45,7 +45,6 @@ module ImportTools
         last_sync_result = info['last_sync']['result'] if info['last_sync']
         return false unless (info['sync_state'] == 'finished' || last_sync_result == 'success')
 
-
         ## (Temporary) workaround for 1131954
         ## updated_at is updated after sync for some reason...
         # begin
@@ -171,7 +170,7 @@ module ImportTools
           cv_versions = []
           cvs.each do |cv_id|
             cvvs = list_server_entities(:content_view_versions, {:content_view_id => cv_id})
-            cv_versions << cvvs.collect {|cv| cv["id"]}.max
+            cv_versions << cvvs.collect { |cv| cv['id'] }.max
           end
           cv = lookup_entity_in_cache(entity_type, 'label' => cv_label)
           if cv
@@ -322,10 +321,12 @@ module ImportTools
       # so we try to delete system content views silently
       def silently(&block)
         summary_backup = @summary.clone
-        $stdout, $stderr = StringIO.new, StringIO.new
+        $stdout = StringIO.new
+        $stderr = StringIO.new
         block.call
         ensure
-          $stdout, $stderr = STDOUT, STDERR
+          $stdout = STDOUT
+          $stderr = STDERR
           @summary = summary_backup
       end
     end
