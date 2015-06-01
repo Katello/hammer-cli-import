@@ -132,21 +132,47 @@ module HammerCLIImport
         return channel_map
       end
 
+      # this way we're able to get from the server, what repositories within a repository-set are enabled
+      def find_repo_in_reposet(product_id, repo_set_id, info)
+        repos = api_call(
+          :repository_sets,
+          :available_repositories,
+          'product_id' => product_id,
+          'id' => repo_set_id)
+
+        return lookup_entity_in_array(repos['results'],
+                                      {'substitutions' => {'basearch' => info['arch'], 'releasever' => info['version']}})
+      end
+
+      # and this is quite a pain - to get real ids of the enabled repositories
+      # search according to the repository name
+      def find_enabled_repo(product_id, repo_set_id, repo_name)
+        reposet = api_call(
+          :repository_sets,
+          :show,
+          'product_id' => product_id,
+          'id' => repo_set_id)
+
+        return lookup_entity_in_array(reposet['repositories'], {'name' => repo_name})
+      end
+
       # Given a repository-set and a channel-to-repo info for that channel,
       # enable the correct repository
       def enable_repos(org, prod_id, repo_set_id, info, row)
         channel_label = row['channel_label']
         channel_id = row ['channel_id'].to_i
-        repo = lookup_entity_in_cache(
-          :redhat_repositories,
-          {
-            'content_id' => repo_set_id,
-            'organization' => {'label' => org['label']}
-          })
-        if repo
-          info "Repository #{[repo['url'], repo['label']].compact[0]} already enabled as #{repo['id']}"
-          return repo
+        repo = find_repo_in_reposet(prod_id, repo_set_id, info)
+        if repo.nil?
+          warn "Repository #{info['url']} for (#{info['arch']} x #{info['version']}) not found!"
+          return
         end
+
+        if repo['enabled']
+          enabled_repo = find_enabled_repo(prod_id, repo_set_id, repo['repo_name'])
+          info "Repository '#{repo['repo_name']}' already enabled as #{enabled_repo['id']}."
+          return lookup_entity(:redhat_repositories, enabled_repo['id'])
+        end
+
         info "Enabling #{info['url']} for channel #{channel_label} in org #{org['id']}"
         begin
           unless option_dry_run?

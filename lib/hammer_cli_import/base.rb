@@ -201,6 +201,14 @@ module HammerCLIImport
       return nil
     end
 
+    def lookup_entity_in_array(array, search_hash)
+      return nil if array.nil?
+      array.each do |entity_hash|
+        return entity_hash if _compare_hash(entity_hash, search_hash)
+      end
+      return nil
+    end
+
     def last_in_cache?(entity_type, id)
       return get_cache(entity_type).size == 1 && get_cache(entity_type).first[0] == id
     end
