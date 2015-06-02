@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.10.14
+Version:    0.10.16
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -82,6 +82,10 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Tue Jun 02 2015 Tomas Lestach <tlestach@redhat.com> 0.10.16-1
+- 1215199 - support different repository architectures within one repository
+  set (tlestach@redhat.com)
+
 * Fri May 29 2015 Tomas Lestach <tlestach@redhat.com> 0.10.14-1
 - addressing the rest of rubocop 0.31.0 issues (tlestach@redhat.com)
 - rubocop: addressing various offenses (lpramuk@redhat.com)
