@@ -103,7 +103,7 @@ module HammerCLIImport
             begin
               get_translated_id(:content_views, child_ch)
             rescue HammerCLIImport::MissingObjectError
-              error "Can't find content view ifor channel ID [#{child_ch}] for key [#{data['token']}]"
+              error "Can't find content view for channel ID [#{child_ch}] for key [#{data['token']}]"
             end
           end
         end
@@ -112,6 +112,10 @@ module HammerCLIImport
       def post_import(_csv_file)
         return unless @ak_content_views
         @ak_content_views.each do |ak_id, cvs|
+          if cvs.include? nil
+            warn "Skipping content view association for activation key [#{ak_id}]. Dependent content views not ready."
+            next
+          end
           handle_missing_and_supress "processing activation key #{ak_id}" do
             ak = lookup_entity(:activation_keys, ak_id)
             ak_cv_hash = {}
