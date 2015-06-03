@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.10.16
+Version:    0.10.17
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -82,6 +82,10 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Wed Jun 03 2015 Tomas Lestach <tlestach@redhat.com> 0.10.17-1
+- 1222448 - do not try to associate activation keys with content views that are
+  not ready yet (tlestach@redhat.com)
+
 * Tue Jun 02 2015 Tomas Lestach <tlestach@redhat.com> 0.10.16-1
 - 1215199 - support different repository architectures within one repository
   set (tlestach@redhat.com)
