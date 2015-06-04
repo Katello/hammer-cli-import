@@ -203,6 +203,22 @@ module ImportTools
         raise "delete_content_view with #{entity_type}" unless map_target_entity[entity_type] == :content_views
 
         content_view = get_cache(entity_type)[cv_id]
+        # first delete the content view from associated environments
+        cves = content_view['environments'].collect { |e| e['id'] }
+        cves.each do |cve|
+          begin
+            task = mapped_api_call(
+              entity_type,
+              :remove_from_environment,
+              {
+                :id => content_view['id'],
+                :environment_id => cve
+              })
+          rescue => e
+            warn "Failed to remove content view [#{cv_id}] from environment #{cve} with #{e.class}: #{e.message}"
+          end
+          wait_for_task(task['id'], 1, 0)
+        end
 
         if content_view['versions'] && !content_view['versions'].empty?
           cv_version_ids = content_view['versions'].collect { |v| v['id'] }
