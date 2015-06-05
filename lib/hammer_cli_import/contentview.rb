@@ -184,7 +184,7 @@ module HammerCLIImport
       def delete_single_row(data)
         cv_id = data['channel_id'].to_i
         unless @pm[:content_views][cv_id] || @pm[:redhat_content_views][cv_id] || @pm[:system_content_views][cv_id]
-          info "#{to_singular(:systems).capitalize} with id #{cv_id} wasn't imported. Skipping deletion."
+          info "#{to_singular(:content_views).capitalize} with id #{cv_id} wasn't imported. Skipping deletion."
           return
         end
         translated = get_translated_id :content_views, cv_id
