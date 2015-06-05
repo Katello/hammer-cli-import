@@ -282,7 +282,7 @@ module HammerCLIImport
       return nil
     end
 
-    def list_server_entities(entity_type, extra_hash = {})
+    def list_server_entities(entity_type, extra_hash = {}, use_cache = false)
       if @prerequisite[entity_type]
         list_server_entities(@prerequisite[entity_type]) unless @cache[@prerequisite[entity_type]]
       end
@@ -291,8 +291,17 @@ module HammerCLIImport
       results = []
 
       if !extra_hash.empty? || @prerequisite[entity_type].nil?
+        if use_cache
+          @list_cache ||= {}
+          if @list_cache[entity_type]
+            return @list_cache[entity_type][extra_hash] if @list_cache[entity_type][extra_hash]
+          else
+            @list_cache[entity_type] ||= {}
+          end
+        end
         entities = api_call(entity_type, :index, {'per_page' => 999999}.merge(extra_hash))
         results = entities['results']
+        @list_cache[entity_type][extra_hash] = results if use_cache
       elsif @prerequisite[entity_type] == :organizations
         # check only entities in imported orgs (not all of them)
         @pm[:organizations].to_hash.values.each do |org_id|

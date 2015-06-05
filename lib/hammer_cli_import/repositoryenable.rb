@@ -80,7 +80,7 @@ module HammerCLIImport
 
         # rely on we see only products in imported organizations
         get_cache(:products).each do |product_id, product|
-          rsets = list_server_entities(:repository_sets, {:product_id => product_id})
+          rsets = list_server_entities(:repository_sets, {:product_id => product_id}, true)
 
           rsets.each do |rs|
             next if repo_set_info['set-url'] != rs['contentUrl']
