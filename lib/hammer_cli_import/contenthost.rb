@@ -139,7 +139,7 @@ module HammerCLIImport
           File.join(option_export_directory, 'SPECS', "#{tar_name}.spec"), 'w') do |file|
           file.write(rpm_spec(rpm_name, version, now))
         end
-        abs_export_directory = File.absolute_path(option_export_directory)
+        abs_export_directory = File.expand_path(option_export_directory)
         progress ''
         progress 'To build the system-profile-transition rpm, run:'
         progress ''
