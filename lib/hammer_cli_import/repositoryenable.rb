@@ -83,7 +83,8 @@ module HammerCLIImport
           rsets = list_server_entities(:repository_sets, {:product_id => product_id}, true)
 
           rsets.each do |rs|
-            next if repo_set_info['set-url'] != rs['contentUrl']
+            next if repo_set_info['set-url'] != rs['contentUrl'] &&
+                    repo_set_info['set-url'].gsub('$releasever', repo_set_info['version']) != rs['contentUrl']
 
             product_org = lookup_entity_in_cache(:organizations, {'label' => product['organization']['label']})
             composite_rhcv_id = [get_original_id(:organizations, product_org['id']), channel_id]
