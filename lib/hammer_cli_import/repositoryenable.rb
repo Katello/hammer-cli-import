@@ -141,6 +141,10 @@ module HammerCLIImport
           'product_id' => product_id,
           'id' => repo_set_id)
 
+        if repos['results'][0] && repos['results'][0]['substitutions'].size == 1
+          return lookup_entity_in_array(repos['results'],
+                                        {'substitutions' => {'basearch' => info['arch']}})
+        end
         return lookup_entity_in_array(repos['results'],
                                       {'substitutions' => {'basearch' => info['arch'], 'releasever' => info['version']}})
       end
