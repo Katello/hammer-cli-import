@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.10.18
+Version:    0.10.19
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -82,6 +82,12 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Tue Jun 16 2015 Tomas Lestach <tlestach@redhat.com> 0.10.19-1
+- 1231956 - some of the available repos do not substitute $releasever
+  (tlestach@redhat.com)
+- 1231956 - $releasever needs to be substituted for some repository-sets
+  (tlestach@redhat.com)
+
 * Fri Jun 05 2015 Tomas Lestach <tlestach@redhat.com> 0.10.18-1
 - 1224268 - allow caching of non-persistent entity lists (tlestach@redhat.com)
 - 1222039 - use File.expand_path instead of File.absolute_path
