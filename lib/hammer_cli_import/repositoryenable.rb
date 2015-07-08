@@ -158,7 +158,9 @@ module HammerCLIImport
           'product_id' => product_id,
           'id' => repo_set_id)
 
-        return lookup_entity_in_array(reposet['repositories'], {'name' => repo_name})
+        enabled_repo = lookup_entity_in_array(reposet['repositories'], {'name' => repo_name})
+        info "Repository '#{repo_name}' already enabled as #{enabled_repo['id']}."
+        return lookup_entity(:redhat_repositories, enabled_repo['id'])
       end
 
       # Given a repository-set and a channel-to-repo info for that channel,
@@ -172,11 +174,7 @@ module HammerCLIImport
           return
         end
 
-        if repo['enabled']
-          enabled_repo = find_enabled_repo(prod_id, repo_set_id, repo['repo_name'])
-          info "Repository '#{repo['repo_name']}' already enabled as #{enabled_repo['id']}."
-          return lookup_entity(:redhat_repositories, enabled_repo['id'])
-        end
+        return find_enabled_repo(prod_id, repo_set_id, repo['repo_name']) if repo['enabled']
 
         info "Enabling #{info['url']} for channel #{channel_label} in org #{org['id']}"
         begin
@@ -198,6 +196,7 @@ module HammerCLIImport
         rescue RestClient::Exception  => e
           if e.http_code == 409
             info '...already enabled.'
+            return find_enabled_repo(prod_id, repo_set_id, repo['repo_name'])
           else
             error "...repository enablement failed with error '#{e.http_code}, #{e.message}' - skipping."
           end
