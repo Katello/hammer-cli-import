@@ -11,7 +11,7 @@
 %global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
 
 Name:       rubygem-%{gemname}
-Version:    0.10.19
+Version:    0.10.20
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
 
@@ -82,6 +82,14 @@ cp -pa .%{gem_dir}/* \
 %doc %{gem_dir}/doc/%{gemname}-%{version}
 
 %changelog
+* Wed Jul 08 2015 Tomas Lestach <tlestach@redhat.com> 0.10.20-1
+- 1231956 - do not set basearch/releasever if not present in substitutions for
+  repository enablement (tlestach@redhat.com)
+- 1231956 - recover even if sat6 reports untrue repository information
+  (tlestach@redhat.com)
+- Remove obsoleted file (mkollar@redhat.com)
+- Enhance README (mkollar@redhat.com)
+
 * Tue Jun 16 2015 Tomas Lestach <tlestach@redhat.com> 0.10.19-1
 - 1231956 - some of the available repos do not substitute $releasever
   (tlestach@redhat.com)
