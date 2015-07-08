@@ -184,8 +184,8 @@ module HammerCLIImport
               :enable,
               'product_id' => prod_id,
               'id' => repo_set_id,
-              'basearch' => info['arch'],
-              'releasever' => info['version'])
+              'basearch' => repo['substitutions'].key?('basearch') ? info['arch'] : '',
+              'releasever' => repo['substitutions'].key?('releasever') ? info['version'] : '')
 
             original_org_id = get_original_id(:organizations, org['id'])
             map_entity(:redhat_repositories, [original_org_id, channel_id], rc['input']['repository']['id'])
@@ -210,6 +210,9 @@ module HammerCLIImport
             'content_id' => repo_set_id,
             'organization' => {'label' => org['label']}
           })
+        # find the repo from reposet to get also the substitutions
+        # otherwise it's not possible to disable certain repositories
+        repo = find_repo_in_reposet(prod_id, repo_set_id, info) if repo
         unless repo
           error "Unknown repository (#{channel_label} equivalent) to disable."
           return
@@ -222,8 +225,8 @@ module HammerCLIImport
               :disable,
               'product_id' => prod_id,
               'id' => repo_set_id,
-              'basearch' => info['arch'],
-              'releasever' => info['version'])
+              'basearch' => repo['substitutions'].key?('basearch') ? info['arch'] : '',
+              'releasever' => repo['substitutions'].key?('releasever') ? info['version'] : '')
 
             unmap_entity(:redhat_repositories, rc['input']['repository']['id'])
             get_cache(:redhat_repositories).delete(rc['input']['repository']['id'])
