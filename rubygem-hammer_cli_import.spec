@@ -1,4 +1,4 @@
-%global gemname hammer_cli_import
+%global gem_name hammer_cli_import
 %global confdir hammer
 %if 0%{?rhel}
 %global gem_dir /usr/lib/ruby/gems/1.8
@@ -8,9 +8,7 @@
 %endif
 
 
-%global geminstdir %{gem_dir}/gems/%{gemname}-%{version}
-
-Name:       rubygem-%{gemname}
+Name:       rubygem-%{gem_name}
 Version:    0.10.20
 Release:    1%{?dist}
 Summary:    Sat5-import command plugin for the Hammer CLI
@@ -18,11 +16,7 @@ Summary:    Sat5-import command plugin for the Hammer CLI
 Group:      Development/Languages
 License:    GPLv3
 URL:        https://github.com/Katello/hammer-cli-import
-Source0:    %{gemname}-%{version}.gem
-Source1:    import.yml
-Source2:    role_map.yml
-Source3:    config_macros.yml
-Source4:    interview_answers.yml
+Source0:    %{gem_name}-%{version}.gem
 
 %if 0%{?rhel} > 6 || 0%{?fedora} > 18
 Requires: ruby(release)
@@ -38,7 +32,7 @@ BuildRequires: rubygems-devel
 %endif
 BuildRequires: ruby
 BuildArch: noarch
-Provides: rubygem(%{gemname}) = %{version}
+Provides: rubygem(%{gem_name}) = %{version}
 
 %description
 Sat5-import plugin for the Hammer CLI
@@ -60,26 +54,27 @@ gem install --local --install-dir .%{gem_dir} \
 
 %install
 mkdir -p %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import
-install -m 755 %{SOURCE1} %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import.yml
-install -m 644 %{SOURCE2} %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import/role_map.yml
-install -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import/config_macros.yml
-install -m 644 %{SOURCE4} %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import/interview_answers.yml
+install -m 755 .%{gem_instdir}/config/import.yml %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import.yml
+install -m 644 .%{gem_instdir}/config/import/role_map.yml %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import/role_map.yml
+install -m 644 .%{gem_instdir}/config/import/config_macros.yml %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import/config_macros.yml
+install -m 644 .%{gem_instdir}/config/import/interview_answers.yml %{buildroot}%{_sysconfdir}/%{confdir}/cli.modules.d/import/interview_answers.yml
 mkdir -p %{buildroot}%{gem_dir}
 cp -pa .%{gem_dir}/* \
         %{buildroot}%{gem_dir}/
 
 %files
-%dir %{geminstdir}
-%{geminstdir}/
+%dir %{gem_instdir}
+%{gem_instdir}/
 %config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/import.yml
 %config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/import/role_map.yml
 %config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/import/config_macros.yml
 %config(noreplace) %{_sysconfdir}/%{confdir}/cli.modules.d/import/interview_answers.yml
-%exclude %{gem_dir}/cache/%{gemname}-%{version}.gem
-%{gem_dir}/specifications/%{gemname}-%{version}.gemspec
+%exclude %{gem_dir}/cache/%{gem_name}-%{version}.gem
+%{gem_dir}/specifications/%{gem_name}-%{version}.gemspec
 
 %files doc
-%doc %{gem_dir}/doc/%{gemname}-%{version}
+%doc %{gem_dir}/doc/%{gem_name}-%{version}
+%doc %{gem_instdir}/config
 
 %changelog
 * Wed Jul 08 2015 Tomas Lestach <tlestach@redhat.com> 0.10.20-1

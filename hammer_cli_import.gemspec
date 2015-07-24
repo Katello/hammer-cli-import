@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.description = 'Hammer-CLI-Importer is a plugin for Hammer to import Red Hat Satellite 5 data.'
   spec.require_paths = ['lib']
 
-  spec.files = Dir['lib/**/*.rb']
+  spec.files = Dir['config/**/*', 'lib/**/*.rb']
   spec.files += ['LICENSE', 'README.md', 'channel_data_pretty.json']
   spec.test_files = []
 
