@@ -86,6 +86,9 @@ module HammerCLIImport
         owning_org = lookup_entity_in_cache(:organizations,
                                             {'id' => get_translated_id(:organizations, data['org_id'].to_i)})
         org_name = owning_org['name'].gsub(/[^0-9a-zA-Z]*/, '').downcase
+        if org_name.empty?
+          org_name = 'orgid' + owning_org['id'].to_s
+        end
         chan_name = data['channel'].gsub(/[^0-9a-zA-Z_]/, '_').downcase
         return org_name + '-' + chan_name
       end
@@ -193,6 +196,12 @@ module HammerCLIImport
       def file_data(data)
         # Everybody gets a name, which is 'path' with '/' chgd to '_'
         data['name'] = data['path'].gsub('/', '_')
+
+        # UTF8 names are Issues, for Pulp - downgrade
+        data['name'] = data['name'].gsub(/[^0-9a-zA-Z+\-\.]*/, '')
+        if data['name'].empty?
+           data['name'] = 'file_id' + data['file_id']
+        end
 
         # If we're not type='file', done - return data
         return data unless data['file_type'] == 'file'
