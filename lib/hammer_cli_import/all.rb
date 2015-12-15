@@ -31,7 +31,7 @@ module HammerCLIImport
       command_name 'all'
       desc 'Load ALL data from a specified directory that is in spacewalk-export format.'
 
-      option ['--directory'], 'DIR_PATH', 'stargate-export directory', :default => '/tmp/exports'
+      option ['--directory'], 'DIR_PATH', 'The directory where the export file was extracted', :default => '/tmp/exports'
       option ['--delete'], :flag, 'Delete entities instead of importing them', :default => false
       option ['--macro_mapping'], 'FILE', 'Mapping of Satellite-5 config-file-macros to puppet facts'
       option ['--manifest-directory'], 'DIR_PATH', 'Directory holding manifests'
