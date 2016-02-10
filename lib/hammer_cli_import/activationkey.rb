@@ -28,7 +28,7 @@ module HammerCLIImport
 
       command_name 'activation-key'
       reportname = 'activation-keys'
-      desc "Import Activation Keys (from spacewalk-report #{reportname})."
+      desc _("Import Activation Keys (from spacewalk-report %s).") % (reportname)
 
       csv_columns 'token', 'org_id', 'note', 'usage_limit', 'base_channel_id', 'child_channel_id', 'server_group_id'
 
