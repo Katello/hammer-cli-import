@@ -75,6 +75,22 @@ module HammerCLIImport
       @summary = {}
       # Initialize AsyncTaskReactor
       atr_init
+
+      server = (HammerCLI::Settings.settings[:_params] &&
+                 HammerCLI::Settings.settings[:_params][:host]) ||
+        HammerCLI::Settings.get(:foreman, :host)
+      username = (HammerCLI::Settings.settings[:_params] &&
+                   HammerCLI::Settings.settings[:_params][:username]) ||
+        HammerCLI::Settings.get(:foreman, :username)
+      password = (HammerCLI::Settings.settings[:_params] &&
+                  HammerCLI::Settings.settings[:_params][:password]) ||
+        HammerCLI::Settings.get(:foreman, :password)
+      @api = ApipieBindings::API.new({
+                                       :uri => server,
+                                       :username => username,
+                                       :password => password,
+                                       :api_version => 2
+                                     })
     end
 
     # What spacewalk-report do we expect to use for a given subcommand
@@ -427,13 +443,27 @@ module HammerCLIImport
         return get_cache(entity_type)[@pm[entity_type][original_id]]
       else
         info 'Creating new ' + type + ': ' + entity_hash.values_at(:name, :label, :login).compact[0]
-        entity_hash = {@wrap_out[entity_type] => entity_hash} if @wrap_out[entity_type]
-        debug "entity_hash: #{entity_hash.inspect}"
-        entity = mapped_api_call(entity_type, :create, entity_hash)
+        if entity_type == :systems
+          entity = @api.resource(:host_subscriptions).call(:create, entity_hash)
+          params = {
+            'id' => entity['id'],
+            'host' => {
+              'comment' => entity_hash[:description]
+            }
+          }
+          @api.resource(:hosts).call(:update, params)
+          @api.resource(:host_collections).call(:add_hosts, {
+              'id' => entity_hash[:host_collection_ids][0],
+              'host_ids' => [entity['id']]
+          })
+          entity['id'] = entity['id'].to_s
+        else
+          entity_hash = {@wrap_out[entity_type] => entity_hash} if @wrap_out[entity_type]
+          debug "entity_hash: #{entity_hash.inspect}"
+          entity = mapped_api_call(entity_type, :create, entity_hash)
+        end
         debug "created entity: #{entity.inspect}"
         entity = entity[@wrap_in[entity_type]] if @wrap_in[entity_type]
-        # workaround for Bug
-        entity['id'] = entity['uuid'] if entity_type == :systems
         @pm[entity_type][original_id] = entity['id']
         get_cache(entity_type)[entity['id']] = entity
         debug "@pm[#{entity_type}]: #{@pm[entity_type].inspect}"
