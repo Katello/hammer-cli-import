@@ -25,6 +25,7 @@ module HammerCLIImport
   class ImportCommand
     class ContentHostImportCommand < BaseCommand
       include ImportTools::ContentView::Include
+      include ImportTools::LifecycleEnvironment::Include
 
       command_name 'content-host'
       reportname = 'system-profiles'
@@ -57,13 +58,14 @@ module HammerCLIImport
         hcollections = split_multival(data['system_group_id']).collect do |sg_id|
           get_translated_id(:host_collections, sg_id)
         end
+        org_id = get_translated_id(:organizations, data['organization_id'].to_i)
         {
           :name => data['profile_name'],
-          :description => "#{data['description']}\nsat5_system_id: #{data['server_id']}",
+          :comment => "#{data['description']}\nsat5_system_id: #{data['server_id']}",
           :facts => {'release' => data['release'], 'architecture' => data['architecture']},
-          :type => 'system',
           # :guest_ids => [],
-          :organization_id => get_translated_id(:organizations, data['organization_id'].to_i),
+          :organization_id => org_id,
+          :lifecycle_environment_id => get_env(org_id)['id'],
           :content_view_id => cv_id,
           :host_collection_ids => hcollections
         }
@@ -90,7 +92,7 @@ module HammerCLIImport
         # store processed system profiles to a set according to the organization
         @map << {
           :org_id => data['organization_id'].to_i,
-          :system_id => data['server_id'].to_i,
+          :host_id => data['server_id'].to_i,
           :uuid => c_host['uuid']}
         # associate virtual guests in post_import to make sure, all the guests
         # are already imported (and known to sat6)
@@ -157,10 +159,10 @@ module HammerCLIImport
           info "#{to_singular(:systems).capitalize} with id #{profile_id} wasn't imported. Skipping deletion."
           return
         end
-        profile = get_cache(:systems)[@pm[:systems][profile_id]]
+        profile = get_cache(:systems)[@pm[:hosts][profile_id]]
         cv = get_cache(:content_views)[profile['content_view_id']]
         @composite_cvs << cv['id'] if cv['composite']
-        delete_entity_by_import_id(:systems, get_translated_id(:systems, profile_id), 'uuid')
+        delete_entity_by_import_id(:systems, get_translated_id(:hosts, profile_id), 'uuid')
       end
 
       def post_delete(_file)
