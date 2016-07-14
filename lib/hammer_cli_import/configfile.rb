@@ -136,39 +136,52 @@ module HammerCLIImport
       # inside of working-directory
       def generate_module_template_for(name)
         module_name = name
+        pwd = Dir.pwd
         Dir.chdir(option_working_directory)
         gen_cmd = "puppet module generate #{name}"
         Open3.popen3(gen_cmd) do |stdin, stdout, _stderr|
-          stdout.sync = true
-          ConfigFileImportCommand.interview_questions.each do |q|
-            rd = ''
-            until rd.include? '?'
-              rd = stdout.readline
-              #debug "Read #{rd}"
-            end
-            answer = @interview_answers[q].gsub('#{module_name}', module_name)
-            stdin.puts(answer)
-          end
-          rd = ''
           begin
+            stdout.sync = true
+            ConfigFileImportCommand.interview_questions.each do |q|
+              rd = ''
+              until rd.include? '?'
+                rd = stdout.readline
+                debug "Read #{rd}"
+              end
+              answer = @interview_answers[q].gsub('#{module_name}', module_name)
+              stdin.puts(answer)
+            end
+          rescue EOFError => e
+            debug 'Done reading'
+            break
+          end
+          begin
+            rd = ''
             rd = stdout.readline while rd
           rescue EOFError
             debug 'Done reading'
           end
         end
+        Dir.chdir(pwd)
 
         # Now that we have generated the module, add a 'description' to the
         # metadata.json file found at option_working_dir/<name>/metadata.json
         metadata_path = File.join(File.join(option_working_directory, name), 'metadata.json')
-        answer = @interview_answers['description'].gsub('#{module_name}', module_name)
-        sed_cmd = "sed -i '\/\"summary\":\/a \\ \\ \"description\": \"#{answer}\",' #{metadata_path}"
-        debug "About to issue #{sed_cmd}"
-        system sed_cmd
-        report_summary :wrote, :puppet_modules
+        if File.exist? metadata_path
+          answer = @interview_answers['description'].gsub('#{module_name}', module_name)
+          sed_cmd = "sed -i '\/\"summary\":\/a \\ \\ \"description\": \"#{answer}\",' #{metadata_path}"
+          debug "About to issue #{sed_cmd}"
+          system sed_cmd
+          report_summary :wrote, :puppet_modules
+        else
+          info "Failed puppet module #{name}: metadata.json not created"
+          report_summary :failed, :puppet_modules
+        end
       end
 
       def build_puppet_module(module_name)
         module_dir = File.join(option_working_directory, module_name)
+        return nil unless File.exist? module_dir
         Dir.chdir(module_dir)
         gen_cmd = 'puppet module build'
         Open3.popen3(gen_cmd) do |_stdin, stdout, _stderr|
@@ -284,10 +297,11 @@ module HammerCLIImport
       def export_files
         progress 'Writing converted files'
         @modules.each do |mname, files|
+          module_dir = File.join(option_working_directory, mname)
+          next unless File.exist? module_dir
           info "Found module #{mname}"
           dsl = ''
 
-          module_dir = File.join(option_working_directory, mname)
           fdir = File.join(module_dir, 'files')
           Dir.mkdir(fdir)
           tdir = File.join(module_dir, 'templates')
@@ -359,6 +373,7 @@ module HammerCLIImport
 
           # Build the puppet-module for upload
           module_dir = build_puppet_module(mname)
+          next if module_dir.nil?
 
           # Build/find the product
           product_hash = mk_product_hash(data, prod_name)
@@ -372,7 +387,7 @@ module HammerCLIImport
                                [data['org_id'].to_i, data['channel_id'].to_i])
 
           # Find the built-module .tar.gz
-          built_module_path = File.join(File.join(module_dir, 'pkg'),
+          built_module_path = File.join('pkg',
                                         "#{mname}-#{@interview_answers['version']}.tar.gz")
           info "Uploading #{built_module_path}"
 
