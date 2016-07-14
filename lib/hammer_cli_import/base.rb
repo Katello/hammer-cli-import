@@ -452,10 +452,12 @@ module HammerCLIImport
             }
           }
           @api.resource(:hosts).call(:update, params)
-          @api.resource(:host_collections).call(:add_hosts, {
-              'id' => entity_hash[:host_collection_ids][0],
-              'host_ids' => [entity['id']]
-          })
+          unless entity_hash[:host_collection_ids].empty?
+            @api.resource(:host_collections).call(:add_hosts, {
+                'id' => entity_hash[:host_collection_ids][0],
+                'host_ids' => [entity['id']]
+            })
+          end
           entity['id'] = entity['id'].to_s
         else
           entity_hash = {@wrap_out[entity_type] => entity_hash} if @wrap_out[entity_type]
