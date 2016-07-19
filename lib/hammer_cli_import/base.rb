@@ -451,7 +451,7 @@ module HammerCLIImport
               'comment' => entity_hash[:description]
             }
           }
-          @api.resource(:hosts).call(:update, params)
+          entity = @api.resource(:hosts).call(:update, params)
           unless entity_hash[:host_collection_ids].empty?
             @api.resource(:host_collections).call(:add_hosts, {
                 'id' => entity_hash[:host_collection_ids][0],

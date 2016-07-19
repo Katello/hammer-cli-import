@@ -92,8 +92,10 @@ module HammerCLIImport
         # store processed system profiles to a set according to the organization
         @map << {
           :org_id => data['organization_id'].to_i,
-          :host_id => data['server_id'].to_i,
-          :uuid => c_host['uuid']}
+          :system_id => data['server_id'].to_i,
+          :host_id => c_host['id'],
+          :uuid => c_host['subscription_facet_attributes']['uuid']
+        }
         # associate virtual guests in post_import to make sure, all the guests
         # are already imported (and known to sat6)
         @vguests[data['server_id'].to_i] = split_multival(data['virtual_guest']) if data['virtual_host'] == data['server_id']
