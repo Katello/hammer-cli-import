@@ -138,7 +138,7 @@ module HammerCLIImport
         module_name = name
         pwd = Dir.pwd
         Dir.chdir(option_working_directory)
-        gen_cmd = "puppet module generate #{name}"
+        gen_cmd = "env -i bash -l -c '/usr/bin/puppet module generate #{name}'"
         Open3.popen3(gen_cmd) do |stdin, stdout, _stderr|
           begin
             stdout.sync = true
@@ -183,7 +183,7 @@ module HammerCLIImport
         module_dir = File.join(option_working_directory, module_name)
         return nil unless File.exist? module_dir
         Dir.chdir(module_dir)
-        gen_cmd = 'puppet module build'
+        gen_cmd = 'env -i bash -l -c "puppet module build"'
         Open3.popen3(gen_cmd) do |_stdin, stdout, _stderr|
           rd = ''
           begin
