@@ -62,7 +62,7 @@ module HammerCLIImport
         :products => :organizations,
         :repositories => :organizations,
         :repository_sets => :products,
-        :systems => :organizations
+        :hosts => :organizations
       }
       # cache imported objects (created/lookuped)
       @cache = {}
@@ -338,7 +338,7 @@ module HammerCLIImport
       end
 
       results.each do |entity|
-        entity['id'] = entity['uuid'] if entity_type == :systems
+        entity['id'] = entity['id'].to_s if entity_type == :hosts
         @cache[entity_type][entity['id']] = entity
       end
     end
@@ -443,7 +443,7 @@ module HammerCLIImport
         return get_cache(entity_type)[@pm[entity_type][original_id]]
       else
         info 'Creating new ' + type + ': ' + entity_hash.values_at(:name, :label, :login).compact[0]
-        if entity_type == :systems
+        if entity_type == :hosts
           entity = @api.resource(:host_subscriptions).call(:create, entity_hash)
           params = {
             'id' => entity['id'],
