@@ -38,7 +38,7 @@ module HammerCLIImport
                   'base_channel_label'
 
       persistent_maps :organizations, :content_views, :redhat_content_views, :system_content_views,
-                      :host_collections, :systems
+                      :host_collections, :hosts
 
       option ['--export-directory'], 'DIR_PATH', 'Directory to export rpmbuild structure'
 
@@ -88,12 +88,14 @@ module HammerCLIImport
           'Composite content view for content hosts',
           cvs)
         profile = mk_profile_hash data, cv_id
-        c_host = create_entity(:systems, profile, data['server_id'].to_i)
+        c_host = create_entity(:hosts, profile, data['server_id'].to_i)
         # store processed system profiles to a set according to the organization
         @map << {
           :org_id => data['organization_id'].to_i,
-          :host_id => data['server_id'].to_i,
-          :uuid => c_host['uuid']}
+          :system_id => data['server_id'].to_i,
+          :host_id => c_host['id'],
+          :uuid => c_host['subscription_facet_attributes']['uuid']
+        }
         # associate virtual guests in post_import to make sure, all the guests
         # are already imported (and known to sat6)
         @vguests[data['server_id'].to_i] = split_multival(data['virtual_guest']) if data['virtual_host'] == data['server_id']
@@ -103,13 +105,13 @@ module HammerCLIImport
       def post_import(_file)
         @vguests.each do |system_id, guest_ids|
           handle_missing_and_supress "setting guests for #{system_id}" do
-            uuid = get_translated_id(:systems, system_id)
+            uuid = get_translated_id(:hosts, system_id)
             vguest_uuids = guest_ids.collect do |id|
-              get_translated_id(:systems, id)
+              get_translated_id(:hosts, id)
             end if guest_ids
             debug "Setting virtual guests for #{uuid}: #{vguest_uuids.inspect}"
             update_entity(
-              :systems,
+              :hosts,
               uuid,
               {:guest_ids => vguest_uuids}
             ) if uuid && vguest_uuids
@@ -155,14 +157,14 @@ module HammerCLIImport
       def delete_single_row(data)
         @composite_cvs ||= Set.new
         profile_id = data['server_id'].to_i
-        unless @pm[:systems][profile_id]
-          info "#{to_singular(:systems).capitalize} with id #{profile_id} wasn't imported. Skipping deletion."
+        unless @pm[:hosts][profile_id]
+          info "#{to_singular(:hosts).capitalize} with id #{profile_id} wasn't imported. Skipping deletion."
           return
         end
-        profile = get_cache(:systems)[@pm[:hosts][profile_id]]
+        profile = get_cache(:hosts)[@pm[:hosts][profile_id]]
         cv = get_cache(:content_views)[profile['content_view_id']]
-        @composite_cvs << cv['id'] if cv['composite']
-        delete_entity_by_import_id(:systems, get_translated_id(:hosts, profile_id), 'uuid')
+        @composite_cvs << cv['id'] if cv && cv['composite']
+        delete_entity_by_import_id(:hosts, get_translated_id(:hosts, profile_id), 'id')
       end
 
       def post_delete(_file)
