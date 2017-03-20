@@ -24,7 +24,7 @@ module PersistentMap
   class PersistentMapError < RuntimeError
   end
 
-  class << Fixnum
+  class << Integer
     def from_s(x)
       Integer(x) rescue 0
     end
@@ -42,22 +42,22 @@ module PersistentMap
       @definitions = {}
 
       [:content_views, :host_collections, :organizations, :repositories, :users].each do |symbol|
-        @definitions[symbol] = ['sat5' => Fixnum], ['sat6' => Fixnum], symbol
+        @definitions[symbol] = ['sat5' => Integer], ['sat6' => Integer], symbol
       end
 
-      @definitions[:activation_keys] = ['org_id' => String], ['sat6' => Fixnum], :activation_keys
-      @definitions[:ak_content_views] = ['ak_id' => String], ['sat6' => Fixnum], :content_views
-      @definitions[:system_content_views] = ['ch_seq' => String], ['sat6' => Fixnum], :content_views
-      @definitions[:local_repositories] = [{'org_id' => Fixnum}, {'channel_id' => Fixnum}], ['sat6' => Fixnum], :repositories
-      @definitions[:products] = [{'org_id' => Fixnum}, {'label' => String}], ['sat6' => Fixnum], :products
-      @definitions[:puppet_repositories] = [{'org_id' => Fixnum}, {'channel_id' => Fixnum}],
-                                           ['sat6' => Fixnum], :repositories
-      @definitions[:redhat_content_views] = [{'org_id' => Fixnum}, {'channel_id' => Fixnum}], ['sat6' => Fixnum],
+      @definitions[:activation_keys] = ['org_id' => String], ['sat6' => Integer], :activation_keys
+      @definitions[:ak_content_views] = ['ak_id' => String], ['sat6' => Integer], :content_views
+      @definitions[:system_content_views] = ['ch_seq' => String], ['sat6' => Integer], :content_views
+      @definitions[:local_repositories] = [{'org_id' => Integer}, {'channel_id' => Integer}], ['sat6' => Integer], :repositories
+      @definitions[:products] = [{'org_id' => Integer}, {'label' => String}], ['sat6' => Integer], :products
+      @definitions[:puppet_repositories] = [{'org_id' => Integer}, {'channel_id' => Integer}],
+                                           ['sat6' => Integer], :repositories
+      @definitions[:redhat_content_views] = [{'org_id' => Integer}, {'channel_id' => Integer}], ['sat6' => Integer],
                                             :content_views
-      @definitions[:redhat_repositories] = [{'org_id' => Fixnum}, {'channel_id' => Fixnum}], ['sat6' => Fixnum],
+      @definitions[:redhat_repositories] = [{'org_id' => Integer}, {'channel_id' => Integer}], ['sat6' => Integer],
                                            :repositories
-      @definitions[:hosts] = ['sat5' => Fixnum], ['sat6' => String], :hosts
-      @definitions[:template_snippets] = ['id' => Fixnum], ['sat6' => Fixnum], :config_templates
+      @definitions[:hosts] = ['sat5' => Integer], ['sat6' => String], :hosts
+      @definitions[:template_snippets] = ['id' => Integer], ['sat6' => Integer], :config_templates
 
       @definitions.freeze
     end
