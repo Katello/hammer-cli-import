@@ -1,3 +1,5 @@
+# WARNING: This tool is no longer actively maintained
+
 # hammer-cli-import
 
 Tool for importing data from an existing Spacewalk/Satellite system.
